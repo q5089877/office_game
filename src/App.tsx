@@ -14,7 +14,7 @@ function cn(...inputs: ClassValue[]) { return twMerge(clsx(inputs)); }
 
 const VerticalBar = ({ value, max, color, label, icon: Icon }: { value: number, max: number, color: string, label: string, icon?: any }) => (
   <div className="flex flex-col items-center gap-1 h-full group">
-    <div className="w-3 h-24 bg-stone-100 rounded-full overflow-hidden relative border border-stone-200 shadow-inner">
+    <div className="w-2.5 h-16 bg-stone-100 rounded-full overflow-hidden relative border border-stone-200 shadow-inner">
       <motion.div
         className={cn("absolute bottom-0 w-full rounded-full", color)}
         initial={{ height: 0 }}
@@ -22,8 +22,8 @@ const VerticalBar = ({ value, max, color, label, icon: Icon }: { value: number, 
         transition={{ type: "spring", stiffness: 100, damping: 20 }}
       />
     </div>
-    <span className="text-xs font-black text-stone-700 leading-none mt-1">{Math.round(value)}</span>
-    <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider group-hover:text-stone-600 transition-colors">{label}</span>
+    <span className="text-[10px] font-black text-stone-700 leading-none mt-0.5">{Math.round(value)}</span>
+    <span className="text-[9px] font-bold text-stone-400 uppercase tracking-wider group-hover:text-stone-600 transition-colors">{label}</span>
   </div>
 );
 
@@ -33,7 +33,7 @@ const PixelCharacter = ({ name, color, isSelected, bobOffset, id }: { name: stri
   const skinColor = "#fde68a";
 
   return (
-    <Group y={bobOffset}>
+    <Group y={bobOffset} scaleX={0.81} scaleY={0.81}>
       <Circle radius={15} fill="rgba(0,0,0,0.1)" scaleY={0.5} y={3} />
       <Rect width={39} height={45} fill={color} cornerRadius={6} x={-19.5} y={-45} stroke="#1a1a1a" strokeWidth={2.25} />
       <Rect width={33} height={15} fill="rgba(0,0,0,0.1)" x={-16.5} y={-18} cornerRadius={3} />
@@ -47,9 +47,9 @@ const PixelCharacter = ({ name, color, isSelected, bobOffset, id }: { name: stri
       <Rect width={1.5} height={1.5} fill="#fff" x={6} y={-36} />
       <Rect width={6} height={3} fill="#fca5a5" x={-13.5} y={-30} opacity={0.6} />
       <Rect width={6} height={3} fill="#fca5a5" x={7.5} y={-30} opacity={0.6} />
-      <Group y={18}>
-        <Rect width={60} height={21} fill="rgba(255,255,255,0.8)" x={-30} cornerRadius={6} stroke="#1a1a1a" strokeWidth={1.5} />
-        <Text text={name} fontSize={14} fill="#1a1a1a" fontStyle="bold" width={60} align="center" x={-30} y={4.5} />
+      <Group y={-61} scaleX={1.235} scaleY={1.235}>
+        <Rect width={60} height={18} fill="rgba(255,255,255,0.8)" x={-30} cornerRadius={6} stroke="#1a1a1a" strokeWidth={1.5} />
+        <Text text={name} fontSize={14} fill="#1a1a1a" fontStyle="bold" width={60} align="center" x={-30} y={2.5} />
       </Group>
       {isSelected && (
         <Group y={-22.5}>
@@ -61,7 +61,7 @@ const PixelCharacter = ({ name, color, isSelected, bobOffset, id }: { name: stri
 };
 
 const PixelCat = ({ x, y }: { x: number, y: number }) => (
-  <Group x={x * 200 + 100} y={y * 160 + 80}>
+  <Group x={x * 180 + 90} y={y * 104 + 52}>
     <Circle radius={12} fill="rgba(0,0,0,0.05)" scaleY={0.5} y={3} />
     <Rect width={27} height={21} fill="#fb923c" x={-13.5} y={-21} cornerRadius={4.5} stroke="#1a1a1a" strokeWidth={1.5} />
     <Rect width={15} height={15} fill="#fb923c" x={-21} y={-30} cornerRadius={3} stroke="#1a1a1a" strokeWidth={1.5} />
@@ -103,9 +103,9 @@ export default function App() {
     <div className="h-screen w-screen bg-[#f8fafc] text-stone-900 font-sans overflow-hidden flex flex-row selection:bg-indigo-100">
 
       {/* LEFT SIDEBAR */}
-      <aside className="w-72 bg-white border-r border-stone-200 flex flex-col p-6 z-50 shadow-[4px_0_20px_rgba(0,0,0,0.03)] shrink-0 relative">
+      <aside className="w-72 bg-white border-r border-stone-200 flex flex-col p-4 z-50 shadow-[4px_0_20px_rgba(0,0,0,0.03)] shrink-0 relative">
         {/* Profile Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-4 mb-4">
            <div className="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-100 border-2 border-white relative shrink-0">
               <Ghost size={28} />
               <span className="absolute -bottom-2 -right-2 bg-yellow-400 text-black text-xs font-black px-1.5 py-0.5 rounded-full border-2 border-white shadow-sm">
@@ -119,23 +119,23 @@ export default function App() {
         </div>
 
         {/* Vitals (HP/MP/XP) */}
-        <div className="bg-stone-50 p-5 rounded-2xl border border-stone-100 flex justify-around mb-6">
+        <div className="bg-stone-50 p-4 rounded-2xl border border-stone-100 flex justify-around mb-4">
             <VerticalBar value={player.stats.hp} max={100} color="bg-rose-500" label="HP" />
             <VerticalBar value={player.stats.mp} max={player.stats.maxMp} color="bg-cyan-500" label="MP" />
             <div className="flex flex-col items-center gap-1 h-full group">
-               <div className="w-3 h-24 bg-stone-100 rounded-full overflow-hidden relative border border-stone-200 shadow-inner">
+               <div className="w-2.5 h-16 bg-stone-100 rounded-full overflow-hidden relative border border-stone-200 shadow-inner">
                   <motion.div
                     className="absolute bottom-0 w-full bg-amber-400 rounded-full"
                     animate={{ height: `${player.stats.xp}%` }}
                   />
                </div>
-               <span className="text-xs font-black text-stone-700 leading-none mt-1">{Math.round(player.stats.xp)}</span>
-               <span className="text-[11px] font-black text-stone-400 uppercase tracking-wider group-hover:text-stone-600 transition-colors">XP</span>
+               <span className="text-[10px] font-black text-stone-700 leading-none mt-0.5">{Math.round(player.stats.xp)}</span>
+               <span className="text-[9px] font-black text-stone-400 uppercase tracking-wider group-hover:text-stone-600 transition-colors">XP</span>
             </div>
         </div>
 
         {/* Economy & Shop Toggle */}
-        <div className="mb-8 px-2 flex justify-between items-end">
+        <div className="mb-4 px-2 flex justify-between items-end">
             <div>
               <p className="text-[11px] text-stone-400 font-bold uppercase mb-1 tracking-wider">Current Savings</p>
               <p className="text-4xl font-black text-emerald-500 font-mono tracking-tighter flex items-center gap-1">
@@ -207,15 +207,15 @@ export default function App() {
 
         {/* Footer Actions */}
         <div className="mt-auto">
-             <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100 mb-4">
-                 <div className="flex justify-between items-center mb-1">
-                    <p className="text-[10px] text-indigo-400 font-black uppercase tracking-widest">今日摸魚進度</p>
-                    <p className="text-xs font-black text-indigo-600">{gameState.activityThisDay} / 3</p>
+             <div className="p-3 bg-indigo-50 rounded-xl border border-indigo-100 mb-3">
+                 <div className="flex justify-between items-center mb-1.5">
+                    <p className="text-xs text-indigo-400 font-black uppercase tracking-widest">今日摸魚進度</p>
+                    <p className="text-sm font-black text-indigo-600">{gameState.activityThisDay} / 3</p>
                  </div>
-                 <div className="h-1.5 w-full bg-indigo-100 rounded-full overflow-hidden mb-2">
-                    <motion.div
-                      className="h-full bg-indigo-500"
-                      animate={{ width: `${Math.min(100, (gameState.activityThisDay / 3) * 100)}%` }}
+                 <div className="h-1 w-full bg-indigo-100 rounded-full overflow-hidden mb-2">
+                    <motion.div 
+                      className="h-full bg-indigo-500" 
+                      animate={{ width: `${Math.min(100, (gameState.activityThisDay / 3) * 100)}%` }} 
                     />
                  </div>
                  <p className="text-sm text-indigo-700 font-bold flex items-center gap-2">
@@ -223,10 +223,10 @@ export default function App() {
                     {gameState.activityThisDay < 3 ? "請先抽牌或出牌..." : "工作進度達成！"}
                  </p>
              </div>
-             <button
-                onClick={endDay}
+             <button 
+                onClick={endDay} 
                 className={cn(
-                  "w-full py-5 rounded-xl font-black text-lg uppercase tracking-widest transition-all shadow-lg active:scale-95",
+                  "w-full py-3 rounded-xl font-black text-base uppercase tracking-widest transition-all shadow-lg active:scale-95",
                   gameState.activityThisDay < 3 ? "bg-stone-200 text-stone-400 cursor-not-allowed" : "bg-stone-900 text-white hover:bg-black hover:-translate-y-0.5"
                 )}
               >
@@ -238,8 +238,8 @@ export default function App() {
       {/* MAIN CONTENT */}
       <main className="flex-1 flex flex-col relative h-full">
         {/* Game Viewport */}
-        <div className="flex-1 bg-[#f1f5f9] relative overflow-auto flex items-center justify-center"
-             style={{ backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '100px 80px' }}>
+        <div className="flex-1 bg-[#f1f5f9] relative overflow-hidden flex items-center justify-center"
+             style={{ backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '90px 52px' }}>
 
              {/* Event Notification */}
              <AnimatePresence>
@@ -257,37 +257,37 @@ export default function App() {
              </AnimatePresence>
 
              {/* Konva Stage Container */}
-             <div className="bg-white rounded-[32px] shadow-2xl border border-stone-200/60 overflow-hidden relative">
-                 <Stage width={OFFICE_LAYOUT.width} height={OFFICE_LAYOUT.height}>
+             <div className="bg-white rounded-[32px] shadow-2xl border border-stone-200/60 overflow-hidden relative" style={{ height: '522px' }}>
+                 <Stage width={OFFICE_LAYOUT.width} height={522}>
                     <Layer>
-                       <Rect width={OFFICE_LAYOUT.width} height={OFFICE_LAYOUT.height} fill="#fff" />
-                       {[...Array(12)].map((_, i) => [...Array(10)].map((_, j) => (
-                         <Circle key={`${i}-${j}`} x={i * 100 + 50} y={j * 80 + 40} radius={1} fill="#cbd5e1" />
+                       <Rect width={OFFICE_LAYOUT.width} height={522} fill="#fff" />
+                       {[...Array(13)].map((_, i) => [...Array(11)].map((_, j) => (
+                         <Circle key={`${i}-${j}`} x={i * 90 + 45} y={j * 52 + 26} radius={1} fill="#cbd5e1" />
                        )))}
                        {OFFICE_LAYOUT.clusters.map(cluster => cluster.desks.map(desk => (
-                         <Group key={desk.id} x={desk.x * 200 + 30} y={desk.y * 160 + 25}>
-                            <Rect width={140} height={110} fill="rgba(248, 250, 252, 0.8)" stroke="#e2e8f0" strokeWidth={1.5} cornerRadius={10} />
-                            <Group x={15} y={80}>
-                               <Rect width={110} height={22} fill="rgba(255,255,255,0.8)" cornerRadius={4} />
-                               <Text text={desk.label} fontSize={14} fill="#94a3b8" fontStyle="bold" width={110} align="center" y={4} />
+                         <Group key={desk.id} x={desk.x * 180 + 36} y={desk.y * 104 + 16}>
+                            <Rect width={108} height={81} fill="rgba(248, 250, 252, 0.8)" stroke="#e2e8f0" strokeWidth={1.5} cornerRadius={10} />
+                            <Group x={9} y={50}>
+                               <Rect width={90} height={18} fill="rgba(255,255,255,0.8)" cornerRadius={4} />
+                               <Text text={desk.label} fontSize={14} fill="#94a3b8" fontStyle="bold" width={90} align="center" y={3} />
                             </Group>
                          </Group>
                        )))}
                        {OFFICE_LAYOUT.objects.map(obj => (
-                         <Group key={obj.id} x={obj.x * 200 + 50} y={obj.y * 160 + 30}>
-                            <Rect width={100} height={100} fill="rgba(241, 245, 249, 0.8)" stroke={obj.id === 'printer' ? "#fecaca" : "#dbeafe"} strokeWidth={3} cornerRadius={16} />
-                            <Text text={obj.emoji} fontSize={40} x={30} y={20} />
-                            <Group y={75}>
-                               <Rect width={100} height={22} fill="rgba(255,255,255,0.8)" cornerRadius={4} />
-                               <Text text={obj.label} fontSize={14} fill="#94a3b8" fontStyle="bold" width={100} align="center" y={4} />
+                         <Group key={obj.id} x={obj.x * 180 + 52} y={obj.y * 104 + 16}>
+                            <Rect width={76} height={76} fill="rgba(241, 245, 249, 0.8)" stroke={obj.id === 'printer' ? "#fecaca" : "#dbeafe"} strokeWidth={3} cornerRadius={16} />
+                            <Text text={obj.emoji} fontSize={32} x={24} y={13} />
+                            <Group y={50}>
+                               <Rect width={76} height={18} fill="rgba(255,255,255,0.8)" cornerRadius={4} />
+                               <Text text={obj.label} fontSize={14} fill="#94a3b8" fontStyle="bold" width={76} align="center" y={3} />
                             </Group>
                          </Group>
                        ))}
                        <Group x={gameState.bossPosition.x} y={gameState.bossPosition.y}>
-                          <Text text="👿" fontSize={50} x={-25} y={-60} />
-                          <Group y={-100}>
-                             <Rect width={80} height={30} fill="rgba(255,255,255,0.8)" x={-40} cornerRadius={8} stroke="#000" strokeWidth={2} />
-                             <Text text="抓到你囉!" fontSize={14} fill="#000" fontStyle="bold" width={80} align="center" x={-40} y={8} />
+                          <Text text="👿" fontSize={36} x={-18} y={-45} />
+                          <Group y={-81}>
+                             <Rect width={72} height={23} fill="rgba(255,255,255,0.8)" x={-36} cornerRadius={8} stroke="#000" strokeWidth={2} />
+                             <Text text="抓到你囉!" fontSize={14} fill="#000" fontStyle="bold" width={72} align="center" x={-36} y={6} />
                           </Group>
                        </Group>
                        <PixelCat x={gameState.catPosition.x} y={gameState.catPosition.y} />
@@ -297,7 +297,7 @@ export default function App() {
                            <Group key={p.id} x={p.position.x} y={p.position.y} onClick={() => setSelectedPlayerId(p.id)}>
                               <PixelCharacter id={p.id} name={p.name} color={p.id === 'player' ? "#6366f1" : "#10b981"} isSelected={selectedPlayerId === p.id} bobOffset={p.position.y % 4} />
                               {isRecentTarget && showEvent && (
-                                <Group y={-95}>
+                                <Group y={-92}>
                                    <Rect width={90} height={30} fill="rgba(255,255,255,0.8)" x={-45} cornerRadius={9} stroke="#6366f1" strokeWidth={2} shadowBlur={5} shadowColor="rgba(0,0,0,0.1)" />
                                    <Text text="摸魚中..." fontSize={12} fill="#4338ca" fontStyle="bold" width={90} align="center" x={-45} y={9} />
                                    <Rect width={9} height={9} fill="rgba(255,255,255,0.8)" x={-4.5} y={25.5} rotation={45} stroke="#6366f1" strokeWidth={2} />
@@ -313,31 +313,53 @@ export default function App() {
         </div>
 
         {/* Slacking System (Bottom Card Area) */}
-        <div className="h-56 bg-white/95 backdrop-blur-md border-t border-stone-200 flex flex-col px-8 py-4 z-40">
+        <div className="h-[200px] bg-white/95 backdrop-blur-md border-t border-stone-200 flex flex-col px-8 py-4 z-40 overflow-hidden">
             <div className="flex justify-between items-center mb-3">
                 <div className="flex items-center gap-2">
                     <Activity size={16} className="text-indigo-500" />
                     <span className="text-sm font-black text-stone-700 uppercase tracking-widest">摸魚協議 (Slacking Protocol)</span>
                 </div>
-                <span className="text-sm text-stone-400 font-bold uppercase tracking-wider">手牌: {gameState.hand.length} / 7</span>
+                <span className="text-sm text-stone-400 font-bold uppercase tracking-wider">手牌: {gameState.hand.length} / 5</span>
             </div>
 
-            <div className="flex items-center gap-6 h-full overflow-hidden">
-                {/* FIXED Draw Button */}
-                <div className="shrink-0 border-r-2 border-stone-100 pr-6 h-full flex items-center">
+            <div className="flex items-center gap-3 h-full overflow-hidden">
+                {/* FIXED Draw Button Area (Slot Style) */}
+                <div className="shrink-0 h-[126px] w-32 bg-stone-100/40 rounded-[24px] border border-stone-200/50 flex items-center justify-center relative shadow-inner mr-4 group/slot transition-colors hover:bg-stone-100/60">
+                    {/* Background Glow */}
+                    <div className="absolute inset-4 bg-indigo-500/5 blur-3xl rounded-full pointer-events-none group-hover/slot:bg-indigo-500/10 transition-all" />
+
                     <button
                         onClick={drawCard}
                         disabled={player.stats.mp <= 0}
-                        className="w-32 h-[160px] bg-indigo-600 rounded-2xl flex flex-col items-center justify-center text-white hover:bg-indigo-700 hover:-translate-y-1 transition-all shadow-xl shadow-indigo-100 disabled:opacity-50 disabled:hover:translate-y-0 shrink-0 group border-4 border-indigo-400/30"
+                        className={cn(
+                            "w-24 h-[114px] rounded-2xl flex flex-col items-center justify-between py-2.5 px-2 transition-all duration-300 relative overflow-hidden group shrink-0 shadow-lg hover:shadow-2xl hover:-translate-y-2 active:scale-95 disabled:grayscale disabled:opacity-50",
+                            player.stats.mp > 0 
+                                ? "bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-800 text-white border-t border-indigo-400/40" 
+                                : "bg-stone-200 text-stone-400 border-none"
+                        )}
                     >
-                        <PlusCircle size={40} className="mb-2 group-hover:rotate-90 transition-transform duration-300" />
-                        <span className="text-lg font-black uppercase tracking-wider">抽牌</span>
-                        <span className="text-sm opacity-80 mt-1 font-bold">1 MP</span>
+                        {/* 光澤效果飾條 */}
+                        <div className="absolute top-0 left-[-100%] w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] group-hover:left-[100%] transition-all duration-700 pointer-events-none" />
+                        
+                        <div className="flex flex-col items-center gap-2 z-10">
+                            <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/20 shadow-inner group-hover:scale-110 transition-transform">
+                                <PlusCircle size={18} className="group-hover:rotate-90 transition-transform duration-500" />
+                            </div>
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-60">Draw</span>
+                        </div>
+
+                        <div className="flex flex-col items-center z-10">
+                            <span className="text-base font-black tracking-tighter leading-none mb-2">抽牌</span>
+                            <div className="px-2 py-0.5 bg-black/20 rounded-full flex items-center gap-1 border border-white/10">
+                                <Zap size={10} className="text-yellow-400 fill-yellow-400" />
+                                <span className="text-[10px] font-bold">1 MP</span>
+                            </div>
+                        </div>
                     </button>
                 </div>
 
                 {/* SCROLLABLE Cards */}
-                <div className="flex-1 flex items-center gap-4 overflow-x-auto no-scrollbar h-full py-2">
+                <div className="flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar h-full py-2">
                     {gameState.hand.map((card, idx) => (
                        <motion.div
                          key={`${card.id}-${idx}`}
@@ -345,33 +367,33 @@ export default function App() {
                          whileHover={{ y: -12, scale: 1.05, zIndex: 10 }}
                          onClick={() => playCard(card.id, selectedPlayerId)}
                          className={cn(
-                            "w-48 h-[160px] bg-white border-2 rounded-2xl p-4 cursor-pointer flex flex-col relative shadow-md hover:shadow-2xl transition-all shrink-0",
+                            "w-44 h-[114px] bg-white border-2 rounded-2xl p-2.5 cursor-pointer flex flex-col relative shadow-md hover:shadow-2xl transition-all shrink-0",
                             card.type === CardType.PRANK ? "border-stone-200 hover:border-rose-400" : "border-stone-200 hover:border-indigo-400",
                             player.stats.mp < card.mpCost && "opacity-50 grayscale"
                          )}
                        >
-                          <div className="flex justify-between items-start mb-2">
-                              <span className={cn("text-sm font-black uppercase tracking-wider",
+                          <div className="flex justify-between items-start mb-1.5">
+                              <span className={cn("text-[11px] font-black uppercase tracking-wider",
                                   card.rarity === 'S' ? "text-amber-500" :
                                   card.rarity === 'A' ? "text-purple-500" : "text-stone-400"
                               )}>
                                   {card.rarity} 等級
                               </span>
-                              <div className={cn("px-2 py-0.5 rounded text-[11px] font-bold uppercase text-white",
+                              <div className={cn("px-2 py-0.5 rounded text-[10px] font-bold uppercase text-white",
                                   card.type === CardType.PRANK ? "bg-rose-500" : "bg-sky-500"
                               )}>
                                   {card.type}
                               </div>
                           </div>
 
-                          <h3 className="font-black text-base text-stone-900 leading-tight mb-2">{card.name}</h3>
-                          <p className="text-sm text-stone-500 font-medium leading-snug line-clamp-3">{card.description}</p>
-
-                          <div className="mt-auto flex justify-end">
-                              <span className="font-mono font-bold text-sm text-stone-500 flex items-center gap-1.5 bg-stone-50 px-2 py-1 rounded-lg">
-                                  <Zap size={14} className="text-yellow-500 fill-yellow-500" /> {card.mpCost} MP
-                              </span>
+                          <div className="flex justify-between items-center mb-1.5 gap-2">
+                              <h3 className="font-black text-sm text-stone-900 leading-tight truncate">{card.name}</h3>
+                              <div className="flex items-center gap-1 shrink-0 bg-stone-50 px-1.5 py-0.5 rounded-lg border border-stone-100">
+                                  <Zap size={10} className="text-yellow-500 fill-yellow-500" />
+                                  <span className="font-mono font-bold text-[10px] text-stone-600 leading-none">{card.mpCost}</span>
+                              </div>
                           </div>
+                          <p className="text-[11px] text-stone-500 font-medium leading-relaxed line-clamp-2">{card.description}</p>
                        </motion.div>
                     ))}
                 </div>

@@ -22,4 +22,13 @@
   .serif {
     @apply font-serif;
   }
+
+  /* 隱藏捲軸但維持捲動功能 */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }

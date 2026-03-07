@@ -1,11 +1,11 @@
 import { PlayerRole, Card, CardType } from "./types";
 
 export const OFFICE_LAYOUT = {
-  width: 1200,
-  height: 800,
+  width: 1080,
+  height: 522,
   gridSize: { x: 6, y: 5 }, // 6x5 網格
-  cellWidth: 200,
-  cellHeight: 160,
+  cellWidth: 180,
+  cellHeight: 104,
   clusters: [    {
       name: "混分區",
       desks: [

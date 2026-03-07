@@ -134,12 +134,26 @@ export function useGameEngine() {
   const drawCard = useCallback(() => {
     setManager(prev => {
       const p = prev.player as any;
-      if (p.mp <= 0 || prev.handIds.length >= 7) return prev;
+      // 改為上限 5 張
+      if (p.mp <= 0 || prev.handIds.length >= 5) return prev;
 
       const next = prev.clone();
+      
+      // 找出目前手牌中已有的卡片種類 (originalId)
+      const currentCardTypeIds = next.handIds.map(uId => uId.split('_')[0]);
+      
+      // 從卡池中過濾掉已有的種類
+      const availableTemplates = CARD_POOL.filter(c => !currentCardTypeIds.includes(c.id));
+      
+      if (availableTemplates.length === 0) {
+        next.lastEvent = "⚠️ 靈感枯竭！你已經拿到了所有種類的卡片。";
+        return next;
+      }
+
       (next.player as any).mp -= 1;
       next.activityThisDay += 1;
-      const randomTemplate = CARD_POOL[Math.floor(Math.random() * CARD_POOL.length)];
+      
+      const randomTemplate = availableTemplates[Math.floor(Math.random() * availableTemplates.length)];
       // 加入唯一後綴
       next.handIds.push(`${randomTemplate.id}_${Math.random()}`);
       next.lastEvent = `想到了一個壞點子：${randomTemplate.name}！`;
@@ -222,7 +236,7 @@ export function useGameEngine() {
         name: c.name,
         role: c.id === 'player' ? (stats.level < 3 ? PlayerRole.INTERN : stats.level < 6 ? PlayerRole.JUNIOR : PlayerRole.SENIOR) : "摸魚同事",
         stats,
-        position: { x: c.displayX * 200 + 100, y: c.displayY * 160 + 80 }
+        position: { x: c.displayX * 180 + 90, y: c.displayY * 104 + 52 }
       };
     }),
     day: manager.day, 
@@ -236,7 +250,7 @@ export function useGameEngine() {
     }),
     deck: [],
     discardPile: [],
-    bossPosition: { x: manager.boss.displayX * 200 + 100, y: manager.boss.displayY * 160 + 80 },
+    bossPosition: { x: manager.boss.displayX * 180 + 90, y: manager.boss.displayY * 104 + 52 },
     catPosition: { x: manager.cat.displayX, y: manager.cat.displayY }
   };
 
