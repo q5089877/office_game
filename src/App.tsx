@@ -3,6 +3,7 @@ import { Stage, Layer, Rect, Text, Circle, Group } from 'react-konva';
 import { useGameEngine } from './useGameEngine';
 import { CardType } from './types';
 import { OFFICE_LAYOUT } from './constants';
+import { CANVAS_CONFIG, GridCalculator } from './config/canvasConfig';
 import {
   AlertCircle, Clock, UserCircle, PlusCircle, Activity, Skull, Ghost, DollarSign, Flame, Heart, Zap, Star, Shield, Trophy, Coffee, Trash2, Smile, Sparkles, Clover, HelpCircle, Calendar
 } from 'lucide-react';
@@ -85,13 +86,16 @@ const PixelCharacter = ({ name, color, isSelected, bobOffset, id, gender }: { na
   );
 };
 
-const PixelPlant = ({ x, y }: { x: number, y: number }) => (
-  <Group x={x * 98 + 49} y={y * 85 + 42.5 + 80}>
-    <Circle radius={15} fill="rgba(0,0,0,0.05)" scaleY={0.5} y={5} />
-    <Rect width={30} height={25} fill="#78350f" x={-15} y={-20} cornerRadius={4} stroke="#1a1a1a" strokeWidth={1.5} />
-    <Text text="🪴" fontSize={28} x={-14} y={-45} />
-  </Group>
-);
+const PixelPlant = ({ x, y }: { x: number, y: number }) => {
+  const pos = GridCalculator.getPlantPosition(x, y);
+  return (
+    <Group x={pos.x} y={pos.y}>
+      <Circle radius={15} fill="rgba(0,0,0,0.05)" scaleY={0.5} y={5} />
+      <Rect width={30} height={25} fill="#78350f" x={-15} y={-20} cornerRadius={4} stroke="#1a1a1a" strokeWidth={1.5} />
+      <Text text="🪴" fontSize={28} x={-14} y={-45} />
+    </Group>
+  );
+};
 
 export default function App() {
   const { gameState, playCard, drawCard, endDay, buyItem } = useGameEngine();
@@ -105,19 +109,56 @@ export default function App() {
 
   React.useEffect(() => {
     const calculateOptimalScale = () => {
-      const availW = window.innerWidth - 288;
-      const availH = window.innerHeight - 200;
-      const newScale = Math.min(availW / 1080, availH / 660) * 0.98;
-      return newScale;
+      let availableWidth = window.innerWidth - CANVAS_CONFIG.UI.SIDEBAR_WIDTH;
+      let availableHeight = window.innerHeight - CANVAS_CONFIG.UI.BOTTOM_HEIGHT;
+
+      // 使用配置常數
+      const { BASE_WIDTH, BASE_HEIGHT } = CANVAS_CONFIG;
+      const { MIN_SCALE, MAX_SCALE, PADDING_FACTOR } = CANVAS_CONFIG.SCALE;
+
+      availableWidth = Math.max(availableWidth, BASE_WIDTH * MIN_SCALE);
+      availableHeight = Math.max(availableHeight, BASE_HEIGHT * MIN_SCALE);
+
+      const widthRatio = availableWidth / BASE_WIDTH;
+      const heightRatio = availableHeight / BASE_HEIGHT;
+
+      // 向量適應：根據寬高比調整
+      const screenAspectRatio = availableWidth / availableHeight;
+      const canvasAspectRatio = BASE_WIDTH / BASE_HEIGHT;
+
+      let rawScale;
+
+      if (screenAspectRatio > canvasAspectRatio * CANVAS_CONFIG.ASPECT_RATIO.ULTRA_WIDE_THRESHOLD) {
+        // 超寬螢幕：高度為主，寬度適應
+        rawScale = heightRatio * PADDING_FACTOR * CANVAS_CONFIG.ASPECT_RATIO.WIDE_ADJUSTMENT;
+      } else if (screenAspectRatio > canvasAspectRatio * CANVAS_CONFIG.ASPECT_RATIO.WIDE_SCREEN_THRESHOLD) {
+        // 較寬螢幕：平衡處理
+        rawScale = Math.min(widthRatio, heightRatio * CANVAS_CONFIG.ASPECT_RATIO.WIDE_ADJUSTMENT) * PADDING_FACTOR;
+      } else {
+        // 正常比例：取最小值
+        rawScale = Math.min(widthRatio, heightRatio) * PADDING_FACTOR;
+      }
+
+      // 向量縮放限制
+      const clampedScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, rawScale));
+      return Math.round(clampedScale * 100) / 100;
     };
 
+    let resizeTimeout: NodeJS.Timeout;
+
     const handleResize = () => {
-      setScale(calculateOptimalScale());
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        setScale(calculateOptimalScale());
+      }, CANVAS_CONFIG.SCALE.DEBOUNCE_MS);
     };
 
     handleResize();
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimeout);
+    };
   }, []);
 
 
@@ -520,20 +561,24 @@ export default function App() {
              {/* Konva Stage Container */}
              <div className="bg-white rounded-[32px] shadow-2xl border border-stone-200/60 overflow-hidden relative flex items-center justify-center">
                  <Stage
-                    width={1080 * scale}
-                    height={660 * scale}
+                    width={CANVAS_CONFIG.BASE_WIDTH * scale}
+                    height={CANVAS_CONFIG.BASE_HEIGHT * scale}
                     scaleX={scale}
                     scaleY={scale}
                  >
                     <Layer>
-                       <Rect width={1080} height={660} fill="#fff" />
-                       {[...Array(11)].map((_, i) => [...Array(7)].map((_, j) => (
-                         <Circle key={`${i}-${j}`} x={i * 98 + 49} y={j * 85 + 42.5 + 80} radius={1} fill="#cbd5e1" />
-                       )))}
+                       <Rect width={CANVAS_CONFIG.BASE_WIDTH} height={CANVAS_CONFIG.BASE_HEIGHT} fill="#fff" />
+                       {[...Array(CANVAS_CONFIG.GRID.COLUMNS)].map((_, i) => [...Array(CANVAS_CONFIG.GRID.ROWS)].map((_, j) => {
+                         const pos = GridCalculator.getGridPointPosition(i, j);
+                         return (
+                           <Circle key={`${i}-${j}`} x={pos.x} y={pos.y} radius={1} fill="#cbd5e1" />
+                         );
+                       }))}
                        {OFFICE_LAYOUT.clusters.map(cluster => cluster.desks.map(desk => {
                          const isPlayerDesk = desk.x === player.gridX && desk.y === player.gridY;
+                         const pos = GridCalculator.getDeskPosition(desk.x, desk.y);
                          return (
-                           <Group key={desk.id} x={desk.x * 98 + 49 - 45} y={desk.y * 85 + 8.5 + 80}>
+                           <Group key={desk.id} x={pos.x} y={pos.y}>
                               <Rect
                                 width={90} height={70}
                                 fill={isPlayerDesk ? "rgba(79, 70, 229, 0.25)" : "rgba(248, 250, 252, 0.8)"}
@@ -563,18 +608,21 @@ export default function App() {
                            </Group>
                          );
                        }))}
-                       {OFFICE_LAYOUT.objects.map(obj => (
-                         <Group key={obj.id} x={obj.x * 98 + 49 - 35} y={obj.y * 85 + 4.5 + 80}>
-                            <Rect width={70} height={70} fill="rgba(241, 245, 249, 0.8)" stroke={obj.id === 'printer' ? "#fecaca" : "#dbeafe"} strokeWidth={3} cornerRadius={16} />
-                            <Text text={obj.emoji} fontSize={32} x={20} y={13} />
-                            <Group y={50}>
-                               <Rect width={70} height={20} fill="rgba(255,255,255,0.8)" cornerRadius={4} />
-                               <Text text={obj.label} fontSize={12} fill="#94a3b8" fontStyle="bold" width={70} align="center" y={4} />
-                            </Group>
-                         </Group>
-                       ))}
+                       {OFFICE_LAYOUT.objects.map(obj => {
+                         const pos = GridCalculator.getObjectPosition(obj.x, obj.y);
+                         return (
+                           <Group key={obj.id} x={pos.x} y={pos.y}>
+                              <Rect width={70} height={70} fill="rgba(241, 245, 249, 0.8)" stroke={obj.id === 'printer' ? "#fecaca" : "#dbeafe"} strokeWidth={3} cornerRadius={16} />
+                              <Text text={obj.emoji} fontSize={32} x={20} y={13} />
+                              <Group y={50}>
+                                 <Rect width={70} height={20} fill="rgba(255,255,255,0.8)" cornerRadius={4} />
+                                 <Text text={obj.label} fontSize={12} fill="#94a3b8" fontStyle="bold" width={70} align="center" y={4} />
+                              </Group>
+                           </Group>
+                         );
+                       })}
                        <Group x={gameState.bossPosition.x} y={gameState.bossPosition.y}>
-                          <Text text="🐻" fontSize={50} x={-25} y={-60} />
+                          <Text text="🐧" fontSize={50} x={-25} y={-60} />
                           {/* 領帶裝飾 */}
                           <Rect width={8} height={12} fill="#ef4444" x={-4} y={-25} cornerRadius={2} />
 

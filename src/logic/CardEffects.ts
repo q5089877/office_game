@@ -71,10 +71,9 @@ export const CARD_EFFECT_HANDLERS: Record<string, CardEffectFn> = {
   "c16": (game, player) => {
     const door = OFFICE_LAYOUT.door;
     player.move(door.x, door.y);
-    np.charisma += 3;
+    player.charisma += 3;
     return "跑去門口幫大家拿包裹，表現得很積極！";
-    },
-    "c17": (game, player) => {
+  },    "c17": (game, player) => {
     // 門口拿外送
     player.move(OFFICE_LAYOUT.door.x, OFFICE_LAYOUT.door.y);
 

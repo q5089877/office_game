@@ -1,8 +1,8 @@
 import { PlayerRole, Card, CardType, DailyModifier, Gender } from "./types";
 
 export const OFFICE_LAYOUT = {
-  width: 1080,
-  height: 700,
+  width: 1700,
+  height: 720,
   gridSize: { x: 11, y: 7 },
   cellWidth: 98,
   cellHeight: 85,
