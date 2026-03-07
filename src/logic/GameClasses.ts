@@ -6,7 +6,7 @@ export enum EntityType {
   PLAYER = 'PLAYER',
   COLLEAGUE = 'COLLEAGUE',
   BOSS = 'BOSS',
-  CAT = 'CAT',
+  PLANT = 'PLANT',
 }
 
 export enum CardRarity {
@@ -78,14 +78,10 @@ export class Character extends BaseEntity {
   }
 
   wander() {
-    const shouldGoHome = Math.random() > 0.5;
-    if (shouldGoHome) { this.gridX = this.homeX; this.gridY = this.homeY; }
-    else {
-      const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-      const dir = directions[Math.floor(Math.random() * directions.length)];
-      this.gridX = Math.max(0, Math.min(10, this.gridX + dir[0]));
-      this.gridY = Math.max(0, Math.min(6, this.gridY + dir[1]));
-    }
+    const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+    const dir = directions[Math.floor(Math.random() * directions.length)];
+    this.gridX = Math.max(0, Math.min(10, this.gridX + dir[0]));
+    this.gridY = Math.max(0, Math.min(6, this.gridY + dir[1]));
   }
 
   move(newX: number, newY: number) { this.gridX = newX; this.gridY = newY; }
@@ -97,7 +93,6 @@ export class Character extends BaseEntity {
     c.homeX = this.homeX; 
     c.homeY = this.homeY;
     
-    // 顯式複製 RPG 數值
     const source = this as any;
     const target = c as any;
     target.xp = source.xp || 0;
@@ -114,6 +109,7 @@ export class Character extends BaseEntity {
 export class Boss extends BaseEntity {
   public gridX: number; public gridY: number;
   public displayX: number; public displayY: number;
+  public baseMoveSpeed: number = 0.05;
 
   constructor(x: number, y: number) {
     super('boss', '大老闆', EntityType.BOSS, Gender.MALE);
@@ -121,14 +117,15 @@ export class Boss extends BaseEntity {
     this.displayX = x; this.displayY = y;
   }
 
-  tick() {
-    const moveSpeed = 0.05;
+  tick(day: number = 1) {
+    const currentSpeed = 0.08 * (1 + (day - 1) * 0.1);
     const dx = this.gridX - this.displayX;
     const dy = this.gridY - this.displayY;
-    if (Math.abs(dx) > 0.01) this.displayX += dx * moveSpeed;
-    if (Math.abs(dy) > 0.01) this.displayY += dy * moveSpeed;
     
-    if (Math.abs(dx) < 0.01 && Math.random() < 0.002) {
+    if (Math.abs(dx) > 0.01) this.displayX += dx * currentSpeed;
+    if (Math.abs(dy) > 0.01) this.displayY += dy * currentSpeed;
+    
+    if (Math.abs(dx) < 0.01 && Math.abs(dy) < 0.01 && Math.random() < 0.02 * (1 + day * 0.1)) {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
       const dir = directions[Math.floor(Math.random() * directions.length)];
       this.gridX = Math.max(0, Math.min(10, this.gridX + dir[0]));
@@ -139,29 +136,20 @@ export class Boss extends BaseEntity {
   move(newX: number, newY: number) { this.gridX = newX; this.gridY = newY; }
 }
 
-export class Cat extends BaseEntity {
+export class Plant extends BaseEntity {
   public gridX: number; public gridY: number;
   public displayX: number; public displayY: number;
 
   constructor(x: number, y: number) {
-    super('cat', '主子', EntityType.CAT, Gender.FEMALE);
+    super('plant', '舒壓植栽', EntityType.PLANT, Gender.MALE);
     this.gridX = x; this.gridY = y;
     this.displayX = x; this.displayY = y;
   }
 
   tick() {
-    const moveSpeed = 0.03;
-    const dx = this.gridX - this.displayX;
-    const dy = this.gridY - this.displayY;
-    if (Math.abs(dx) > 0.01) this.displayX += dx * moveSpeed;
-    if (Math.abs(dy) > 0.01) this.displayY += dy * moveSpeed;
-
-    if (Math.abs(dx) < 0.01 && Math.random() < 0.01) {
-      const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-      const dir = directions[Math.floor(Math.random() * directions.length)];
-      this.gridX = Math.max(0, Math.min(10, this.gridX + dir[0]));
-      this.gridY = Math.max(0, Math.min(6, this.gridY + dir[1]));
-    }
+    // 植物不會移動，但可以有輕微的呼吸律動感 (透過 display 座標)
+    this.displayX = this.gridX;
+    this.displayY = this.gridY;
   }
 }
 
@@ -169,18 +157,19 @@ export class GameManager {
   public player: Character;
   public colleagues: Character[];
   public boss: Boss;
-  public cat: Cat;
+  public plant: Plant;
   public day: number = 1;
   public chaosLevel: number = 0;
   public activityThisDay: number = 0;
-  public lastEvent: string | null = "歡迎來到摸魚辦公室！主子正在巡視中。";
+  public performance: number = 0;
+  public lastEvent: string | null = "歡迎來到摸魚辦公室！新的一天開始了。";
   public handIds: string[] = []; 
 
-  constructor(player?: Character, colleagues?: Character[], boss?: Boss, cat?: Cat, day?: number, chaosLevel?: number) {
+  constructor(player?: Character, colleagues?: Character[], boss?: Boss, plant?: Plant, day?: number, chaosLevel?: number) {
     this.player = player || new Character('player', '你', EntityType.PLAYER);
     this.colleagues = colleagues || [];
     this.boss = boss || new Boss(5, 0);
-    this.cat = cat || new Cat(10, 6);
+    this.plant = plant || new Plant(10, 6);
     this.day = day || 1; 
     this.chaosLevel = chaosLevel || 0;
   }
@@ -188,34 +177,38 @@ export class GameManager {
   tick() {
     this.player.tick(16);
     this.colleagues.forEach(c => c.tick(16));
-    this.boss.tick();
-    this.cat.tick();
+    this.boss.tick(this.day);
+    this.plant.tick();
   }
 
   endDay() {
+    const summary = {
+      prevDay: this.day,
+      moneyEarned: 500 + (this.performance * 5),
+      stressChange: -20,
+      performance: this.performance,
+      wasCaught: false,
+      rank: this.performance > 100 ? 'S' : this.performance > 70 ? 'A' : 'B'
+    };
+
     this.day += 1;
     this.chaosLevel = 0;
     this.activityThisDay = 0;
-    let newEvents: string[] = [];
+    this.performance = 0;
+    
     const recovery = Math.max(20, 100 - this.player.stats.stress);
     this.player.stats.modifyEnergy(recovery);
-    this.player.stats.modifyMoney(100);
-
-    this.colleagues.forEach(c => {
-      if (c.stats.stress >= 100) {
-        newEvents.push(`${c.name} 被抓到摸魚被罵！`);
-        this.player.stats.modifyStress(15); c.stats.stress = 40;
-      }
-    });
+    this.player.stats.modifyMoney(summary.moneyEarned);
 
     const dist = Math.abs(this.player.gridX - this.boss.gridX) + Math.abs(this.player.gridY - this.boss.gridY);
     if (dist === 0) {
-      this.player.stats.modifyStress(50); this.player.stats.modifyMoney(-100);
-      newEvents.push("被老闆抓包扣薪 $100！");
+      this.player.stats.modifyStress(50); 
+      this.player.stats.modifyMoney(-300);
+      summary.moneyEarned -= 300;
+      summary.wasCaught = true;
     }
 
-    if (this.chaosLevel >= 100) { newEvents.push("辦公室太混亂，提早下班！"); this.chaosLevel = 0; }
-    if (newEvents.length > 0) this.lastEvent = newEvents.join(" | "); else this.lastEvent = null;
+    return summary;
   }
 
   clone(): GameManager {
@@ -223,16 +216,17 @@ export class GameManager {
       this.player.clone(), 
       this.colleagues.map(c => c.clone()), 
       new Boss(this.boss.gridX, this.boss.gridY), 
-      new Cat(this.cat.gridX, this.cat.gridY), 
+      new Plant(this.plant.gridX, this.plant.gridY), 
       this.day, 
       this.chaosLevel
     );
     cloned.lastEvent = this.lastEvent;
     cloned.activityThisDay = this.activityThisDay || 0;
+    cloned.performance = this.performance || 0;
     cloned.boss.displayX = this.boss.displayX; 
     cloned.boss.displayY = this.boss.displayY;
-    cloned.cat.displayX = this.cat.displayX; 
-    cloned.cat.displayY = this.cat.displayY;
+    cloned.plant.displayX = this.plant.displayX; 
+    cloned.plant.displayY = this.plant.displayY;
     cloned.handIds = [...this.handIds];
     return cloned;
   }

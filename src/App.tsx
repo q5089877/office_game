@@ -94,6 +94,8 @@ export default function App() {
   const [showShop, setShowShop] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [scale, setScale] = useState(1);
+  const [summaryData, setSummaryData] = useState<any>(null);
+  const [isChangingDay, setIsChangingDay] = useState(false);
 
   React.useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -180,6 +182,14 @@ export default function App() {
   const player = gameState.players.find(p => p.id === 'player')!;
   const isGameOver = player.stats.hp <= 0 || player.stats.savings < -500;
 
+  const startNewDay = () => {
+    setSummaryData(null);
+    setIsChangingDay(true);
+    setTimeout(() => {
+      setIsChangingDay(false);
+    }, 1000);
+  };
+
   if (isGameOver) {
     return (
       <div className="min-h-screen bg-stone-100 flex flex-col items-center justify-center text-stone-900 p-8 text-center">
@@ -192,6 +202,106 @@ export default function App() {
 
   return (
     <div className="h-screen w-screen bg-[#f8fafc] text-stone-900 font-sans overflow-hidden flex flex-row selection:bg-indigo-100">
+      <AnimatePresence>
+        {isChangingDay && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black z-[200] flex items-center justify-center"
+          >
+            <motion.h2 
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="text-white text-4xl font-black italic tracking-tighter"
+            >
+              DAY {gameState.day}
+            </motion.h2>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {summaryData && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-stone-900/60 backdrop-blur-md z-[150] flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="bg-white rounded-[32px] shadow-2xl w-full max-w-md overflow-hidden border border-stone-200"
+            >
+              <div className="bg-stone-900 p-8 text-white text-center relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+                  <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+                </div>
+                <Trophy size={48} className="mx-auto mb-4 text-yellow-400" />
+                <h2 className="text-3xl font-black uppercase tracking-tighter italic">今日結算報告</h2>
+                <p className="text-stone-400 font-bold uppercase tracking-widest text-sm mt-1">Day {summaryData.prevDay} Finished</p>
+              </div>
+
+              <div className="p-8 space-y-6">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center p-4 bg-stone-50 rounded-2xl border border-stone-100">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600">
+                        <DollarSign size={20} />
+                      </div>
+                      <span className="font-bold text-stone-600">今日薪資</span>
+                    </div>
+                    <span className="text-xl font-black text-emerald-500 font-mono">+${summaryData.moneyEarned}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center p-4 bg-stone-50 rounded-2xl border border-stone-100">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600">
+                        <Zap size={20} />
+                      </div>
+                      <span className="font-bold text-stone-600">壓力變化</span>
+                    </div>
+                    <span className="text-xl font-black text-indigo-500 font-mono">{summaryData.stressChange}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center p-4 bg-stone-50 rounded-2xl border border-stone-100">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-rose-100 rounded-xl flex items-center justify-center text-rose-600">
+                        <AlertCircle size={20} />
+                      </div>
+                      <span className="font-bold text-stone-600">老闆查勤</span>
+                    </div>
+                    <span className={cn(
+                      "text-lg font-black uppercase tracking-wider",
+                      summaryData.wasCaught ? "text-rose-500" : "text-emerald-500"
+                    )}>
+                      {summaryData.wasCaught ? "被抓到了！" : "安全過關"}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center p-4 bg-stone-50 rounded-2xl border border-stone-100">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600">
+                        <Star size={20} />
+                      </div>
+                      <span className="font-bold text-stone-600">今日績效</span>
+                    </div>
+                    <span className="text-xl font-black text-amber-500 font-mono">{summaryData.performance}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={startNewDay}
+                  className="w-full py-4 bg-stone-900 text-white rounded-2xl font-black text-lg uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95 flex items-center justify-center gap-3"
+                >
+                  迎接新的一天 <Sparkles size={20} />
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* LEFT SIDEBAR */}
       <aside className="w-72 bg-white border-r border-stone-200 flex flex-col p-4 z-50 shadow-[4px_0_20px_rgba(0,0,0,0.03)] shrink-0 relative">
@@ -357,30 +467,43 @@ export default function App() {
 
         {/* Footer Actions */}
         <div className="mt-auto">
-             <div className="p-3 bg-indigo-50 rounded-xl border border-indigo-100 mb-3">
+             <div className="p-3 bg-indigo-50 rounded-xl border border-indigo-100 mb-2">
                  <div className="flex justify-between items-center mb-1.5">
-                    <p className="text-xs text-indigo-400 font-black uppercase tracking-widest">今日摸魚進度</p>
-                    <p className="text-sm font-black text-indigo-600">{gameState.activityThisDay} / 3</p>
+                    <p className="text-xs text-indigo-400 font-black uppercase tracking-widest">今日活動進度</p>
+                    <p className="text-sm font-black text-indigo-600">{gameState.activityThisDay} / 5</p>
                  </div>
-                 <div className="h-1 w-full bg-indigo-100 rounded-full overflow-hidden mb-2">
+                 <div className="h-1 w-full bg-indigo-100 rounded-full overflow-hidden mb-1">
                     <motion.div
                       className="h-full bg-indigo-500"
-                      animate={{ width: `${Math.min(100, (gameState.activityThisDay / 3) * 100)}%` }}
+                      animate={{ width: `${Math.min(100, (gameState.activityThisDay / 5) * 100)}%` }}
                     />
                  </div>
-                 <p className="text-sm text-indigo-700 font-bold flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 bg-indigo-500 rounded-full animate-pulse"/>
-                    {gameState.activityThisDay < 3 ? "請先抽牌或出牌..." : "工作進度達成！"}
-                 </p>
+             </div>
+             <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100 mb-3">
+                 <div className="flex justify-between items-center mb-1.5">
+                    <p className="text-xs text-emerald-400 font-black uppercase tracking-widest">今日績效進度</p>
+                    <p className="text-sm font-black text-emerald-600">{gameState.performance || 0} / 50</p>
+                 </div>
+                 <div className="h-1 w-full bg-emerald-100 rounded-full overflow-hidden mb-1">
+                    <motion.div
+                      className="h-full bg-emerald-500"
+                      animate={{ width: `${Math.min(100, ((gameState.performance || 0) / 50) * 100)}%` }}
+                    />
+                 </div>
              </div>
              <button
-                onClick={endDay}
+                onClick={() => {
+                  const summary = endDay();
+                  if (summary) {
+                    setSummaryData(summary);
+                  }
+                }}
                 className={cn(
                   "w-full py-3 rounded-xl font-black text-base uppercase tracking-widest transition-all shadow-lg active:scale-95",
-                  gameState.activityThisDay < 3 ? "bg-stone-200 text-stone-400 cursor-not-allowed" : "bg-stone-900 text-white hover:bg-black hover:-translate-y-0.5"
+                  (gameState.activityThisDay < 5 || (gameState.performance || 0) < 50) ? "bg-stone-200 text-stone-400 cursor-not-allowed" : "bg-stone-900 text-white hover:bg-black hover:-translate-y-0.5"
                 )}
               >
-                {gameState.activityThisDay < 3 ? `進度不足 (${gameState.activityThisDay}/3)` : "下班"}
+                {(gameState.activityThisDay < 5 || (gameState.performance || 0) < 50) ? `門檻未達` : "下班"}
              </button>
         </div>
       </aside>
@@ -463,10 +586,12 @@ export default function App() {
                          </Group>
                        ))}
                        <Group x={gameState.bossPosition.x} y={gameState.bossPosition.y}>
-                          <Text text="👿" fontSize={36} x={-18} y={-45} />
-                          <Group y={-75}>
-                             <Rect width={72} height={23} fill="rgba(255,255,255,0.8)" x={-36} cornerRadius={8} stroke="#000" strokeWidth={2} />
-                             <Text text="抓到你囉!" fontSize={14} fill="#000" fontStyle="bold" width={72} align="center" x={-36} y={6} />
+                          <Text text="🐻" fontSize={50} x={-25} y={-60} />
+                          {/* 領帶裝飾 */}
+                          <Rect width={8} height={12} fill="#ef4444" x={-4} y={-25} cornerRadius={2} />
+                          <Group y={-100}>
+                             <Rect width={100} height={30} fill="rgba(255,255,255,0.9)" x={-50} cornerRadius={12} stroke="#f87171" strokeWidth={2} />
+                             <Text text="發現你在摸魚~" fontSize={12} fill="#991b1b" fontStyle="bold" width={100} align="center" x={-50} y={8} />
                           </Group>
                        </Group>
                        <PixelCat x={gameState.catPosition.x} y={gameState.catPosition.y} />

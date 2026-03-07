@@ -4,6 +4,9 @@ import { PlayerRole, CardType } from './types';
 import { CARD_POOL, OFFICE_LAYOUT } from './constants';
 
 export function useGameEngine() {
+  const [lastActionTime, setLastActionTime] = useState(0);
+  const ACTION_COOLDOWN = 1500;
+
   const [manager, setManager] = useState<GameManager>(() => {
     // 找出所有可用的座位
     const allDesks = OFFICE_LAYOUT.clusters.flatMap(c => c.desks);
@@ -48,6 +51,16 @@ export function useGameEngine() {
   }, []);
 
   const playCard = useCallback((uniqueCardId: string, targetPlayerId: string) => {
+    if (Date.now() - lastActionTime < ACTION_COOLDOWN) {
+      setManager(prev => {
+        const next = prev.clone();
+        next.lastEvent = "⚠️ 動作太快了，休息一下...";
+        return next;
+      });
+      return;
+    }
+    setLastActionTime(Date.now());
+
     setManager(prev => {
       const originalId = uniqueCardId.split('_')[0];
       const cardTemplate = CARD_POOL.find(c => c.id === originalId);
@@ -73,6 +86,10 @@ export function useGameEngine() {
           next.chaosLevel += cardTemplate.chaosGain || 0;
           np.xp += 15;
           next.activityThisDay += 1;
+          
+          // 根據卡片等級增加績效
+          const perfMap: any = { 'C': 10, 'B': 15, 'A': 25, 'S': 50 };
+          next.performance += perfMap[cardTemplate.rarity] || 10;
 
           let eventMsg = `使用了 [${cardTemplate.name}]！`;
           const targetIsPlayer = target.id === 'player';
@@ -167,9 +184,19 @@ export function useGameEngine() {
 
       return next;
     });
-  }, []);
+  }, [lastActionTime]);
 
   const drawCard = useCallback(() => {
+    if (Date.now() - lastActionTime < ACTION_COOLDOWN) {
+      setManager(prev => {
+        const next = prev.clone();
+        next.lastEvent = "⚠️ 動作太快了，休息一下...";
+        return next;
+      });
+      return;
+    }
+    setLastActionTime(Date.now());
+
     setManager(prev => {
       const p = prev.player as any;
       // 改為上限 5 張
@@ -197,23 +224,25 @@ export function useGameEngine() {
       next.lastEvent = `想到了一個壞點子：${randomTemplate.name}！`;
       return next;
     });
-  }, []);
+  }, [lastActionTime]);
 
   const endDay = useCallback(() => {
+    let summary: any = null;
     setManager(prev => {
       const p = prev.player as any;
-      if (prev.activityThisDay < 3 && p.mp > p.maxMp * 0.3) {
+      if (prev.activityThisDay < 5 || prev.performance < 50) {
         const next = prev.clone();
-        next.lastEvent = `⚠️ 你今天才「做了 ${prev.activityThisDay} 件事」，這樣早退會被抓的！ (至少要 3 件事或 MP 低於 30%)`;
+        next.lastEvent = `⚠️ 下班門檻未達：今日活動 ${prev.activityThisDay}/5，績效 ${prev.performance}/50`;
         return next;
       }
 
       const next = prev.clone();
-      next.endDay();
+      summary = next.endDay();
       (next.player as any).mp = (next.player as any).maxMp;
-      next.lastEvent = `🌙 第 ${next.day-1} 天結束。又是平安(混)過的一天。`;
+      next.lastEvent = `🌙 第 ${summary.prevDay} 天結束。又是平安(混)過的一天。`;
       return next;
     });
+    return summary;
   }, []);
 
   const buyItem = useCallback((itemId: string) => {
@@ -279,6 +308,7 @@ export function useGameEngine() {
       };
     }),
     day: manager.day, 
+    performance: manager.performance,
     chaosLevel: manager.chaosLevel, 
     activityThisDay: manager.activityThisDay,
     lastEvent: manager.lastEvent,
