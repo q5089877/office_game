@@ -35,6 +35,8 @@ export interface Player {
   role: string;
   stats: PlayerStats;
   gender: Gender;
+  gridX: number;
+  gridY: number;
   position: { x: number; y: number };
 }
 
@@ -56,6 +58,7 @@ export interface Card {
   chaosGain?: number;
   xpGain?: number;
   rarity: "C" | "B" | "A" | "S";
+  savingsChange?: number;
 }
 
 export interface GameState {
@@ -65,7 +68,9 @@ export interface GameState {
   deck: Card[];
   discardPile: Card[];
   bossPosition: { x: number; y: number };
-  catPosition: { x: number; y: number };
+  plantPosition: { x: number; y: number };
   chaosLevel: number;
+  performance: number;
+  activityThisDay: number;
   lastEvent: string | null;
 }

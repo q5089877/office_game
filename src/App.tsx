@@ -30,16 +30,16 @@ const VerticalBar = ({ value, max, color, label, icon: Icon, title }: { value: n
 const PixelCharacter = ({ name, color, isSelected, bobOffset, id, gender }: { name: string, color: string, isSelected: boolean, bobOffset: number, id: string, gender?: string }) => {
   const isPlayer = id === 'player';
   const isFemale = gender === 'FEMALE';
-  
+
   // 衣服顏色: 玩家固定藍色，女性粉紫色，男性綠色
   const clothesColor = isPlayer ? "#6366f1" : (isFemale ? "#ec4899" : "#10b981");
-  
+
   // 髮型強化: 女性亮棕色+長髮 (40x12)，男性深黑色+短髮 (18x9)
   const hairColor = isFemale ? "#b45309" : "#1a1a1a";
   const hairWidth = isFemale ? 12 : 9;
   const hairHeight = isFemale ? 40 : 18;
   const hairRightX = 19.5 - hairWidth;
-  
+
   const skinColor = "#fde68a";
   const blushColor = isFemale ? "#ff85a2" : "#fca5a5";
   const blushOpacity = isFemale ? 0.9 : 0.6;
@@ -76,14 +76,11 @@ const PixelCharacter = ({ name, color, isSelected, bobOffset, id, gender }: { na
   );
 };
 
-const PixelCat = ({ x, y }: { x: number, y: number }) => (
-  <Group x={x * 120 + 60} y={y * 87 + 43.5}>
-    <Circle radius={12} fill="rgba(0,0,0,0.05)" scaleY={0.5} y={3} />
-    <Rect width={27} height={21} fill="#fb923c" x={-13.5} y={-21} cornerRadius={4.5} stroke="#1a1a1a" strokeWidth={1.5} />
-    <Rect width={15} height={15} fill="#fb923c" x={-21} y={-30} cornerRadius={3} stroke="#1a1a1a" strokeWidth={1.5} />
-    <Rect width={3} height={3} fill="#1a1a1a" x={-16.5} y={-25.5} />
-    <Rect width={3} height={3} fill="#1a1a1a" x={-10.5} y={-25.5} />
-    <Text text="🐈" fontSize={18} x={9} y={-33} />
+const PixelPlant = ({ x, y }: { x: number, y: number }) => (
+  <Group x={x * 98 + 49} y={y * 85 + 42.5 + 60}>
+    <Circle radius={15} fill="rgba(0,0,0,0.05)" scaleY={0.5} y={5} />
+    <Rect width={30} height={25} fill="#78350f" x={-15} y={-20} cornerRadius={4} stroke="#1a1a1a" strokeWidth={1.5} />
+    <Text text="🪴" fontSize={28} x={-14} y={-45} />
   </Group>
 );
 
@@ -108,7 +105,7 @@ export default function App() {
       const SIDEBAR_WIDTH = 288;      // 左側邊欄寬度
       const BOTTOM_HEIGHT = 200;      // 底部區域高度
       const CANVAS_WIDTH = 1080;      // 畫布原始寬度
-      const CANVAS_HEIGHT = 600;      // 畫布原始高度
+      const CANVAS_HEIGHT = 660;      // 畫布原始高度
       const PADDING_FACTOR = 0.92;    // 緩衝係數 (稍微減小以確保邊界)
       const MIN_SCALE = 0.35;         // 最小縮放比例
       const MAX_SCALE = 1.5;          // 最大縮放比例
@@ -208,12 +205,12 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black z-[200] flex items-center justify-center"
+            className="fixed inset-0 bg-indigo-50/90 backdrop-blur-xl z-[200] flex items-center justify-center"
           >
-            <motion.h2 
+            <motion.h2
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              className="text-white text-4xl font-black italic tracking-tighter"
+              className="text-indigo-900 text-4xl font-black italic tracking-tighter"
             >
               DAY {gameState.day}
             </motion.h2>
@@ -227,50 +224,50 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-stone-900/60 backdrop-blur-md z-[150] flex items-center justify-center p-4"
+            className="fixed inset-0 bg-white/40 backdrop-blur-md z-[150] flex items-center justify-center p-4"
           >
             <motion.div
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
-              className="bg-white rounded-[32px] shadow-2xl w-full max-w-md overflow-hidden border border-stone-200"
+              className="bg-stone-50/95 backdrop-blur-xl rounded-[32px] shadow-2xl w-full max-w-md overflow-hidden border border-stone-200"
             >
-              <div className="bg-stone-900 p-8 text-white text-center relative overflow-hidden">
+              <div className="bg-white/50 p-8 text-stone-900 text-center relative overflow-hidden border-b border-stone-100">
                 <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-                  <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+                  <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #4f46e5 1px, transparent 0)', backgroundSize: '24px 24px' }} />
                 </div>
-                <Trophy size={48} className="mx-auto mb-4 text-yellow-400" />
-                <h2 className="text-3xl font-black uppercase tracking-tighter italic">今日結算報告</h2>
-                <p className="text-stone-400 font-bold uppercase tracking-widest text-sm mt-1">Day {summaryData.prevDay} Finished</p>
+                <Trophy size={48} className="mx-auto mb-4 text-yellow-500" />
+                <h2 className="text-3xl font-black uppercase tracking-tighter italic text-stone-900">今日結算報告</h2>
+                <p className="text-stone-500 font-bold uppercase tracking-widest text-sm mt-1">Day {summaryData.prevDay} Finished</p>
               </div>
 
               <div className="p-8 space-y-6">
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center p-4 bg-stone-50 rounded-2xl border border-stone-100">
+                  <div className="flex justify-between items-center p-4 bg-white/50 rounded-2xl border border-stone-100">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600">
                         <DollarSign size={20} />
                       </div>
-                      <span className="font-bold text-stone-600">今日薪資</span>
+                      <span className="font-bold text-stone-900">今日薪資</span>
                     </div>
                     <span className="text-xl font-black text-emerald-500 font-mono">+${summaryData.moneyEarned}</span>
                   </div>
 
-                  <div className="flex justify-between items-center p-4 bg-stone-50 rounded-2xl border border-stone-100">
+                  <div className="flex justify-between items-center p-4 bg-white/50 rounded-2xl border border-stone-100">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600">
                         <Zap size={20} />
                       </div>
-                      <span className="font-bold text-stone-600">壓力變化</span>
+                      <span className="font-bold text-stone-900">壓力變化</span>
                     </div>
                     <span className="text-xl font-black text-indigo-500 font-mono">{summaryData.stressChange}</span>
                   </div>
 
-                  <div className="flex justify-between items-center p-4 bg-stone-50 rounded-2xl border border-stone-100">
+                  <div className="flex justify-between items-center p-4 bg-white/50 rounded-2xl border border-stone-100">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-rose-100 rounded-xl flex items-center justify-center text-rose-600">
                         <AlertCircle size={20} />
                       </div>
-                      <span className="font-bold text-stone-600">老闆查勤</span>
+                      <span className="font-bold text-stone-900">老闆查勤</span>
                     </div>
                     <span className={cn(
                       "text-lg font-black uppercase tracking-wider",
@@ -280,12 +277,12 @@ export default function App() {
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-center p-4 bg-stone-50 rounded-2xl border border-stone-100">
+                  <div className="flex justify-between items-center p-4 bg-white/50 rounded-2xl border border-stone-100">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600">
                         <Star size={20} />
                       </div>
-                      <span className="font-bold text-stone-600">今日績效</span>
+                      <span className="font-bold text-stone-900">今日績效</span>
                     </div>
                     <span className="text-xl font-black text-amber-500 font-mono">{summaryData.performance}</span>
                   </div>
@@ -499,8 +496,10 @@ export default function App() {
                   }
                 }}
                 className={cn(
-                  "w-full py-3 rounded-xl font-black text-base uppercase tracking-widest transition-all shadow-lg active:scale-95",
-                  (gameState.activityThisDay < 5 || (gameState.performance || 0) < 50) ? "bg-stone-200 text-stone-400 cursor-not-allowed" : "bg-stone-900 text-white hover:bg-black hover:-translate-y-0.5"
+                  "w-full py-3 rounded-xl font-black text-base uppercase tracking-widest transition-all shadow-lg active:scale-95 border",
+                  (gameState.activityThisDay < 5 || (gameState.performance || 0) < 50) 
+                    ? "bg-stone-100 text-stone-400 border-stone-200 cursor-not-allowed" 
+                    : "bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100 hover:text-indigo-800 hover:-translate-y-0.5 shadow-indigo-100"
                 )}
               >
                 {(gameState.activityThisDay < 5 || (gameState.performance || 0) < 50) ? `門檻未達` : "下班"}
@@ -521,7 +520,7 @@ export default function App() {
                     initial={{ opacity: 0, y: -20, x: "-50%" }}
                     animate={{ opacity: 1, y: 0, x: "-50%" }}
                     exit={{ opacity: 0, y: -20, x: "-50%" }}
-                    className="absolute top-8 left-1/2 z-[100] bg-stone-800 text-white px-8 py-4 rounded-full shadow-2xl font-bold text-base flex items-center gap-3 border border-stone-700"
+                    className="absolute top-8 left-1/2 z-[100] bg-indigo-50/95 text-indigo-900 px-8 py-4 rounded-full shadow-2xl font-bold text-base flex items-center gap-3 border border-indigo-200 backdrop-blur-sm"
                   >
                     <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"/>
                     {gameState.lastEvent}
@@ -540,12 +539,12 @@ export default function App() {
                     <Layer>
                        <Rect width={OFFICE_LAYOUT.width} height={OFFICE_LAYOUT.height} fill="#fff" />
                        {[...Array(9)].map((_, i) => [...Array(7)].map((_, j) => (
-                         <Circle key={`${i}-${j}`} x={i * 120 + 60} y={j * 87 + 43.5} radius={1} fill="#cbd5e1" />
+                         <Circle key={`${i}-${j}`} x={i * 120 + 60} y={j * 85 + 42.5 + 60} radius={1} fill="#cbd5e1" />
                        )))}
                        {OFFICE_LAYOUT.clusters.map(cluster => cluster.desks.map(desk => {
                          const isPlayerDesk = desk.x === player.gridX && desk.y === player.gridY;
                          return (
-                           <Group key={desk.id} x={desk.x * 98 + 4} y={desk.y * 85 + 8.5}>
+                           <Group key={desk.id} x={desk.x * 98 + 4} y={desk.y * 85 + 8.5 + 60}>
                               <Rect
                                 width={90} height={70}
                                 fill={isPlayerDesk ? "rgba(79, 70, 229, 0.25)" : "rgba(248, 250, 252, 0.8)"}
@@ -576,7 +575,7 @@ export default function App() {
                          );
                        }))}
                        {OFFICE_LAYOUT.objects.map(obj => (
-                         <Group key={obj.id} x={obj.x * 98 + 14} y={obj.y * 85 + 4.5}>
+                         <Group key={obj.id} x={obj.x * 98 + 14} y={obj.y * 85 + 4.5 + 60}>
                             <Rect width={70} height={70} fill="rgba(241, 245, 249, 0.8)" stroke={obj.id === 'printer' ? "#fecaca" : "#dbeafe"} strokeWidth={3} cornerRadius={16} />
                             <Text text={obj.emoji} fontSize={32} x={20} y={13} />
                             <Group y={50}>
@@ -589,14 +588,22 @@ export default function App() {
                           <Text text="🐻" fontSize={50} x={-25} y={-60} />
                           {/* 領帶裝飾 */}
                           <Rect width={8} height={12} fill="#ef4444" x={-4} y={-25} cornerRadius={2} />
-                          <Group y={-100}>
-                             <Rect width={100} height={30} fill="rgba(255,255,255,0.9)" x={-50} cornerRadius={12} stroke="#f87171" strokeWidth={2} />
-                             <Text text="發現你在摸魚~" fontSize={12} fill="#991b1b" fontStyle="bold" width={100} align="center" x={-50} y={8} />
-                          </Group>
+
+                          {/* 只有在抓到人時才顯示氣泡 */}
+                          {gameState.players.some(p => p.id === 'player' &&
+                            Math.abs(p.position.x - gameState.bossPosition.x) < 50 &&
+                            Math.abs(p.position.y - gameState.bossPosition.y) < 40
+                          ) && (
+                            <Group y={-100}>
+                               <Rect width={100} height={30} fill="rgba(255,255,255,0.9)" x={-50} cornerRadius={12} stroke="#f87171" strokeWidth={2} />
+                               <Text text="發現你在摸魚~" fontSize={12} fill="#991b1b" fontStyle="bold" width={100} align="center" x={-50} y={8} />
+                            </Group>
+                          )}
                        </Group>
-                       <PixelCat x={gameState.catPosition.x} y={gameState.catPosition.y} />
+                       <PixelPlant x={gameState.plantPosition.x} y={gameState.plantPosition.y} />
                        {gameState.players.map((p) => {
                          const isRecentTarget = gameState.lastEvent?.includes(p.name) || (p.id === 'player' && (gameState.lastEvent?.includes("你") || gameState.lastEvent?.includes("手速") || gameState.lastEvent?.includes("戴上")));
+                         const isWatering = p.id !== 'player' && p.gridX === 10 && p.gridY === 0;
                          return (
                            <Group key={p.id} x={p.position.x} y={p.position.y} onClick={() => setSelectedPlayerId(p.id)}>
                               <PixelCharacter id={p.id} name={p.name} color={p.id === 'player' ? "#6366f1" : "#10b981"} isSelected={selectedPlayerId === p.id} bobOffset={p.position.y % 4} gender={p.gender} />
@@ -606,6 +613,14 @@ export default function App() {
                                    <Text text="摸魚中..." fontSize={12} fill="#4338ca" fontStyle="bold" width={90} align="center" x={-45} y={9} />
                                    <Rect width={9} height={9} fill="rgba(255,255,255,0.8)" x={-4.5} y={25.5} rotation={45} stroke="#6366f1" strokeWidth={2} />
                                    <Rect width={12} height={6} fill="rgba(255,255,255,0.8)" x={-6} y={22.5} />
+                                </Group>
+                              )}
+                              {isWatering && (
+                                <Group y={-85}>
+                                   <Rect width={120} height={30} fill="rgba(240, 253, 244, 0.9)" x={-60} cornerRadius={9} stroke="#22c55e" strokeWidth={2} shadowBlur={5} shadowColor="rgba(34, 197, 94, 0.2)" />
+                                   <Text text="幫植物澆水中..." fontSize={12} fill="#166534" fontStyle="bold" width={120} align="center" x={-60} y={9} />
+                                   <Rect width={9} height={9} fill="rgba(240, 253, 244, 0.9)" x={-4.5} y={25.5} rotation={45} stroke="#22c55e" strokeWidth={2} />
+                                   <Rect width={12} height={6} fill="rgba(240, 253, 244, 0.9)" x={-6} y={22.5} />
                                 </Group>
                               )}
                            </Group>

@@ -78,6 +78,14 @@ export class Character extends BaseEntity {
   }
 
   wander() {
+    // 讓 NPC 同事遊蕩時有極低機率移動到植物座標 (10, 0)
+    const isCaringPlant = this.type === EntityType.COLLEAGUE && Math.random() < 0.01;
+    if (isCaringPlant) {
+      this.gridX = 10;
+      this.gridY = 0;
+      return;
+    }
+
     const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
     const dir = directions[Math.floor(Math.random() * directions.length)];
     this.gridX = Math.max(0, Math.min(10, this.gridX + dir[0]));
@@ -169,7 +177,7 @@ export class GameManager {
     this.player = player || new Character('player', '你', EntityType.PLAYER);
     this.colleagues = colleagues || [];
     this.boss = boss || new Boss(5, 0);
-    this.plant = plant || new Plant(10, 6);
+    this.plant = plant || new Plant(10, 0);
     this.day = day || 1; 
     this.chaosLevel = chaosLevel || 0;
   }

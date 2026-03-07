@@ -123,9 +123,9 @@ export function useGameEngine() {
               next.boss.move(next.player.gridX, next.player.gridY);
               eventMsg = "老闆瞬移過來拍拍你：「我看好你喔 (眼神死)」。";
               break;
-            case "c7": // 調戲貓咪
-              next.player.move(next.cat.gridX, next.cat.gridY);
-              eventMsg = "吸貓一口，精神百倍！貓咪覺得你很煩。";
+            case "c7": // 深呼吸
+              next.player.move(next.plant.gridX, next.plant.gridY);
+              eventMsg = "對著綠色植物深呼吸，心情平靜了許多。";
               break;
             case "c10": // 廁所遁逃
               const toilet = OFFICE_LAYOUT.objects.find(o => o.id === 'toilet');
@@ -304,7 +304,9 @@ export function useGameEngine() {
         role: c.id === 'player' ? (stats.level < 3 ? PlayerRole.INTERN : stats.level < 6 ? PlayerRole.JUNIOR : PlayerRole.SENIOR) : "摸魚同事",
         stats,
         gender: c.gender,
-        position: { x: c.displayX * 98 + 49, y: c.displayY * 85 + 42.5 }
+        gridX: c.gridX,
+        gridY: c.gridY,
+        position: { x: c.displayX * 98 + 49, y: c.displayY * 85 + 42.5 + 60 }
       };
     }),
     day: manager.day, 
@@ -319,8 +321,8 @@ export function useGameEngine() {
     }),
     deck: [],
     discardPile: [],
-    bossPosition: { x: manager.boss.displayX * 98 + 49, y: manager.boss.displayY * 85 + 42.5 },
-    catPosition: { x: manager.cat.displayX, y: manager.cat.displayY }
+    bossPosition: { x: manager.boss.displayX * 98 + 49, y: manager.boss.displayY * 85 + 42.5 + 60 },
+    plantPosition: { x: manager.plant.displayX, y: manager.plant.displayY }
   };
 
   return { gameState, playCard, drawCard, endDay, buyItem };

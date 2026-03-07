@@ -3,7 +3,7 @@ import { Gender } from "./logic/GameClasses";
 
 export const OFFICE_LAYOUT = {
   width: 1080,
-  height: 600,
+  height: 660,
   gridSize: { x: 11, y: 7 }, 
   cellWidth: 98,
   cellHeight: 85,
@@ -34,12 +34,12 @@ export const OFFICE_LAYOUT = {
     {
       name: "右側島嶼",
       desks: [
-        { id: "jacky", x: 7, y: 1, label: "Jacky", owner: "jacky", gender: Gender.MALE },
-        { id: "cian", x: 7, y: 2, label: "Cian", owner: "cian", gender: Gender.MALE },
-        { id: "empty_r1", x: 7, y: 3, label: "待招募", owner: null },
-        { id: "hank", x: 8, y: 1, label: "Hank", owner: "hank", gender: Gender.MALE },
-        { id: "lance", x: 8, y: 2, label: "Lance", owner: "lance", gender: Gender.MALE },
-        { id: "empty_r2", x: 8, y: 3, label: "待招募", owner: null },
+        { id: "empty_r1", x: 7, y: 1, label: "待招募", owner: null },
+        { id: "empty_r2", x: 8, y: 1, label: "待招募", owner: null },
+        { id: "jacky", x: 7, y: 2, label: "Jacky", owner: "jacky", gender: Gender.MALE },
+        { id: "hank", x: 8, y: 2, label: "Hank", owner: "hank", gender: Gender.MALE },
+        { id: "cian", x: 7, y: 3, label: "Cian", owner: "cian", gender: Gender.MALE },
+        { id: "lance", x: 8, y: 3, label: "Lance", owner: "lance", gender: Gender.MALE },
       ]
     }
   ],  objects: [
@@ -58,7 +58,7 @@ export const CARD_POOL: Card[] = [
   { id: "c4", name: "偷喝珍奶", description: "珍珠才是本體。體力+40，壓力-10", type: CardType.SLACKING, mpCost: 0, stressChange: -10, rarity: "B" },
   { id: "c5", name: "椅子賽車", description: "喔喔喔！輪子噴火啦！混亂度+30", type: CardType.PRANK, mpCost: 20, stressChange: -5, chaosGain: 30, rarity: "B" },
   { id: "c6", name: "主管讚賞", description: "老闆瞬移過來拍拍你。壓力-30，獎金+1000", type: CardType.SLACKING, mpCost: 0, stressChange: -30, savingsChange: 1000, rarity: "A" },
-  { id: "c7", name: "調戲貓咪", description: "吸貓一口，精神百倍。壓力-50，混亂度+10", type: CardType.GOSSIP, mpCost: 10, stressChange: -50, chaosGain: 10, rarity: "S" },
+  { id: "c7", name: "深呼吸", description: "對著綠色植物深呼吸。壓力-50，混亂度-5", type: CardType.GOSSIP, mpCost: 10, stressChange: -50, chaosGain: -5, rarity: "S" },
   { id: "c10", name: "廁所遁逃", description: "進入薪水傳送門。體力+30，壓力-20", type: CardType.SLACKING, mpCost: 0, stressChange: -20, rarity: "C" },
   { id: "c11", name: "閃現走位", description: "殘影閃現！躲避追擊。", type: CardType.ESCAPE, mpCost: 10, stressChange: 5, rarity: "B" },
   { id: "c12", name: "無情甩鍋", description: "「這不是我負責的」。自己壓力-15，目標壓力+30", type: CardType.PRANK, mpCost: 15, stressChange: 30, rarity: "B" },
