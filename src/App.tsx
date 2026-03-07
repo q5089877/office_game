@@ -76,6 +76,20 @@ export default function App() {
   const [selectedPlayerId, setSelectedPlayerId] = useState('player');
   const [showEvent, setShowEvent] = useState(false);
   const [showShop, setShowShop] = useState(false);
+  const [scale, setScale] = useState(1);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      const availableWidth = window.innerWidth - 288;
+      const availableHeight = window.innerHeight - 200;
+      const newScale = Math.min(availableWidth / 1080, availableHeight / 600) * 0.95;
+      setScale(newScale);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   React.useEffect(() => {
     if (gameState.lastEvent) {
@@ -257,10 +271,15 @@ export default function App() {
              </AnimatePresence>
 
              {/* Konva Stage Container */}
-             <div className="bg-white rounded-[32px] shadow-2xl border border-stone-200/60 overflow-hidden relative" style={{ height: '609px' }}>
-                 <Stage width={OFFICE_LAYOUT.width} height={609}>
+             <div className="bg-white rounded-[32px] shadow-2xl border border-stone-200/60 overflow-hidden relative flex items-center justify-center">
+                 <Stage 
+                    width={OFFICE_LAYOUT.width * scale} 
+                    height={OFFICE_LAYOUT.height * scale} 
+                    scaleX={scale} 
+                    scaleY={scale}
+                 >
                     <Layer>
-                       <Rect width={OFFICE_LAYOUT.width} height={609} fill="#fff" />
+                       <Rect width={OFFICE_LAYOUT.width} height={OFFICE_LAYOUT.height} fill="#fff" />
                        {[...Array(9)].map((_, i) => [...Array(7)].map((_, j) => (
                          <Circle key={`${i}-${j}`} x={i * 120 + 60} y={j * 87 + 43.5} radius={1} fill="#cbd5e1" />
                        )))}
