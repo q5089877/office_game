@@ -4,7 +4,7 @@ import { useGameEngine } from './useGameEngine';
 import { CardType } from './types';
 import { OFFICE_LAYOUT } from './constants';
 import {
-  AlertCircle, Clock, UserCircle, PlusCircle, Activity, Skull, Ghost, DollarSign, Flame, Heart, Zap, Star, Shield, Trophy, Coffee, Trash2, Smile, Sparkles, Clover, HelpCircle
+  AlertCircle, Clock, UserCircle, PlusCircle, Activity, Skull, Ghost, DollarSign, Flame, Heart, Zap, Star, Shield, Trophy, Coffee, Trash2, Smile, Sparkles, Clover, HelpCircle, Calendar
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
@@ -12,7 +12,16 @@ import { twMerge } from 'tailwind-merge';
 
 function cn(...inputs: ClassValue[]) { return twMerge(clsx(inputs)); }
 
-const VerticalBar = ({ value, max, color, label, icon: Icon, title }: { value: number, max: number, color: string, label: string, icon?: any, title?: string }) => (
+interface DaySummary {
+  prevDay: number;
+  moneyEarned: number;
+  stressChange: number;
+  performance: number;
+  wasCaught: boolean;
+  rank: string;
+}
+
+const VerticalBar = ({ value, max, color, label, icon: Icon, title }: { value: number, max: number, color: string, label: string, icon?: React.ElementType, title?: string }) => (
   <div className="flex flex-col items-center gap-1 h-full group" title={title}>
     <div className="w-2.5 h-16 bg-stone-100 rounded-full overflow-hidden relative border border-stone-200 shadow-inner">
       <motion.div
@@ -91,7 +100,7 @@ export default function App() {
   const [showShop, setShowShop] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [scale, setScale] = useState(1);
-  const [summaryData, setSummaryData] = useState<any>(null);
+  const [summaryData, setSummaryData] = useState<DaySummary | null>(null);
   const [isChangingDay, setIsChangingDay] = useState(false);
 
   React.useEffect(() => {
@@ -288,6 +297,24 @@ export default function App() {
                   </div>
                 </div>
 
+                <div className="p-4 bg-stone-100/50 rounded-2xl border border-stone-100 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Sparkles size={16} className="text-indigo-500" />
+                    <span className="text-xs font-black text-stone-500 uppercase tracking-widest">明日預告</span>
+                  </div>
+                  <div className={cn(
+                    "p-3 rounded-xl border flex flex-col gap-1",
+                    gameState.currentEvent.id === 'deadline' ? "bg-rose-50 border-rose-200 text-rose-700" :
+                    gameState.currentEvent.id === 'friday' ? "bg-emerald-50 border-emerald-200 text-emerald-700" :
+                    gameState.currentEvent.id === 'coffee_broken' ? "bg-amber-50 border-amber-200 text-amber-700" :
+                    gameState.currentEvent.id === 'boss_meeting' ? "bg-indigo-50 border-indigo-200 text-indigo-700" :
+                    "bg-white border-stone-200 text-stone-700"
+                  )}>
+                    <p className="font-black text-base">{gameState.currentEvent.name}</p>
+                    <p className="text-xs font-bold opacity-80">{gameState.currentEvent.description}</p>
+                  </div>
+                </div>
+
                 <button
                   onClick={startNewDay}
                   className="w-full py-4 bg-stone-900 text-white rounded-2xl font-black text-lg uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95 flex items-center justify-center gap-3"
@@ -314,6 +341,23 @@ export default function App() {
               <h1 className="font-black text-xl uppercase italic tracking-tighter text-stone-800 leading-none mb-1">Pixel Thief</h1>
               <p className="text-xs font-bold text-stone-400 uppercase tracking-widest truncate">{player.role}</p>
            </div>
+        </div>
+
+        {/* Daily Event */}
+        <div className={cn(
+          "mb-4 p-3 rounded-2xl border-2 flex flex-col gap-1 shadow-sm",
+          gameState.currentEvent.id === 'deadline' ? "bg-rose-50 border-rose-100 text-rose-900" :
+          gameState.currentEvent.id === 'friday' ? "bg-emerald-50 border-emerald-100 text-emerald-900" :
+          gameState.currentEvent.id === 'coffee_broken' ? "bg-amber-50 border-amber-100 text-amber-900" :
+          gameState.currentEvent.id === 'boss_meeting' ? "bg-indigo-50 border-indigo-100 text-indigo-900" :
+          "bg-stone-50 border-stone-100 text-stone-900"
+        )}>
+          <div className="flex items-center gap-2 mb-0.5">
+            <Calendar size={14} className="opacity-60" />
+            <span className="text-[10px] font-black uppercase tracking-widest opacity-60">今日事件</span>
+          </div>
+          <p className="font-black text-sm">{gameState.currentEvent.name}</p>
+          <p className="text-[10px] font-bold opacity-70 leading-tight">{gameState.currentEvent.description}</p>
         </div>
 
         {/* Vitals (HP/MP/XP) */}

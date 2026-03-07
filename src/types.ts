@@ -9,7 +9,7 @@ export enum EntityType {
   PLAYER = 'PLAYER',
   COLLEAGUE = 'COLLEAGUE',
   BOSS = 'BOSS',
-  CAT = 'CAT',
+  PLANT = 'PLANT',
 }
 
 export enum Gender {
@@ -35,10 +35,10 @@ export interface Player {
   role: string;
   stats: PlayerStats;
   gender: Gender;
-  gridX: number;
-  gridY: number;
   chatMessage: string | null;
   position: { x: number; y: number };
+  gridX: number;
+  gridY: number;
 }
 
 export enum CardType {
@@ -46,6 +46,16 @@ export enum CardType {
   SLACKING = "摸魚",
   ESCAPE = "逃避",
   GOSSIP = "八卦",
+}
+
+// 每日隨機事件定義
+export interface DailyModifier {
+  id: string;
+  name: string;
+  description: string;
+  stressMult: number; // 壓力增長倍率
+  mpCostMod: number;  // MP 消耗修正
+  bossSpeedMult: number; // 老闆速度倍率
 }
 
 export interface Card {
@@ -58,8 +68,8 @@ export interface Card {
   stressChange: number;
   chaosGain?: number;
   xpGain?: number;
-  rarity: "C" | "B" | "A" | "S";
   savingsChange?: number;
+  rarity: "C" | "B" | "A" | "S";
 }
 
 export interface GameState {
@@ -71,7 +81,15 @@ export interface GameState {
   bossPosition: { x: number; y: number };
   plantPosition: { x: number; y: number };
   chaosLevel: number;
-  performance: number;
   activityThisDay: number;
+  performance: number;
   lastEvent: string | null;
+  currentEvent: {
+    id: string;
+    name: string;
+    description: string;
+    stressMult: number;
+    mpCostMod: number;
+    bossSpeedMult: number;
+  };
 }

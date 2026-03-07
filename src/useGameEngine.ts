@@ -1,7 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
-import { GameManager, Character, EntityType, Stats, Gender } from './logic/GameClasses';
-import { PlayerRole, CardType } from './types';
+import { GameManager, Character, Stats } from './logic/GameClasses';
+import { PlayerRole, CardType, Gender, EntityType } from './types';
 import { CARD_POOL, OFFICE_LAYOUT } from './constants';
+import { CARD_EFFECT_HANDLERS } from './logic/CardEffects';
 
 export function useGameEngine() {
   const [lastActionTime, setLastActionTime] = useState(0);
@@ -11,18 +12,18 @@ export function useGameEngine() {
     // 找出所有可用的座位
     const allDesks = OFFICE_LAYOUT.clusters.flatMap(c => c.desks);
     const availableDesks = allDesks.filter(d => d.owner === null);
-    
+
     // 隨機選一個空位作為玩家座位
     const randomIdx = Math.floor(Math.random() * availableDesks.length);
     const playerDesk = availableDesks[randomIdx];
-    
+
     const player = new Character('player', '新進員工', EntityType.PLAYER, new Stats(100, 0, 1000, 100), playerDesk.x, playerDesk.y, Gender.MALE);
-    (player as any).xp = 0;
-    (player as any).level = 1;
-    (player as any).mp = 100;
-    (player as any).maxMp = 100;
-    (player as any).luck = 5;
-    (player as any).charisma = 10;
+    player.xp = 0;
+    player.level = 1;
+    player.mp = 100;
+    player.maxMp = 100;
+    player.luck = 5;
+    player.charisma = 10;
 
     const colleagues: Character[] = [];
     OFFICE_LAYOUT.clusters.forEach(cluster => {
@@ -64,19 +65,22 @@ export function useGameEngine() {
     setManager(prev => {
       const originalId = uniqueCardId.split('_')[0];
       const cardTemplate = CARD_POOL.find(c => c.id === originalId);
-      const p = prev.player as any;
+      const p = prev.player;
+      const currentEvent = prev.currentEvent;
 
       if (!cardTemplate) return prev;
-      
-      if (p.mp < cardTemplate.mpCost) {
+
+      const actualCost = cardTemplate.mpCost + currentEvent.mpCostMod;
+
+      if (p.mp < actualCost) {
         const next = prev.clone();
-        next.lastEvent = `⚠️ 摸魚值不足！需要 ${cardTemplate.mpCost} MP，但你只有 ${p.mp} MP。`;
+        next.lastEvent = `⚠️ MP 不足！需要 ${actualCost} MP，但你只有 ${p.mp} MP。`;
         return next;
       }
 
       const next = prev.clone();
-      const np = next.player as any;
-      np.mp -= cardTemplate.mpCost;
+      const np = next.player;
+      np.mp -= actualCost;
 
       const target = next.player.id === targetPlayerId ? next.player : next.colleagues.find(c => c.id === targetPlayerId);
       if (target) {
@@ -86,89 +90,13 @@ export function useGameEngine() {
           next.chaosLevel += cardTemplate.chaosGain || 0;
           np.xp += 15;
           next.activityThisDay += 1;
-          
+
           // 根據卡片等級增加績效
-          const perfMap: any = { 'C': 10, 'B': 15, 'A': 25, 'S': 50 };
+          const perfMap: Record<string, number> = { 'C': 10, 'B': 15, 'A': 25, 'S': 50 };
           next.performance += perfMap[cardTemplate.rarity] || 10;
 
-          let eventMsg = `使用了 [${cardTemplate.name}]！`;
-          const targetIsPlayer = target.id === 'player';
-
-          // 增加角色互動邏輯：讓卡片效果具象化
-          switch (originalId) {
-            case "c1": // Alt-Tab
-              eventMsg = "手速爆發！老闆完全沒發現你在看動畫。";
-              break;
-            case "c2": // 偽裝 Meeting
-              eventMsg = "戴上耳機，全世界都以為你在開會 (其實在睡覺)。";
-              break;
-            case "c3": // 傳播八卦
-              if (!targetIsPlayer) {
-                next.player.move(target.gridX, target.gridY);
-                eventMsg = `你湊到 ${target.name} 耳邊說：「聽說老闆其實...」`;
-              }
-              break;
-            case "c4": // 偷喝珍奶
-              const vending = OFFICE_LAYOUT.objects.find(o => o.id === 'vending');
-              if (vending) next.player.move(vending.x, vending.y);
-              eventMsg = "咕嚕咕嚕... 珍珠才是本體！";
-              break;
-            case "c5": // 椅子賽車
-              const rx = Math.floor(Math.random() * OFFICE_LAYOUT.gridSize.x);
-              const ry = Math.floor(Math.random() * OFFICE_LAYOUT.gridSize.y);
-              next.player.move(rx, ry);
-              eventMsg = "喔喔喔喔！椅子輪子噴火啦！";
-              break;
-            case "c6": // 主管讚賞
-              next.boss.move(next.player.gridX, next.player.gridY);
-              eventMsg = "老闆瞬移過來拍拍你：「我看好你喔 (眼神死)」。";
-              break;
-            case "c7": // 深呼吸
-              next.player.move(next.plant.gridX, next.plant.gridY);
-              eventMsg = "對著綠色植物深呼吸，心情平靜了許多。";
-              break;
-            case "c10": // 廁所遁逃
-              const toilet = OFFICE_LAYOUT.objects.find(o => o.id === 'toilet');
-              if (toilet) next.player.move(toilet.x, toilet.y);
-              eventMsg = "進入薪水傳送門 (廁所)，開始滑手機...。";
-              break;
-            case "c11": // 閃現走位
-              const dir = [[0,1],[0,-1],[1,0],[-1,0]][Math.floor(Math.random()*4)];
-              next.player.move(Math.max(0,Math.min(10,next.player.gridX+dir[0])), Math.max(0,Math.min(6,next.player.gridY+dir[1])));
-              eventMsg = "殘影閃現！同事以為見鬼了。";
-              break;
-            case "c12": // 無情甩鍋
-              if (!targetIsPlayer) {
-                next.player.stats.modifyStress(-15);
-                eventMsg = `你把報告丟給 ${target.name}：「這部分你比較熟」。`;
-              }
-              break;
-            case "c13": // 請喝咖啡
-              if (!targetIsPlayer) {
-                np.charisma += 5;
-                eventMsg = `你請 ${target.name} 喝星 X 克，關係變好了！`;
-              }
-              break;
-            case "c14": // 滑鼠貼膠帶
-              if (!targetIsPlayer) {
-                eventMsg = `你偷偷在 ${target.name} 的滑鼠感應器貼了膠帶。嘿嘿！`;
-              }
-              break;
-            case "c15": // 背後突襲
-              if (!targetIsPlayer) {
-                const rx = Math.floor(Math.random() * OFFICE_LAYOUT.gridSize.x);
-                const ry = Math.floor(Math.random() * OFFICE_LAYOUT.gridSize.y);
-                target.move(rx, ry);
-                eventMsg = `你突然在 ${target.name} 背後大喊，他嚇到整個人彈飛了！`;
-              }
-              break;
-            case "c16": // 代領包裹
-              const door = OFFICE_LAYOUT.door;
-              next.player.move(door.x, door.y);
-              np.charisma += 3;
-              eventMsg = "跑去門口幫大家拿包裹，表現得很積極！";
-              break;
-          }
+          const handler = CARD_EFFECT_HANDLERS[originalId];
+          let eventMsg = handler ? handler(next, np, target, originalId) : `使用了 [${cardTemplate.name}]！`;
 
           if (np.xp >= 100) {
               np.xp = 0; np.level += 1; np.maxMp += 1; np.mp = np.maxMp;
@@ -198,26 +126,34 @@ export function useGameEngine() {
     setLastActionTime(Date.now());
 
     setManager(prev => {
-      const p = prev.player as any;
+      const p = prev.player;
+      const currentEvent = prev.currentEvent;
+      const actualDrawCost = 1 + currentEvent.mpCostMod;
+
       // 改為上限 5 張
-      if (p.mp <= 0 || prev.handIds.length >= 5) return prev;
+      if (p.mp < actualDrawCost || prev.handIds.length >= 5) {
+        if (prev.handIds.length >= 5) return prev;
+        const next = prev.clone();
+        next.lastEvent = `⚠️ MP 不足！抽牌需要 ${actualDrawCost} MP，但你只有 ${p.mp} MP。`;
+        return next;
+      }
 
       const next = prev.clone();
-      
+
       // 找出目前手牌中已有的卡片種類 (originalId)
       const currentCardTypeIds = next.handIds.map(uId => uId.split('_')[0]);
-      
+
       // 從卡池中過濾掉已有的種類
       const availableTemplates = CARD_POOL.filter(c => !currentCardTypeIds.includes(c.id));
-      
+
       if (availableTemplates.length === 0) {
         next.lastEvent = "⚠️ 靈感枯竭！你已經拿到了所有種類的卡片。";
         return next;
       }
 
-      (next.player as any).mp -= 1;
+      next.player.mp -= actualDrawCost;
       next.activityThisDay += 1;
-      
+
       const randomTemplate = availableTemplates[Math.floor(Math.random() * availableTemplates.length)];
       // 加入唯一後綴
       next.handIds.push(`${randomTemplate.id}_${Math.random()}`);
@@ -227,9 +163,9 @@ export function useGameEngine() {
   }, [lastActionTime]);
 
   const endDay = useCallback(() => {
-    let summary: any = null;
+    let summary: { prevDay: number; moneyEarned: number; stressChange: number; performance: number; wasCaught: boolean; rank: string } | null = null;
     setManager(prev => {
-      const p = prev.player as any;
+      const p = prev.player;
       if (prev.activityThisDay < 5 || prev.performance < 50) {
         const next = prev.clone();
         next.lastEvent = `⚠️ 下班門檻未達：今日活動 ${prev.activityThisDay}/5，績效 ${prev.performance}/50`;
@@ -238,7 +174,7 @@ export function useGameEngine() {
 
       const next = prev.clone();
       summary = next.endDay();
-      (next.player as any).mp = (next.player as any).maxMp;
+      next.player.mp = next.player.maxMp;
       next.lastEvent = `🌙 第 ${summary.prevDay} 天結束。又是平安(混)過的一天。`;
       return next;
     });
@@ -248,8 +184,8 @@ export function useGameEngine() {
   const buyItem = useCallback((itemId: string) => {
     setManager(prev => {
       const next = prev.clone();
-      const p = next.player as any;
-      
+      const p = next.player;
+
       switch (itemId) {
         case 'hp_pot':
           if (p.stats.money >= 200) {
@@ -286,20 +222,19 @@ export function useGameEngine() {
 
   const gameState = {
     players: [manager.player, ...manager.colleagues].map(c => {
-      const p = c as any;
       const stats = {
         hp: c.stats.energy || 0,
-        mp: p.mp !== undefined ? p.mp : 100,
-        maxMp: p.maxMp || 100,
-        xp: p.xp || 0,
-        level: p.level || 1,
+        mp: c.mp,
+        maxMp: c.maxMp,
+        xp: c.xp,
+        level: c.level,
         stress: c.stats.stress || 0,
         savings: c.stats.money || 0,
-        luck: p.luck || 5,
-        charisma: p.charisma || 10
+        luck: c.luck,
+        charisma: c.charisma
       };
       return {
-        id: c.id, 
+        id: c.id,
         name: c.name,
         role: c.id === 'player' ? (stats.level < 3 ? PlayerRole.INTERN : stats.level < 6 ? PlayerRole.JUNIOR : PlayerRole.SENIOR) : "摸魚同事",
         stats,
@@ -310,11 +245,12 @@ export function useGameEngine() {
         position: { x: c.displayX * 98 + 49, y: c.displayY * 85 + 42.5 + 80 }
       };
     }),
-    day: manager.day, 
+    day: manager.day,
     performance: manager.performance,
-    chaosLevel: manager.chaosLevel, 
+    chaosLevel: manager.chaosLevel,
     activityThisDay: manager.activityThisDay,
     lastEvent: manager.lastEvent,
+    currentEvent: manager.currentEvent,
     hand: manager.handIds.map(uId => {
       const originalId = uId.split('_')[0];
       const template = CARD_POOL.find(c => c.id === originalId)!;
