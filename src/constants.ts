@@ -43,10 +43,10 @@ export const OFFICE_LAYOUT = {
     }
   ],
   objects: [
-    { id: "coffee", x: 3, y: 1, label: "夢幻咖啡機", type: "ENERGY_SOURCE", emoji: "☕" },
-    { id: "printer", x: 6, y: 1, label: "冒煙印表機", type: "CHAOS_SOURCE", emoji: "🔥" },
-    { id: "toilet", x: 9, y: 5, label: "薪水傳送門", type: "STRESS_RELIEF", emoji: "🧻" },
-    { id: "vending", x: 1, y: 5, label: "快樂水機", type: "ENERGY_SOURCE", emoji: "🥤" },
+    { id: "coffee", x: 3, y: 5, label: "夢幻咖啡機", type: "ENERGY_SOURCE", emoji: "☕" },
+    { id: "printer", x: 6, y: 5, label: "冒煙印表機", type: "CHAOS_SOURCE", emoji: "🔥" },
+    { id: "toilet", x: 10, y: 5, label: "薪水傳送門", type: "STRESS_RELIEF", emoji: "🧻" },
+    { id: "vending", x: 0, y: 5, label: "快樂水機", type: "ENERGY_SOURCE", emoji: "🥤" },
   ],
   door: { x: 5, y: 0 }
 };

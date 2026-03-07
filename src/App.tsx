@@ -267,9 +267,9 @@ export default function App() {
                        {OFFICE_LAYOUT.clusters.map(cluster => cluster.desks.map(desk => {
                          const isPlayerDesk = desk.x === player.gridX && desk.y === player.gridY;
                          return (
-                           <Group key={desk.id} x={desk.x * 98 + 10} y={desk.y * 85 + 8.5}>
+                           <Group key={desk.id} x={desk.x * 98 + 4} y={desk.y * 85 + 8.5}>
                               <Rect 
-                                width={100} height={70} 
+                                width={90} height={70} 
                                 fill={isPlayerDesk ? "rgba(79, 70, 229, 0.25)" : "rgba(248, 250, 252, 0.8)"} 
                                 stroke={isPlayerDesk ? "#4f46e5" : "#e2e8f0"} 
                                 strokeWidth={isPlayerDesk ? 3 : 1.5} 
@@ -280,7 +280,7 @@ export default function App() {
                               />
                               <Group x={5} y={45}>
                                  <Rect 
-                                    width={90} height={22} 
+                                    width={80} height={22} 
                                     fill={isPlayerDesk ? "#4f46e5" : "rgba(255,255,255,0.8)"} 
                                     cornerRadius={6} 
                                  />
@@ -289,7 +289,7 @@ export default function App() {
                                     fontSize={12} 
                                     fill={isPlayerDesk ? "#ffffff" : "#94a3b8"} 
                                     fontStyle="bold" 
-                                    width={90} 
+                                    width={80} 
                                     align="center" 
                                     y={5} 
                                  />
@@ -298,12 +298,12 @@ export default function App() {
                          );
                        }))}
                        {OFFICE_LAYOUT.objects.map(obj => (
-                         <Group key={obj.id} x={obj.x * 98 + 11} y={obj.y * 85 + 4.5}>
-                            <Rect width={76} height={76} fill="rgba(241, 245, 249, 0.8)" stroke={obj.id === 'printer' ? "#fecaca" : "#dbeafe"} strokeWidth={3} cornerRadius={16} />
-                            <Text text={obj.emoji} fontSize={32} x={24} y={13} />
+                         <Group key={obj.id} x={obj.x * 98 + 14} y={obj.y * 85 + 4.5}>
+                            <Rect width={70} height={70} fill="rgba(241, 245, 249, 0.8)" stroke={obj.id === 'printer' ? "#fecaca" : "#dbeafe"} strokeWidth={3} cornerRadius={16} />
+                            <Text text={obj.emoji} fontSize={32} x={20} y={13} />
                             <Group y={50}>
-                               <Rect width={76} height={20} fill="rgba(255,255,255,0.8)" cornerRadius={4} />
-                               <Text text={obj.label} fontSize={12} fill="#94a3b8" fontStyle="bold" width={76} align="center" y={4} />
+                               <Rect width={70} height={20} fill="rgba(255,255,255,0.8)" cornerRadius={4} />
+                               <Text text={obj.label} fontSize={12} fill="#94a3b8" fontStyle="bold" width={70} align="center" y={4} />
                             </Group>
                          </Group>
                        ))}
