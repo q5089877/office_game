@@ -306,7 +306,8 @@ export function useGameEngine() {
         gender: c.gender,
         gridX: c.gridX,
         gridY: c.gridY,
-        position: { x: c.displayX * 98 + 49, y: c.displayY * 85 + 42.5 + 60 }
+        chatMessage: c.chatMessage,
+        position: { x: c.displayX * 98 + 49, y: c.displayY * 85 + 42.5 + 80 }
       };
     }),
     day: manager.day, 
@@ -321,7 +322,7 @@ export function useGameEngine() {
     }),
     deck: [],
     discardPile: [],
-    bossPosition: { x: manager.boss.displayX * 98 + 49, y: manager.boss.displayY * 85 + 42.5 + 60 },
+    bossPosition: { x: manager.boss.displayX * 98 + 49, y: manager.boss.displayY * 85 + 42.5 + 80 },
     plantPosition: { x: manager.plant.displayX, y: manager.plant.displayY }
   };
 

@@ -37,6 +37,7 @@ export interface Player {
   gender: Gender;
   gridX: number;
   gridY: number;
+  chatMessage: string | null;
   position: { x: number; y: number };
 }
 

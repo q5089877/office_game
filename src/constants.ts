@@ -3,7 +3,7 @@ import { Gender } from "./logic/GameClasses";
 
 export const OFFICE_LAYOUT = {
   width: 1080,
-  height: 660,
+  height: 700,
   gridSize: { x: 11, y: 7 }, 
   cellWidth: 98,
   cellHeight: 85,

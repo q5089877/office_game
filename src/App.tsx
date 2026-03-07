@@ -77,7 +77,7 @@ const PixelCharacter = ({ name, color, isSelected, bobOffset, id, gender }: { na
 };
 
 const PixelPlant = ({ x, y }: { x: number, y: number }) => (
-  <Group x={x * 98 + 49} y={y * 85 + 42.5 + 60}>
+  <Group x={x * 98 + 49} y={y * 85 + 42.5 + 80}>
     <Circle radius={15} fill="rgba(0,0,0,0.05)" scaleY={0.5} y={5} />
     <Rect width={30} height={25} fill="#78350f" x={-15} y={-20} cornerRadius={4} stroke="#1a1a1a" strokeWidth={1.5} />
     <Text text="🪴" fontSize={28} x={-14} y={-45} />
@@ -539,12 +539,12 @@ export default function App() {
                     <Layer>
                        <Rect width={OFFICE_LAYOUT.width} height={OFFICE_LAYOUT.height} fill="#fff" />
                        {[...Array(9)].map((_, i) => [...Array(7)].map((_, j) => (
-                         <Circle key={`${i}-${j}`} x={i * 120 + 60} y={j * 85 + 42.5 + 60} radius={1} fill="#cbd5e1" />
+                         <Circle key={`${i}-${j}`} x={i * 120 + 60} y={j * 85 + 42.5 + 80} radius={1} fill="#cbd5e1" />
                        )))}
                        {OFFICE_LAYOUT.clusters.map(cluster => cluster.desks.map(desk => {
                          const isPlayerDesk = desk.x === player.gridX && desk.y === player.gridY;
                          return (
-                           <Group key={desk.id} x={desk.x * 98 + 4} y={desk.y * 85 + 8.5 + 60}>
+                           <Group key={desk.id} x={desk.x * 98 + 4} y={desk.y * 85 + 8.5 + 80}>
                               <Rect
                                 width={90} height={70}
                                 fill={isPlayerDesk ? "rgba(79, 70, 229, 0.25)" : "rgba(248, 250, 252, 0.8)"}
@@ -575,7 +575,7 @@ export default function App() {
                          );
                        }))}
                        {OFFICE_LAYOUT.objects.map(obj => (
-                         <Group key={obj.id} x={obj.x * 98 + 14} y={obj.y * 85 + 4.5 + 60}>
+                         <Group key={obj.id} x={obj.x * 98 + 14} y={obj.y * 85 + 4.5 + 80}>
                             <Rect width={70} height={70} fill="rgba(241, 245, 249, 0.8)" stroke={obj.id === 'printer' ? "#fecaca" : "#dbeafe"} strokeWidth={3} cornerRadius={16} />
                             <Text text={obj.emoji} fontSize={32} x={20} y={13} />
                             <Group y={50}>
@@ -594,9 +594,9 @@ export default function App() {
                             Math.abs(p.position.x - gameState.bossPosition.x) < 50 &&
                             Math.abs(p.position.y - gameState.bossPosition.y) < 40
                           ) && (
-                            <Group y={-100}>
-                               <Rect width={100} height={30} fill="rgba(255,255,255,0.9)" x={-50} cornerRadius={12} stroke="#f87171" strokeWidth={2} />
-                               <Text text="發現你在摸魚~" fontSize={12} fill="#991b1b" fontStyle="bold" width={100} align="center" x={-50} y={8} />
+                            <Group y={-70}>
+                               <Rect width={100} height={26} fill="rgba(255,255,255,0.9)" x={-50} y={-26} cornerRadius={12} stroke="#f87171" strokeWidth={2} />
+                               <Text text="發現你在摸魚~" fontSize={12} fill="#991b1b" fontStyle="bold" width={100} align="center" x={-50} y={-18} />
                             </Group>
                           )}
                        </Group>
@@ -606,23 +606,34 @@ export default function App() {
                          const isWatering = p.id !== 'player' && p.gridX === 10 && p.gridY === 0;
                          return (
                            <Group key={p.id} x={p.position.x} y={p.position.y} onClick={() => setSelectedPlayerId(p.id)}>
-                              <PixelCharacter id={p.id} name={p.name} color={p.id === 'player' ? "#6366f1" : "#10b981"} isSelected={selectedPlayerId === p.id} bobOffset={p.position.y % 4} gender={p.gender} />
+                              {p.chatMessage && (
+                                <Group y={-70}>
+                                   <Rect width={85} height={26} fill="rgba(238, 242, 255, 0.95)" x={-42.5} y={-26} cornerRadius={12} stroke="#3b82f6" strokeWidth={2} shadowBlur={5} shadowColor="rgba(59, 130, 246, 0.1)" />
+                                   <Text text={p.chatMessage} fontSize={11} fill="#1d4ed8" fontStyle="bold" width={85} align="center" x={-42.5} y={-18} />
+                                   <Rect width={2} height={28} fill="#3b82f6" x={-1} y={0} />
+                                   <Rect width={8} height={8} fill="rgba(238, 242, 255, 0.95)" x={-4} y={28} rotation={45} stroke="#3b82f6" strokeWidth={2} />
+                                   <Rect width={12} height={6} fill="rgba(238, 242, 255, 0.95)" x={-6} y={0} />
+                                </Group>
+                              )}
                               {isRecentTarget && showEvent && (
-                                <Group y={-85}>
-                                   <Rect width={90} height={30} fill="rgba(255,255,255,0.8)" x={-45} cornerRadius={9} stroke="#6366f1" strokeWidth={2} shadowBlur={5} shadowColor="rgba(0,0,0,0.1)" />
-                                   <Text text="摸魚中..." fontSize={12} fill="#4338ca" fontStyle="bold" width={90} align="center" x={-45} y={9} />
-                                   <Rect width={9} height={9} fill="rgba(255,255,255,0.8)" x={-4.5} y={25.5} rotation={45} stroke="#6366f1" strokeWidth={2} />
-                                   <Rect width={12} height={6} fill="rgba(255,255,255,0.8)" x={-6} y={22.5} />
+                                <Group y={-70}>
+                                   <Rect width={85} height={26} fill="rgba(255,255,255,0.8)" x={-42.5} y={-26} cornerRadius={9} stroke="#6366f1" strokeWidth={2} shadowBlur={5} shadowColor="rgba(0,0,0,0.1)" />
+                                   <Text text="摸魚中..." fontSize={12} fill="#4338ca" fontStyle="bold" width={85} align="center" x={-42.5} y={-18} />
+                                   <Rect width={2} height={28} fill="#6366f1" x={-1} y={0} />
+                                   <Rect width={8} height={8} fill="rgba(255,255,255,0.8)" x={-4} y={28} rotation={45} stroke="#6366f1" strokeWidth={2} />
+                                   <Rect width={12} height={6} fill="rgba(255,255,255,0.8)" x={-6} y={0} />
                                 </Group>
                               )}
                               {isWatering && (
-                                <Group y={-85}>
-                                   <Rect width={120} height={30} fill="rgba(240, 253, 244, 0.9)" x={-60} cornerRadius={9} stroke="#22c55e" strokeWidth={2} shadowBlur={5} shadowColor="rgba(34, 197, 94, 0.2)" />
-                                   <Text text="幫植物澆水中..." fontSize={12} fill="#166534" fontStyle="bold" width={120} align="center" x={-60} y={9} />
-                                   <Rect width={9} height={9} fill="rgba(240, 253, 244, 0.9)" x={-4.5} y={25.5} rotation={45} stroke="#22c55e" strokeWidth={2} />
-                                   <Rect width={12} height={6} fill="rgba(240, 253, 244, 0.9)" x={-6} y={22.5} />
+                                <Group y={-70}>
+                                   <Rect width={105} height={26} fill="rgba(236, 253, 245, 0.95)" x={-52.5} y={-26} cornerRadius={9} stroke="#22c55e" strokeWidth={2} shadowBlur={5} shadowColor="rgba(34, 197, 94, 0.2)" />
+                                   <Text text="幫植物澆水中..." fontSize={12} fill="#15803d" fontStyle="bold" width={105} align="center" x={-52.5} y={-18} />
+                                   <Rect width={2} height={28} fill="#22c55e" x={-1} y={0} />
+                                   <Rect width={8} height={8} fill="rgba(236, 253, 245, 0.95)" x={-4} y={28} rotation={45} stroke="#22c55e" strokeWidth={2} />
+                                   <Rect width={12} height={6} fill="rgba(236, 253, 245, 0.95)" x={-6} y={0} />
                                 </Group>
                               )}
+                              <PixelCharacter id={p.id} name={p.name} color={p.id === 'player' ? "#6366f1" : "#10b981"} isSelected={selectedPlayerId === p.id} bobOffset={p.position.y % 4} gender={p.gender} />
                            </Group>
                          );
                        })}

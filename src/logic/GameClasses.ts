@@ -51,6 +51,8 @@ export class Character extends BaseEntity {
   public isMoving: boolean = false;
   public homeX: number = 0;
   public homeY: number = 0;
+  public chatMessage: string | null = null;
+  public chatTimer: number = 0;
 
   constructor(id: string, name: string, type: EntityType, stats?: Stats, x: number = 0, y: number = 0, gender: Gender = Gender.MALE) {
     super(id, name, type, gender);
@@ -61,6 +63,11 @@ export class Character extends BaseEntity {
   }
 
   tick(deltaTime: number) {
+    this.chatTimer -= deltaTime;
+    if (this.chatTimer <= 0) {
+      this.chatMessage = null;
+    }
+
     const moveSpeed = 0.1;
     const dx = this.gridX - this.displayX;
     const dy = this.gridY - this.displayY;
@@ -79,7 +86,7 @@ export class Character extends BaseEntity {
 
   wander() {
     // 讓 NPC 同事遊蕩時有極低機率移動到植物座標 (10, 0)
-    const isCaringPlant = this.type === EntityType.COLLEAGUE && Math.random() < 0.01;
+    const isCaringPlant = this.type === EntityType.COLLEAGUE && Math.random() < 0.001;
     if (isCaringPlant) {
       this.gridX = 10;
       this.gridY = 0;
@@ -100,6 +107,8 @@ export class Character extends BaseEntity {
     c.displayY = this.displayY;
     c.homeX = this.homeX; 
     c.homeY = this.homeY;
+    c.chatMessage = this.chatMessage;
+    c.chatTimer = this.chatTimer;
     
     const source = this as any;
     const target = c as any;
@@ -185,6 +194,20 @@ export class GameManager {
   tick() {
     this.player.tick(16);
     this.colleagues.forEach(c => c.tick(16));
+
+    // 限制同時發言人數
+    const speakingCount = this.colleagues.filter(c => c.chatMessage !== null).length;
+    if (speakingCount < 2) {
+      // 挑選沒在發言也沒在澆水的同事 (植物座標 10, 0)
+      const candidates = this.colleagues.filter(c => c.chatMessage === null && !(c.gridX === 10 && c.gridY === 0));
+      if (candidates.length > 0 && Math.random() < 0.005) {
+        const speaker = candidates[Math.floor(Math.random() * candidates.length)];
+        const messages = ["Excel又當了...", "誰微波魚排？", "想下班...", "這週五會下雨嗎？", "咖啡機又壞了", "我的薪水呢？", "(裝忙中)", "午餐吃什麼？"];
+        speaker.chatMessage = messages[Math.floor(Math.random() * messages.length)];
+        speaker.chatTimer = 3000;
+      }
+    }
+
     this.boss.tick(this.day);
     this.plant.tick();
   }
