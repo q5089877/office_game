@@ -12,6 +12,11 @@ export enum EntityType {
   CAT = 'CAT',
 }
 
+export enum Gender {
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
+}
+
 export interface PlayerStats {
   hp: number; // Health (混分值)
   mp: number; // Mana (摸魚值)
@@ -29,6 +34,7 @@ export interface Player {
   name: string;
   role: string;
   stats: PlayerStats;
+  gender: Gender;
   position: { x: number; y: number };
 }
 

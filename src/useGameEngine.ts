@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { GameManager, Character, EntityType, Stats } from './logic/GameClasses';
+import { GameManager, Character, EntityType, Stats, Gender } from './logic/GameClasses';
 import { PlayerRole, CardType } from './types';
 import { CARD_POOL, OFFICE_LAYOUT } from './constants';
 
@@ -13,7 +13,7 @@ export function useGameEngine() {
     const randomIdx = Math.floor(Math.random() * availableDesks.length);
     const playerDesk = availableDesks[randomIdx];
     
-    const player = new Character('player', '新進員工', EntityType.PLAYER, new Stats(100, 0, 1000, 100), playerDesk.x, playerDesk.y);
+    const player = new Character('player', '新進員工', EntityType.PLAYER, new Stats(100, 0, 1000, 100), playerDesk.x, playerDesk.y, Gender.MALE);
     (player as any).xp = 0;
     (player as any).level = 1;
     (player as any).mp = 100;
@@ -25,7 +25,7 @@ export function useGameEngine() {
     OFFICE_LAYOUT.clusters.forEach(cluster => {
       cluster.desks.forEach(desk => {
         if (desk.owner !== null && desk.id !== 'player') {
-          colleagues.push(new Character(desk.id, desk.label, EntityType.COLLEAGUE, new Stats(80, 10, 500), desk.x, desk.y));
+          colleagues.push(new Character(desk.id, desk.label, EntityType.COLLEAGUE, new Stats(80, 10, 500), desk.x, desk.y, desk.gender || Gender.MALE));
         }
       });
     });
@@ -119,6 +119,37 @@ export function useGameEngine() {
               const dir = [[0,1],[0,-1],[1,0],[-1,0]][Math.floor(Math.random()*4)];
               next.player.move(Math.max(0,Math.min(10,next.player.gridX+dir[0])), Math.max(0,Math.min(6,next.player.gridY+dir[1])));
               eventMsg = "殘影閃現！同事以為見鬼了。";
+              break;
+            case "c12": // 無情甩鍋
+              if (!targetIsPlayer) {
+                next.player.stats.modifyStress(-15);
+                eventMsg = `你把報告丟給 ${target.name}：「這部分你比較熟」。`;
+              }
+              break;
+            case "c13": // 請喝咖啡
+              if (!targetIsPlayer) {
+                np.charisma += 5;
+                eventMsg = `你請 ${target.name} 喝星 X 克，關係變好了！`;
+              }
+              break;
+            case "c14": // 滑鼠貼膠帶
+              if (!targetIsPlayer) {
+                eventMsg = `你偷偷在 ${target.name} 的滑鼠感應器貼了膠帶。嘿嘿！`;
+              }
+              break;
+            case "c15": // 背後突襲
+              if (!targetIsPlayer) {
+                const rx = Math.floor(Math.random() * OFFICE_LAYOUT.gridSize.x);
+                const ry = Math.floor(Math.random() * OFFICE_LAYOUT.gridSize.y);
+                target.move(rx, ry);
+                eventMsg = `你突然在 ${target.name} 背後大喊，他嚇到整個人彈飛了！`;
+              }
+              break;
+            case "c16": // 代領包裹
+              const door = OFFICE_LAYOUT.door;
+              next.player.move(door.x, door.y);
+              np.charisma += 3;
+              eventMsg = "跑去門口幫大家拿包裹，表現得很積極！";
               break;
           }
 
@@ -243,6 +274,7 @@ export function useGameEngine() {
         name: c.name,
         role: c.id === 'player' ? (stats.level < 3 ? PlayerRole.INTERN : stats.level < 6 ? PlayerRole.JUNIOR : PlayerRole.SENIOR) : "摸魚同事",
         stats,
+        gender: c.gender,
         position: { x: c.displayX * 98 + 49, y: c.displayY * 85 + 42.5 }
       };
     }),

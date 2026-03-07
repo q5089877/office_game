@@ -4,7 +4,7 @@ import { useGameEngine } from './useGameEngine';
 import { CardType } from './types';
 import { OFFICE_LAYOUT } from './constants';
 import {
-  AlertCircle, Clock, UserCircle, PlusCircle, Activity, Skull, Ghost, DollarSign, Flame, Heart, Zap, Star, Shield, Trophy, Coffee, Trash2, Smile, Sparkles, Clover
+  AlertCircle, Clock, UserCircle, PlusCircle, Activity, Skull, Ghost, DollarSign, Flame, Heart, Zap, Star, Shield, Trophy, Coffee, Trash2, Smile, Sparkles, Clover, HelpCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
@@ -12,8 +12,8 @@ import { twMerge } from 'tailwind-merge';
 
 function cn(...inputs: ClassValue[]) { return twMerge(clsx(inputs)); }
 
-const VerticalBar = ({ value, max, color, label, icon: Icon }: { value: number, max: number, color: string, label: string, icon?: any }) => (
-  <div className="flex flex-col items-center gap-1 h-full group">
+const VerticalBar = ({ value, max, color, label, icon: Icon, title }: { value: number, max: number, color: string, label: string, icon?: any, title?: string }) => (
+  <div className="flex flex-col items-center gap-1 h-full group" title={title}>
     <div className="w-2.5 h-16 bg-stone-100 rounded-full overflow-hidden relative border border-stone-200 shadow-inner">
       <motion.div
         className={cn("absolute bottom-0 w-full rounded-full", color)}
@@ -27,26 +27,42 @@ const VerticalBar = ({ value, max, color, label, icon: Icon }: { value: number, 
   </div>
 );
 
-const PixelCharacter = ({ name, color, isSelected, bobOffset, id }: { name: string, color: string, isSelected: boolean, bobOffset: number, id: string }) => {
+const PixelCharacter = ({ name, color, isSelected, bobOffset, id, gender }: { name: string, color: string, isSelected: boolean, bobOffset: number, id: string, gender?: string }) => {
   const isPlayer = id === 'player';
-  const hairColor = isPlayer ? "#4c1d95" : "#78350f";
+  const isFemale = gender === 'FEMALE';
+  
+  // 衣服顏色: 玩家固定藍色，女性粉紫色，男性綠色
+  const clothesColor = isPlayer ? "#6366f1" : (isFemale ? "#ec4899" : "#10b981");
+  
+  // 髮型強化: 女性亮棕色+長髮 (40x12)，男性深黑色+短髮 (18x9)
+  const hairColor = isFemale ? "#b45309" : "#1a1a1a";
+  const hairWidth = isFemale ? 12 : 9;
+  const hairHeight = isFemale ? 40 : 18;
+  const hairRightX = 19.5 - hairWidth;
+  
   const skinColor = "#fde68a";
+  const blushColor = isFemale ? "#ff85a2" : "#fca5a5";
+  const blushOpacity = isFemale ? 0.9 : 0.6;
 
   return (
     <Group y={bobOffset} scaleX={0.75} scaleY={0.75}>
       <Circle radius={15} fill="rgba(0,0,0,0.1)" scaleY={0.5} y={3} />
-      <Rect width={39} height={45} fill={color} cornerRadius={6} x={-19.5} y={-45} stroke="#1a1a1a" strokeWidth={2.25} />
+      {/* Body Rect fill */}
+      <Rect width={39} height={45} fill={clothesColor} cornerRadius={6} x={-19.5} y={-45} stroke="#1a1a1a" strokeWidth={2.25} />
       <Rect width={33} height={15} fill="rgba(0,0,0,0.1)" x={-16.5} y={-18} cornerRadius={3} />
       <Rect width={33} height={30} fill={skinColor} x={-16.5} y={-48} cornerRadius={4.5} stroke="#1a1a1a" strokeWidth={2.25} />
+      {/* Hair */}
       <Rect width={39} height={12} fill={hairColor} x={-19.5} y={-51} cornerRadius={6} stroke="#1a1a1a" strokeWidth={1.5} />
-      <Rect width={9} height={18} fill={hairColor} x={-19.5} y={-45} cornerRadius={3} stroke="#1a1a1a" strokeWidth={1.5} />
-      <Rect width={9} height={18} fill={hairColor} x={10.5} y={-45} cornerRadius={3} stroke="#1a1a1a" strokeWidth={1.5} />
+      <Rect width={hairWidth} height={hairHeight} fill={hairColor} x={-19.5} y={-45} cornerRadius={3} stroke="#1a1a1a" strokeWidth={1.5} />
+      <Rect width={hairWidth} height={hairHeight} fill={hairColor} x={hairRightX} y={-45} cornerRadius={3} stroke="#1a1a1a" strokeWidth={1.5} />
+      {/* Eyes */}
       <Rect width={4.5} height={6} fill="#1a1a1a" x={-9} y={-37.5} cornerRadius={1.5} />
       <Rect width={4.5} height={6} fill="#1a1a1a" x={4.5} y={-37.5} cornerRadius={1.5} />
       <Rect width={1.5} height={1.5} fill="#fff" x={-7.5} y={-36} />
       <Rect width={1.5} height={1.5} fill="#fff" x={6} y={-36} />
-      <Rect width={6} height={3} fill="#fca5a5" x={-13.5} y={-30} opacity={0.6} />
-      <Rect width={6} height={3} fill="#fca5a5" x={7.5} y={-30} opacity={0.6} />
+      {/* Face: Blush */}
+      <Rect width={6} height={3} fill={blushColor} x={-13.5} y={-30} opacity={blushOpacity} />
+      <Rect width={6} height={3} fill={blushColor} x={7.5} y={-30} opacity={blushOpacity} />
       <Group y={-55} scaleX={1.235} scaleY={1.235}>
         <Rect width={60} height={18} fill="rgba(255,255,255,0.8)" x={-30} cornerRadius={6} stroke="#1a1a1a" strokeWidth={1.5} />
         <Text text={name} fontSize={14} fill="#1a1a1a" fontStyle="bold" width={60} align="center" x={-30} y={2.5} />
@@ -76,19 +92,80 @@ export default function App() {
   const [selectedPlayerId, setSelectedPlayerId] = useState('player');
   const [showEvent, setShowEvent] = useState(false);
   const [showShop, setShowShop] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
   const [scale, setScale] = useState(1);
 
   React.useEffect(() => {
-    const handleResize = () => {
-      const availableWidth = window.innerWidth - 288;
-      const availableHeight = window.innerHeight - 200;
-      const newScale = Math.min(availableWidth / 1080, availableHeight / 600) * 0.95;
-      setScale(newScale);
+    let timeoutId: NodeJS.Timeout;
+
+    // 計算最佳縮放比例
+    const calculateOptimalScale = () => {
+      const { innerWidth, innerHeight } = window;
+
+      // 定義常數
+      const SIDEBAR_WIDTH = 288;      // 左側邊欄寬度
+      const BOTTOM_HEIGHT = 200;      // 底部區域高度
+      const CANVAS_WIDTH = 1080;      // 畫布原始寬度
+      const CANVAS_HEIGHT = 600;      // 畫布原始高度
+      const PADDING_FACTOR = 0.92;    // 緩衝係數 (稍微減小以確保邊界)
+      const MIN_SCALE = 0.35;         // 最小縮放比例
+      const MAX_SCALE = 1.5;          // 最大縮放比例
+
+      // 根據螢幕尺寸調整計算邏輯
+      let availableWidth = innerWidth;
+      let availableHeight = innerHeight;
+
+      if (innerWidth < 768) {
+        // 手機尺寸：全螢幕顯示，調整佈局
+        availableWidth = innerWidth - 32;     // 左右邊距
+        availableHeight = innerHeight - 320;  // 更大的底部區域
+      } else if (innerWidth < 1024) {
+        // 平板尺寸
+        availableWidth = innerWidth - SIDEBAR_WIDTH;
+        availableHeight = innerHeight - BOTTOM_HEIGHT;
+      } else {
+        // 桌面尺寸
+        availableWidth = innerWidth - SIDEBAR_WIDTH;
+        availableHeight = innerHeight - BOTTOM_HEIGHT;
+      }
+
+      // 確保可用空間不小於最小值
+      availableWidth = Math.max(availableWidth, CANVAS_WIDTH * MIN_SCALE);
+      availableHeight = Math.max(availableHeight, CANVAS_HEIGHT * MIN_SCALE);
+
+      // 計算寬度和高度的比例
+      const widthRatio = availableWidth / CANVAS_WIDTH;
+      const heightRatio = availableHeight / CANVAS_HEIGHT;
+
+      // 取最小值以確保完整顯示，並添加緩衝
+      const rawScale = Math.min(widthRatio, heightRatio) * PADDING_FACTOR;
+
+      // 限制縮放範圍
+      const clampedScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, rawScale));
+
+      // 四捨五入到小數點後兩位，避免過於頻繁的更新
+      return Math.round(clampedScale * 100) / 100;
     };
 
-    handleResize();
+    const handleResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const newScale = calculateOptimalScale();
+        setScale(newScale);
+      }, 150); // 150ms 防抖動，平衡響應性和效能
+    };
+
+    // 初始計算
+    const initialScale = calculateOptimalScale();
+    setScale(initialScale);
+
+    // 監聽 resize 事件
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   React.useEffect(() => {
@@ -134,9 +211,9 @@ export default function App() {
 
         {/* Vitals (HP/MP/XP) */}
         <div className="bg-stone-50 p-4 rounded-2xl border border-stone-100 flex justify-around mb-4">
-            <VerticalBar value={player.stats.hp} max={100} color="bg-rose-500" label="HP" />
-            <VerticalBar value={player.stats.mp} max={player.stats.maxMp} color="bg-cyan-500" label="MP" />
-            <div className="flex flex-col items-center gap-1 h-full group">
+            <VerticalBar value={player.stats.hp} max={100} color="bg-rose-500" label="HP" title="體力：歸零則 Game Over" />
+            <VerticalBar value={player.stats.mp} max={player.stats.maxMp} color="bg-cyan-500" label="MP" title="摸魚值：抽牌出牌用，每抽一張耗 1" />
+            <div className="flex flex-col items-center gap-1 h-full group" title="年資：100% 則升職">
                <div className="w-2.5 h-16 bg-stone-100 rounded-full overflow-hidden relative border border-stone-200 shadow-inner">
                   <motion.div
                     className="absolute bottom-0 w-full bg-amber-400 rounded-full"
@@ -156,20 +233,79 @@ export default function App() {
                 <span className="text-2xl opacity-50">$</span>{player.stats.savings}
               </p>
             </div>
-            <button
-              onClick={() => setShowShop(!showShop)}
-              className={cn(
-                "p-2 rounded-lg transition-all border shadow-sm",
-                showShop ? "bg-stone-900 text-white border-stone-900" : "bg-white text-stone-600 border-stone-100 hover:bg-stone-50"
-              )}
-            >
-              <Coffee size={20} />
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setShowGuide(!showGuide);
+                  setShowShop(false);
+                }}
+                className={cn(
+                  "p-2 rounded-lg transition-all border shadow-sm",
+                  showGuide ? "bg-stone-900 text-white border-stone-900" : "bg-white text-stone-600 border-stone-100 hover:bg-stone-50"
+                )}
+                title="遊戲指南"
+              >
+                <HelpCircle size={20} />
+              </button>
+              <button
+                onClick={() => {
+                  setShowShop(!showShop);
+                  setShowGuide(false);
+                }}
+                className={cn(
+                  "p-2 rounded-lg transition-all border shadow-sm",
+                  showShop ? "bg-stone-900 text-white border-stone-900" : "bg-white text-stone-600 border-stone-100 hover:bg-stone-50"
+                )}
+                title="辦公室商店"
+              >
+                <Coffee size={20} />
+              </button>
+            </div>
         </div>
 
-        {/* Attributes / Shop Panel */}
-        <div className="flex-1 overflow-y-auto no-scrollbar">
-          {showShop ? (
+        {/* Attributes / Shop / Guide Panel */}
+        <div className="flex-1 overflow-y-auto no-scrollbar max-h-[calc(100vh-420px)]">
+          {showGuide ? (
+            <div className="flex flex-col gap-3 animate-in slide-in-from-right-4 duration-300">
+              <p className="text-[11px] text-indigo-500 font-black uppercase mb-1 tracking-widest">遊戲指南</p>
+              <div className="space-y-4 pr-1">
+                <section>
+                  <h4 className="text-[11px] font-black text-stone-700 mb-1.5 border-b border-stone-100 pb-1 uppercase tracking-tighter">基礎數值</h4>
+                  <div className="space-y-2 text-[11px] font-bold text-stone-500">
+                    <div className="flex justify-between items-center bg-stone-50/50 p-2 rounded-lg">
+                      <span className="text-rose-500">HP (體力)</span>
+                      <span className="text-stone-400">歸零則 Game Over</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-stone-50/50 p-2 rounded-lg">
+                      <span className="text-cyan-500">MP (摸魚值)</span>
+                      <span className="text-stone-400">抽牌消耗 1 點</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-stone-50/50 p-2 rounded-lg">
+                      <span className="text-amber-500">XP (年資)</span>
+                      <span className="text-stone-400">100% 則升職</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-stone-50/50 p-2 rounded-lg">
+                      <span className="text-emerald-500">錢</span>
+                      <span className="text-stone-400">低於 -500 則 Game Over</span>
+                    </div>
+                  </div>
+                </section>
+                <section>
+                  <h4 className="text-[11px] font-black text-stone-700 mb-1.5 border-b border-stone-100 pb-1 uppercase tracking-tighter">遊戲機制</h4>
+                  <div className="space-y-2 text-[11px] font-bold text-stone-500">
+                    <div className="flex flex-col gap-1 bg-stone-50/50 p-2 rounded-lg">
+                      <span className="text-orange-500">混亂度</span>
+                      <p className="text-[10px] text-stone-400 leading-tight">滿 100% 會觸發提早下班</p>
+                    </div>
+                    <div className="flex flex-col gap-1 bg-stone-50/50 p-2 rounded-lg">
+                      <span className="text-indigo-500">抽牌 / 目標</span>
+                      <p className="text-[10px] text-stone-400 leading-tight">固定左側抽牌。每日達成 3 次行動即可下班。</p>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          ) : showShop ? (
             <div className="flex flex-col gap-2 animate-in slide-in-from-right-4 duration-300">
               <p className="text-[11px] text-indigo-500 font-black uppercase mb-2 tracking-widest">Office Shop</p>
               <button onClick={() => buyItem('hp_pot')} className="flex justify-between items-center p-3 bg-rose-50 border border-rose-100 rounded-xl hover:bg-rose-100 transition-colors">
@@ -227,9 +363,9 @@ export default function App() {
                     <p className="text-sm font-black text-indigo-600">{gameState.activityThisDay} / 3</p>
                  </div>
                  <div className="h-1 w-full bg-indigo-100 rounded-full overflow-hidden mb-2">
-                    <motion.div 
-                      className="h-full bg-indigo-500" 
-                      animate={{ width: `${Math.min(100, (gameState.activityThisDay / 3) * 100)}%` }} 
+                    <motion.div
+                      className="h-full bg-indigo-500"
+                      animate={{ width: `${Math.min(100, (gameState.activityThisDay / 3) * 100)}%` }}
                     />
                  </div>
                  <p className="text-sm text-indigo-700 font-bold flex items-center gap-2">
@@ -237,8 +373,8 @@ export default function App() {
                     {gameState.activityThisDay < 3 ? "請先抽牌或出牌..." : "工作進度達成！"}
                  </p>
              </div>
-             <button 
-                onClick={endDay} 
+             <button
+                onClick={endDay}
                 className={cn(
                   "w-full py-3 rounded-xl font-black text-base uppercase tracking-widest transition-all shadow-lg active:scale-95",
                   gameState.activityThisDay < 3 ? "bg-stone-200 text-stone-400 cursor-not-allowed" : "bg-stone-900 text-white hover:bg-black hover:-translate-y-0.5"
@@ -272,10 +408,10 @@ export default function App() {
 
              {/* Konva Stage Container */}
              <div className="bg-white rounded-[32px] shadow-2xl border border-stone-200/60 overflow-hidden relative flex items-center justify-center">
-                 <Stage 
-                    width={OFFICE_LAYOUT.width * scale} 
-                    height={OFFICE_LAYOUT.height * scale} 
-                    scaleX={scale} 
+                 <Stage
+                    width={OFFICE_LAYOUT.width * scale}
+                    height={OFFICE_LAYOUT.height * scale}
+                    scaleX={scale}
                     scaleY={scale}
                  >
                     <Layer>
@@ -287,30 +423,30 @@ export default function App() {
                          const isPlayerDesk = desk.x === player.gridX && desk.y === player.gridY;
                          return (
                            <Group key={desk.id} x={desk.x * 98 + 4} y={desk.y * 85 + 8.5}>
-                              <Rect 
-                                width={90} height={70} 
-                                fill={isPlayerDesk ? "rgba(79, 70, 229, 0.25)" : "rgba(248, 250, 252, 0.8)"} 
-                                stroke={isPlayerDesk ? "#4f46e5" : "#e2e8f0"} 
-                                strokeWidth={isPlayerDesk ? 3 : 1.5} 
-                                cornerRadius={10} 
+                              <Rect
+                                width={90} height={70}
+                                fill={isPlayerDesk ? "rgba(79, 70, 229, 0.25)" : "rgba(248, 250, 252, 0.8)"}
+                                stroke={isPlayerDesk ? "#4f46e5" : "#e2e8f0"}
+                                strokeWidth={isPlayerDesk ? 3 : 1.5}
+                                cornerRadius={10}
                                 shadowBlur={isPlayerDesk ? 15 : 0}
                                 shadowColor="#6366f1"
                                 shadowOpacity={isPlayerDesk ? 0.6 : 0}
                               />
                               <Group x={5} y={45}>
-                                 <Rect 
-                                    width={80} height={22} 
-                                    fill={isPlayerDesk ? "#4f46e5" : "rgba(255,255,255,0.8)"} 
-                                    cornerRadius={6} 
+                                 <Rect
+                                    width={80} height={22}
+                                    fill={isPlayerDesk ? "#4f46e5" : "rgba(255,255,255,0.8)"}
+                                    cornerRadius={6}
                                  />
-                                 <Text 
-                                    text={isPlayerDesk ? "新進員工" : desk.label} 
-                                    fontSize={12} 
-                                    fill={isPlayerDesk ? "#ffffff" : "#94a3b8"} 
-                                    fontStyle="bold" 
-                                    width={80} 
-                                    align="center" 
-                                    y={5} 
+                                 <Text
+                                    text={isPlayerDesk ? "新進員工" : desk.label}
+                                    fontSize={12}
+                                    fill={isPlayerDesk ? "#ffffff" : "#94a3b8"}
+                                    fontStyle="bold"
+                                    width={80}
+                                    align="center"
+                                    y={5}
                                  />
                               </Group>
                            </Group>
@@ -338,7 +474,7 @@ export default function App() {
                          const isRecentTarget = gameState.lastEvent?.includes(p.name) || (p.id === 'player' && (gameState.lastEvent?.includes("你") || gameState.lastEvent?.includes("手速") || gameState.lastEvent?.includes("戴上")));
                          return (
                            <Group key={p.id} x={p.position.x} y={p.position.y} onClick={() => setSelectedPlayerId(p.id)}>
-                              <PixelCharacter id={p.id} name={p.name} color={p.id === 'player' ? "#6366f1" : "#10b981"} isSelected={selectedPlayerId === p.id} bobOffset={p.position.y % 4} />
+                              <PixelCharacter id={p.id} name={p.name} color={p.id === 'player' ? "#6366f1" : "#10b981"} isSelected={selectedPlayerId === p.id} bobOffset={p.position.y % 4} gender={p.gender} />
                               {isRecentTarget && showEvent && (
                                 <Group y={-85}>
                                    <Rect width={90} height={30} fill="rgba(255,255,255,0.8)" x={-45} cornerRadius={9} stroke="#6366f1" strokeWidth={2} shadowBlur={5} shadowColor="rgba(0,0,0,0.1)" />
@@ -376,14 +512,14 @@ export default function App() {
                         disabled={player.stats.mp <= 0}
                         className={cn(
                             "w-24 h-[114px] rounded-2xl flex flex-col items-center justify-between py-2.5 px-2 transition-all duration-300 relative overflow-hidden group shrink-0 shadow-lg hover:shadow-2xl hover:-translate-y-2 active:scale-95 disabled:grayscale disabled:opacity-50",
-                            player.stats.mp > 0 
-                                ? "bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-800 text-white border-t border-indigo-400/40" 
+                            player.stats.mp > 0
+                                ? "bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-800 text-white border-t border-indigo-400/40"
                                 : "bg-stone-200 text-stone-400 border-none"
                         )}
                     >
                         {/* 光澤效果飾條 */}
                         <div className="absolute top-0 left-[-100%] w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] group-hover:left-[100%] transition-all duration-700 pointer-events-none" />
-                        
+
                         <div className="flex flex-col items-center gap-2 z-10">
                             <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/20 shadow-inner group-hover:scale-110 transition-transform">
                                 <PlusCircle size={18} className="group-hover:rotate-90 transition-transform duration-500" />

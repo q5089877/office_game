@@ -13,6 +13,11 @@ export enum CardRarity {
   C = 'C', B = 'B', A = 'A', S = 'S',
 }
 
+export enum Gender {
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
+}
+
 export class Stats {
   constructor(
     public energy: number = 100,
@@ -31,7 +36,8 @@ export abstract class BaseEntity {
   constructor(
     public readonly id: string,
     public name: string,
-    public readonly type: EntityType
+    public readonly type: EntityType,
+    public readonly gender: Gender = Gender.MALE
   ) {}
 }
 
@@ -46,8 +52,8 @@ export class Character extends BaseEntity {
   public homeX: number = 0;
   public homeY: number = 0;
 
-  constructor(id: string, name: string, type: EntityType, stats?: Stats, x: number = 0, y: number = 0) {
-    super(id, name, type);
+  constructor(id: string, name: string, type: EntityType, stats?: Stats, x: number = 0, y: number = 0, gender: Gender = Gender.MALE) {
+    super(id, name, type, gender);
     this.stats = stats || new Stats();
     this.gridX = x; this.gridY = y;
     this.displayX = x; this.displayY = y;
@@ -65,7 +71,8 @@ export class Character extends BaseEntity {
       this.bobOffset = Math.sin(Date.now() * 0.01) * 5;
     } else {
       this.displayX = this.gridX; this.displayY = this.gridY;
-      this.isMoving = false; this.bobOffset = 0;
+      this.isMoving = false;
+      this.bobOffset = 0;
     }
     if (!this.isMoving && Math.random() < 0.005) this.wander();
   }
@@ -76,21 +83,21 @@ export class Character extends BaseEntity {
     else {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
       const dir = directions[Math.floor(Math.random() * directions.length)];
-      this.gridX = Math.max(0, Math.min(5, this.gridX + dir[0]));
-      this.gridY = Math.max(0, Math.min(4, this.gridY + dir[1]));
+      this.gridX = Math.max(0, Math.min(10, this.gridX + dir[0]));
+      this.gridY = Math.max(0, Math.min(6, this.gridY + dir[1]));
     }
   }
 
   move(newX: number, newY: number) { this.gridX = newX; this.gridY = newY; }
 
   clone(): Character {
-    const c = new Character(this.id, this.name, this.type, this.stats.clone(), this.gridX, this.gridY);
+    const c = new Character(this.id, this.name, this.type, this.stats.clone(), this.gridX, this.gridY, this.gender);
     c.displayX = this.displayX; 
     c.displayY = this.displayY;
     c.homeX = this.homeX; 
     c.homeY = this.homeY;
     
-    // 顯式複製 RPG 數值，避免使用危險的 JSON.stringify
+    // 顯式複製 RPG 數值
     const source = this as any;
     const target = c as any;
     target.xp = source.xp || 0;
@@ -109,7 +116,7 @@ export class Boss extends BaseEntity {
   public displayX: number; public displayY: number;
 
   constructor(x: number, y: number) {
-    super('boss', '大老闆', EntityType.BOSS);
+    super('boss', '大老闆', EntityType.BOSS, Gender.MALE);
     this.gridX = x; this.gridY = y;
     this.displayX = x; this.displayY = y;
   }
@@ -124,8 +131,8 @@ export class Boss extends BaseEntity {
     if (Math.abs(dx) < 0.01 && Math.random() < 0.002) {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
       const dir = directions[Math.floor(Math.random() * directions.length)];
-      this.gridX = Math.max(0, Math.min(5, this.gridX + dir[0]));
-      this.gridY = Math.max(0, Math.min(4, this.gridY + dir[1]));
+      this.gridX = Math.max(0, Math.min(10, this.gridX + dir[0]));
+      this.gridY = Math.max(0, Math.min(6, this.gridY + dir[1]));
     }
   }
 
@@ -137,7 +144,7 @@ export class Cat extends BaseEntity {
   public displayX: number; public displayY: number;
 
   constructor(x: number, y: number) {
-    super('cat', '主子', EntityType.CAT);
+    super('cat', '主子', EntityType.CAT, Gender.FEMALE);
     this.gridX = x; this.gridY = y;
     this.displayX = x; this.displayY = y;
   }
@@ -152,8 +159,8 @@ export class Cat extends BaseEntity {
     if (Math.abs(dx) < 0.01 && Math.random() < 0.01) {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
       const dir = directions[Math.floor(Math.random() * directions.length)];
-      this.gridX = Math.max(0, Math.min(5, this.gridX + dir[0]));
-      this.gridY = Math.max(0, Math.min(4, this.gridY + dir[1]));
+      this.gridX = Math.max(0, Math.min(10, this.gridX + dir[0]));
+      this.gridY = Math.max(0, Math.min(6, this.gridY + dir[1]));
     }
   }
 }
@@ -167,13 +174,13 @@ export class GameManager {
   public chaosLevel: number = 0;
   public activityThisDay: number = 0;
   public lastEvent: string | null = "歡迎來到摸魚辦公室！主子正在巡視中。";
-  public handIds: string[] = []; // 只存 ID，從 Card Pool 查找
+  public handIds: string[] = []; 
 
   constructor(player?: Character, colleagues?: Character[], boss?: Boss, cat?: Cat, day?: number, chaosLevel?: number) {
     this.player = player || new Character('player', '你', EntityType.PLAYER);
     this.colleagues = colleagues || [];
-    this.boss = boss || new Boss(2, 2);
-    this.cat = cat || new Cat(4, 4);
+    this.boss = boss || new Boss(5, 0);
+    this.cat = cat || new Cat(10, 6);
     this.day = day || 1; 
     this.chaosLevel = chaosLevel || 0;
   }
