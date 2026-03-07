@@ -104,77 +104,22 @@ export default function App() {
   const [isChangingDay, setIsChangingDay] = useState(false);
 
   React.useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-
-    // 計算最佳縮放比例
     const calculateOptimalScale = () => {
-      const { innerWidth, innerHeight } = window;
-
-      // 定義常數
-      const SIDEBAR_WIDTH = 288;      // 左側邊欄寬度
-      const BOTTOM_HEIGHT = 200;      // 底部區域高度
-      const CANVAS_WIDTH = 1080;      // 畫布原始寬度
-      const CANVAS_HEIGHT = 660;      // 畫布原始高度
-      const PADDING_FACTOR = 0.92;    // 緩衝係數 (稍微減小以確保邊界)
-      const MIN_SCALE = 0.35;         // 最小縮放比例
-      const MAX_SCALE = 1.5;          // 最大縮放比例
-
-      // 根據螢幕尺寸調整計算邏輯
-      let availableWidth = innerWidth;
-      let availableHeight = innerHeight;
-
-      if (innerWidth < 768) {
-        // 手機尺寸：全螢幕顯示，調整佈局
-        availableWidth = innerWidth - 32;     // 左右邊距
-        availableHeight = innerHeight - 320;  // 更大的底部區域
-      } else if (innerWidth < 1024) {
-        // 平板尺寸
-        availableWidth = innerWidth - SIDEBAR_WIDTH;
-        availableHeight = innerHeight - BOTTOM_HEIGHT;
-      } else {
-        // 桌面尺寸
-        availableWidth = innerWidth - SIDEBAR_WIDTH;
-        availableHeight = innerHeight - BOTTOM_HEIGHT;
-      }
-
-      // 確保可用空間不小於最小值
-      availableWidth = Math.max(availableWidth, CANVAS_WIDTH * MIN_SCALE);
-      availableHeight = Math.max(availableHeight, CANVAS_HEIGHT * MIN_SCALE);
-
-      // 計算寬度和高度的比例
-      const widthRatio = availableWidth / CANVAS_WIDTH;
-      const heightRatio = availableHeight / CANVAS_HEIGHT;
-
-      // 取最小值以確保完整顯示，並添加緩衝
-      const rawScale = Math.min(widthRatio, heightRatio) * PADDING_FACTOR;
-
-      // 限制縮放範圍
-      const clampedScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, rawScale));
-
-      // 四捨五入到小數點後兩位，避免過於頻繁的更新
-      return Math.round(clampedScale * 100) / 100;
+      const availW = window.innerWidth - 288;
+      const availH = window.innerHeight - 200;
+      const newScale = Math.min(availW / 1080, availH / 660) * 0.98;
+      return newScale;
     };
 
     const handleResize = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        const newScale = calculateOptimalScale();
-        setScale(newScale);
-      }, 150); // 150ms 防抖動，平衡響應性和效能
+      setScale(calculateOptimalScale());
     };
 
-    // 初始計算
-    const initialScale = calculateOptimalScale();
-    setScale(initialScale);
-
-    // 監聽 resize 事件
+    handleResize();
     window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      clearTimeout(timeoutId);
-    };
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
+
 
   React.useEffect(() => {
     if (gameState.lastEvent) {
@@ -541,8 +486,8 @@ export default function App() {
                 }}
                 className={cn(
                   "w-full py-3 rounded-xl font-black text-base uppercase tracking-widest transition-all shadow-lg active:scale-95 border",
-                  (gameState.activityThisDay < 5 || (gameState.performance || 0) < 50) 
-                    ? "bg-stone-100 text-stone-400 border-stone-200 cursor-not-allowed" 
+                  (gameState.activityThisDay < 5 || (gameState.performance || 0) < 50)
+                    ? "bg-stone-100 text-stone-400 border-stone-200 cursor-not-allowed"
                     : "bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100 hover:text-indigo-800 hover:-translate-y-0.5 shadow-indigo-100"
                 )}
               >
@@ -575,20 +520,20 @@ export default function App() {
              {/* Konva Stage Container */}
              <div className="bg-white rounded-[32px] shadow-2xl border border-stone-200/60 overflow-hidden relative flex items-center justify-center">
                  <Stage
-                    width={OFFICE_LAYOUT.width * scale}
-                    height={OFFICE_LAYOUT.height * scale}
+                    width={1080 * scale}
+                    height={660 * scale}
                     scaleX={scale}
                     scaleY={scale}
                  >
                     <Layer>
-                       <Rect width={OFFICE_LAYOUT.width} height={OFFICE_LAYOUT.height} fill="#fff" />
-                       {[...Array(9)].map((_, i) => [...Array(7)].map((_, j) => (
-                         <Circle key={`${i}-${j}`} x={i * 120 + 60} y={j * 85 + 42.5 + 80} radius={1} fill="#cbd5e1" />
+                       <Rect width={1080} height={660} fill="#fff" />
+                       {[...Array(11)].map((_, i) => [...Array(7)].map((_, j) => (
+                         <Circle key={`${i}-${j}`} x={i * 98 + 49} y={j * 85 + 42.5 + 80} radius={1} fill="#cbd5e1" />
                        )))}
                        {OFFICE_LAYOUT.clusters.map(cluster => cluster.desks.map(desk => {
                          const isPlayerDesk = desk.x === player.gridX && desk.y === player.gridY;
                          return (
-                           <Group key={desk.id} x={desk.x * 98 + 4} y={desk.y * 85 + 8.5 + 80}>
+                           <Group key={desk.id} x={desk.x * 98 + 49 - 45} y={desk.y * 85 + 8.5 + 80}>
                               <Rect
                                 width={90} height={70}
                                 fill={isPlayerDesk ? "rgba(79, 70, 229, 0.25)" : "rgba(248, 250, 252, 0.8)"}
@@ -619,7 +564,7 @@ export default function App() {
                          );
                        }))}
                        {OFFICE_LAYOUT.objects.map(obj => (
-                         <Group key={obj.id} x={obj.x * 98 + 14} y={obj.y * 85 + 4.5 + 80}>
+                         <Group key={obj.id} x={obj.x * 98 + 49 - 35} y={obj.y * 85 + 4.5 + 80}>
                             <Rect width={70} height={70} fill="rgba(241, 245, 249, 0.8)" stroke={obj.id === 'printer' ? "#fecaca" : "#dbeafe"} strokeWidth={3} cornerRadius={16} />
                             <Text text={obj.emoji} fontSize={32} x={20} y={13} />
                             <Group y={50}>
