@@ -637,46 +637,66 @@ export default function App() {
                           {gameState.players.some(p => p.id === 'player' &&
                             Math.abs(p.position.x - gameState.bossPosition.x) < 50 &&
                             Math.abs(p.position.y - gameState.bossPosition.y) < 40
-                          ) && (
-                            <Group y={-70}>
-                               <Rect width={100} height={26} fill="rgba(255,255,255,0.9)" x={-50} y={-26} cornerRadius={12} stroke="#f87171" strokeWidth={2} />
-                               <Text text="發現你在摸魚~" fontSize={12} fill="#991b1b" fontStyle="bold" width={100} align="center" x={-50} y={-18} />
-                            </Group>
-                          )}
+                          ) && (() => {
+                            const bossText = "發現你在摸魚~";
+                            const bubbleWidth = 140;
+                            const bubbleHeight = bossText.length > 12 ? 52 : 30;
+                            return (
+                              <Group y={-70}>
+                                 <Rect width={bubbleWidth} height={bubbleHeight} fill="rgba(255,255,255,0.9)" x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={12} stroke="#f87171" strokeWidth={2} />
+                                 <Text text={bossText} fontSize={14} fill="#991b1b" fontStyle="bold" width={bubbleWidth - 10} align="center" x={-(bubbleWidth - 10) / 2} y={-bubbleHeight + (bubbleHeight > 30 ? 11 : 8)} wrap="char" />
+                                 <Rect width={2} height={28} fill="#f87171" x={-1} y={0} />
+                                 <Rect width={8} height={8} fill="rgba(255,255,255,0.9)" x={-4} y={28} rotation={45} stroke="#f87171" strokeWidth={2} />
+                                 <Rect width={12} height={6} fill="rgba(255,255,255,0.9)" x={-6} y={0} />
+                              </Group>
+                            );
+                          })()}
                        </Group>
                        <PixelPlant x={gameState.plantPosition.x} y={gameState.plantPosition.y} />
                        {gameState.players.map((p) => {
                          const isRecentTarget = gameState.lastEvent?.includes(p.name) || (p.id === 'player' && (gameState.lastEvent?.includes("你") || gameState.lastEvent?.includes("手速") || gameState.lastEvent?.includes("戴上")));
                          const isWatering = p.id !== 'player' && p.gridX === 10 && p.gridY === 0;
+                         const bubbleWidth = 140;
                          return (
                            <Group key={p.id} x={p.position.x} y={p.position.y} onClick={() => setSelectedPlayerId(p.id)}>
-                              {p.chatMessage && (
-                                <Group y={-70}>
-                                   <Rect width={85} height={26} fill="rgba(238, 242, 255, 0.95)" x={-42.5} y={-26} cornerRadius={12} stroke="#3b82f6" strokeWidth={2} shadowBlur={5} shadowColor="rgba(59, 130, 246, 0.1)" />
-                                   <Text text={p.chatMessage} fontSize={11} fill="#1d4ed8" fontStyle="bold" width={85} align="center" x={-42.5} y={-18} />
-                                   <Rect width={2} height={28} fill="#3b82f6" x={-1} y={0} />
-                                   <Rect width={8} height={8} fill="rgba(238, 242, 255, 0.95)" x={-4} y={28} rotation={45} stroke="#3b82f6" strokeWidth={2} />
-                                   <Rect width={12} height={6} fill="rgba(238, 242, 255, 0.95)" x={-6} y={0} />
-                                </Group>
-                              )}
-                              {isRecentTarget && showEvent && (
-                                <Group y={-70}>
-                                   <Rect width={85} height={26} fill="rgba(255,255,255,0.8)" x={-42.5} y={-26} cornerRadius={9} stroke="#6366f1" strokeWidth={2} shadowBlur={5} shadowColor="rgba(0,0,0,0.1)" />
-                                   <Text text="摸魚中..." fontSize={12} fill="#4338ca" fontStyle="bold" width={85} align="center" x={-42.5} y={-18} />
-                                   <Rect width={2} height={28} fill="#6366f1" x={-1} y={0} />
-                                   <Rect width={8} height={8} fill="rgba(255,255,255,0.8)" x={-4} y={28} rotation={45} stroke="#6366f1" strokeWidth={2} />
-                                   <Rect width={12} height={6} fill="rgba(255,255,255,0.8)" x={-6} y={0} />
-                                </Group>
-                              )}
-                              {isWatering && (
-                                <Group y={-70}>
-                                   <Rect width={105} height={26} fill="rgba(236, 253, 245, 0.95)" x={-52.5} y={-26} cornerRadius={9} stroke="#22c55e" strokeWidth={2} shadowBlur={5} shadowColor="rgba(34, 197, 94, 0.2)" />
-                                   <Text text="幫植物澆水中..." fontSize={12} fill="#15803d" fontStyle="bold" width={105} align="center" x={-52.5} y={-18} />
-                                   <Rect width={2} height={28} fill="#22c55e" x={-1} y={0} />
-                                   <Rect width={8} height={8} fill="rgba(236, 253, 245, 0.95)" x={-4} y={28} rotation={45} stroke="#22c55e" strokeWidth={2} />
-                                   <Rect width={12} height={6} fill="rgba(236, 253, 245, 0.95)" x={-6} y={0} />
-                                </Group>
-                              )}
+                              {p.chatMessage && (() => {
+                                const bubbleHeight = p.chatMessage.length > 12 ? 52 : 30;
+                                return (
+                                  <Group y={-70}>
+                                     <Rect width={bubbleWidth} height={bubbleHeight} fill="rgba(238, 242, 255, 0.95)" x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={12} stroke="#3b82f6" strokeWidth={2} shadowBlur={5} shadowColor="rgba(59, 130, 246, 0.1)" />
+                                     <Text text={p.chatMessage} fontSize={13} fill="#1d4ed8" fontStyle="bold" width={bubbleWidth - 10} align="center" x={-(bubbleWidth - 10) / 2} y={-bubbleHeight + (bubbleHeight > 30 ? 13 : 8.5)} wrap="char" />
+                                     <Rect width={2} height={28} fill="#3b82f6" x={-1} y={0} />
+                                     <Rect width={8} height={8} fill="rgba(238, 242, 255, 0.95)" x={-4} y={28} rotation={45} stroke="#3b82f6" strokeWidth={2} />
+                                     <Rect width={12} height={6} fill="rgba(238, 242, 255, 0.95)" x={-6} y={0} />
+                                  </Group>
+                                );
+                              })()}
+                              {isRecentTarget && showEvent && (() => {
+                                const targetText = "摸魚中...";
+                                const bubbleHeight = targetText.length > 12 ? 52 : 30;
+                                return (
+                                  <Group y={-70}>
+                                     <Rect width={bubbleWidth} height={bubbleHeight} fill="rgba(255,255,255,0.8)" x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={9} stroke="#6366f1" strokeWidth={2} shadowBlur={5} shadowColor="rgba(0,0,0,0.1)" />
+                                     <Text text={targetText} fontSize={14} fill="#4338ca" fontStyle="bold" width={bubbleWidth - 10} align="center" x={-(bubbleWidth - 10) / 2} y={-bubbleHeight + (bubbleHeight > 30 ? 12 : 8)} wrap="char" />
+                                     <Rect width={2} height={28} fill="#6366f1" x={-1} y={0} />
+                                     <Rect width={8} height={8} fill="rgba(255,255,255,0.8)" x={-4} y={28} rotation={45} stroke="#6366f1" strokeWidth={2} />
+                                     <Rect width={12} height={6} fill="rgba(255,255,255,0.8)" x={-6} y={0} />
+                                  </Group>
+                                );
+                              })()}
+                              {isWatering && (() => {
+                                const wateringText = "幫植物澆水中...";
+                                const bubbleHeight = wateringText.length > 12 ? 52 : 30;
+                                return (
+                                  <Group y={-70}>
+                                     <Rect width={bubbleWidth} height={bubbleHeight} fill="rgba(236, 253, 245, 0.95)" x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={9} stroke="#22c55e" strokeWidth={2} shadowBlur={5} shadowColor="rgba(34, 197, 94, 0.2)" />
+                                     <Text text={wateringText} fontSize={14} fill="#15803d" fontStyle="bold" width={bubbleWidth - 10} align="center" x={-(bubbleWidth - 10) / 2} y={-bubbleHeight + (bubbleHeight > 30 ? 12 : 8)} wrap="char" />
+                                     <Rect width={2} height={28} fill="#22c55e" x={-1} y={0} />
+                                     <Rect width={8} height={8} fill="rgba(236, 253, 245, 0.95)" x={-4} y={28} rotation={45} stroke="#22c55e" strokeWidth={2} />
+                                     <Rect width={12} height={6} fill="rgba(236, 253, 245, 0.95)" x={-6} y={0} />
+                                  </Group>
+                                );
+                              })()}
                               <PixelCharacter id={p.id} name={p.name} color={p.id === 'player' ? "#6366f1" : "#10b981"} isSelected={selectedPlayerId === p.id} bobOffset={p.position.y % 4} gender={p.gender} />
                            </Group>
                          );
