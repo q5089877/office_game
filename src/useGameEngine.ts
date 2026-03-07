@@ -5,8 +5,15 @@ import { CARD_POOL, OFFICE_LAYOUT } from './constants';
 
 export function useGameEngine() {
   const [manager, setManager] = useState<GameManager>(() => {
-    const playerDesk = OFFICE_LAYOUT.clusters[0].desks.find(d => d.id === 'player')!;
-    const player = new Character('player', '您', EntityType.PLAYER, new Stats(100, 0, 1000, 100), playerDesk.x, playerDesk.y);
+    // 找出所有可用的座位
+    const allDesks = OFFICE_LAYOUT.clusters.flatMap(c => c.desks);
+    const availableDesks = allDesks.filter(d => d.owner === null);
+    
+    // 隨機選一個空位作為玩家座位
+    const randomIdx = Math.floor(Math.random() * availableDesks.length);
+    const playerDesk = availableDesks[randomIdx];
+    
+    const player = new Character('player', '新進員工', EntityType.PLAYER, new Stats(100, 0, 1000, 100), playerDesk.x, playerDesk.y);
     (player as any).xp = 0;
     (player as any).level = 1;
     (player as any).mp = 100;
@@ -17,8 +24,8 @@ export function useGameEngine() {
     const colleagues: Character[] = [];
     OFFICE_LAYOUT.clusters.forEach(cluster => {
       cluster.desks.forEach(desk => {
-        if (desk.id !== 'player') {
-          colleagues.push(new Character(desk.id, desk.id.toUpperCase(), EntityType.COLLEAGUE, new Stats(80, 10, 500), desk.x, desk.y));
+        if (desk.owner !== null && desk.id !== 'player') {
+          colleagues.push(new Character(desk.id, desk.label, EntityType.COLLEAGUE, new Stats(80, 10, 500), desk.x, desk.y));
         }
       });
     });
@@ -110,7 +117,7 @@ export function useGameEngine() {
               break;
             case "c11": // 閃現走位
               const dir = [[0,1],[0,-1],[1,0],[-1,0]][Math.floor(Math.random()*4)];
-              next.player.move(Math.max(0,Math.min(5,next.player.gridX+dir[0])), Math.max(0,Math.min(4,next.player.gridY+dir[1])));
+              next.player.move(Math.max(0,Math.min(10,next.player.gridX+dir[0])), Math.max(0,Math.min(6,next.player.gridY+dir[1])));
               eventMsg = "殘影閃現！同事以為見鬼了。";
               break;
           }
@@ -236,7 +243,7 @@ export function useGameEngine() {
         name: c.name,
         role: c.id === 'player' ? (stats.level < 3 ? PlayerRole.INTERN : stats.level < 6 ? PlayerRole.JUNIOR : PlayerRole.SENIOR) : "摸魚同事",
         stats,
-        position: { x: c.displayX * 180 + 90, y: c.displayY * 104 + 52 }
+        position: { x: c.displayX * 98 + 49, y: c.displayY * 85 + 42.5 }
       };
     }),
     day: manager.day, 
@@ -250,7 +257,7 @@ export function useGameEngine() {
     }),
     deck: [],
     discardPile: [],
-    bossPosition: { x: manager.boss.displayX * 180 + 90, y: manager.boss.displayY * 104 + 52 },
+    bossPosition: { x: manager.boss.displayX * 98 + 49, y: manager.boss.displayY * 85 + 42.5 },
     catPosition: { x: manager.cat.displayX, y: manager.cat.displayY }
   };
 

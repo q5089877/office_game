@@ -33,7 +33,7 @@ const PixelCharacter = ({ name, color, isSelected, bobOffset, id }: { name: stri
   const skinColor = "#fde68a";
 
   return (
-    <Group y={bobOffset} scaleX={0.81} scaleY={0.81}>
+    <Group y={bobOffset} scaleX={0.75} scaleY={0.75}>
       <Circle radius={15} fill="rgba(0,0,0,0.1)" scaleY={0.5} y={3} />
       <Rect width={39} height={45} fill={color} cornerRadius={6} x={-19.5} y={-45} stroke="#1a1a1a" strokeWidth={2.25} />
       <Rect width={33} height={15} fill="rgba(0,0,0,0.1)" x={-16.5} y={-18} cornerRadius={3} />
@@ -47,7 +47,7 @@ const PixelCharacter = ({ name, color, isSelected, bobOffset, id }: { name: stri
       <Rect width={1.5} height={1.5} fill="#fff" x={6} y={-36} />
       <Rect width={6} height={3} fill="#fca5a5" x={-13.5} y={-30} opacity={0.6} />
       <Rect width={6} height={3} fill="#fca5a5" x={7.5} y={-30} opacity={0.6} />
-      <Group y={-61} scaleX={1.235} scaleY={1.235}>
+      <Group y={-55} scaleX={1.235} scaleY={1.235}>
         <Rect width={60} height={18} fill="rgba(255,255,255,0.8)" x={-30} cornerRadius={6} stroke="#1a1a1a" strokeWidth={1.5} />
         <Text text={name} fontSize={14} fill="#1a1a1a" fontStyle="bold" width={60} align="center" x={-30} y={2.5} />
       </Group>
@@ -61,7 +61,7 @@ const PixelCharacter = ({ name, color, isSelected, bobOffset, id }: { name: stri
 };
 
 const PixelCat = ({ x, y }: { x: number, y: number }) => (
-  <Group x={x * 180 + 90} y={y * 104 + 52}>
+  <Group x={x * 120 + 60} y={y * 87 + 43.5}>
     <Circle radius={12} fill="rgba(0,0,0,0.05)" scaleY={0.5} y={3} />
     <Rect width={27} height={21} fill="#fb923c" x={-13.5} y={-21} cornerRadius={4.5} stroke="#1a1a1a" strokeWidth={1.5} />
     <Rect width={15} height={15} fill="#fb923c" x={-21} y={-30} cornerRadius={3} stroke="#1a1a1a" strokeWidth={1.5} />
@@ -239,7 +239,7 @@ export default function App() {
       <main className="flex-1 flex flex-col relative h-full">
         {/* Game Viewport */}
         <div className="flex-1 bg-[#f1f5f9] relative overflow-hidden flex items-center justify-center"
-             style={{ backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '90px 52px' }}>
+             style={{ backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '120px 87px' }}>
 
              {/* Event Notification */}
              <AnimatePresence>
@@ -257,35 +257,59 @@ export default function App() {
              </AnimatePresence>
 
              {/* Konva Stage Container */}
-             <div className="bg-white rounded-[32px] shadow-2xl border border-stone-200/60 overflow-hidden relative" style={{ height: '522px' }}>
-                 <Stage width={OFFICE_LAYOUT.width} height={522}>
+             <div className="bg-white rounded-[32px] shadow-2xl border border-stone-200/60 overflow-hidden relative" style={{ height: '609px' }}>
+                 <Stage width={OFFICE_LAYOUT.width} height={609}>
                     <Layer>
-                       <Rect width={OFFICE_LAYOUT.width} height={522} fill="#fff" />
-                       {[...Array(13)].map((_, i) => [...Array(11)].map((_, j) => (
-                         <Circle key={`${i}-${j}`} x={i * 90 + 45} y={j * 52 + 26} radius={1} fill="#cbd5e1" />
+                       <Rect width={OFFICE_LAYOUT.width} height={609} fill="#fff" />
+                       {[...Array(9)].map((_, i) => [...Array(7)].map((_, j) => (
+                         <Circle key={`${i}-${j}`} x={i * 120 + 60} y={j * 87 + 43.5} radius={1} fill="#cbd5e1" />
                        )))}
-                       {OFFICE_LAYOUT.clusters.map(cluster => cluster.desks.map(desk => (
-                         <Group key={desk.id} x={desk.x * 180 + 36} y={desk.y * 104 + 16}>
-                            <Rect width={108} height={81} fill="rgba(248, 250, 252, 0.8)" stroke="#e2e8f0" strokeWidth={1.5} cornerRadius={10} />
-                            <Group x={9} y={50}>
-                               <Rect width={90} height={18} fill="rgba(255,255,255,0.8)" cornerRadius={4} />
-                               <Text text={desk.label} fontSize={14} fill="#94a3b8" fontStyle="bold" width={90} align="center" y={3} />
-                            </Group>
-                         </Group>
-                       )))}
+                       {OFFICE_LAYOUT.clusters.map(cluster => cluster.desks.map(desk => {
+                         const isPlayerDesk = desk.x === player.gridX && desk.y === player.gridY;
+                         return (
+                           <Group key={desk.id} x={desk.x * 98 + 10} y={desk.y * 85 + 8.5}>
+                              <Rect 
+                                width={100} height={70} 
+                                fill={isPlayerDesk ? "rgba(79, 70, 229, 0.25)" : "rgba(248, 250, 252, 0.8)"} 
+                                stroke={isPlayerDesk ? "#4f46e5" : "#e2e8f0"} 
+                                strokeWidth={isPlayerDesk ? 3 : 1.5} 
+                                cornerRadius={10} 
+                                shadowBlur={isPlayerDesk ? 15 : 0}
+                                shadowColor="#6366f1"
+                                shadowOpacity={isPlayerDesk ? 0.6 : 0}
+                              />
+                              <Group x={5} y={45}>
+                                 <Rect 
+                                    width={90} height={22} 
+                                    fill={isPlayerDesk ? "#4f46e5" : "rgba(255,255,255,0.8)"} 
+                                    cornerRadius={6} 
+                                 />
+                                 <Text 
+                                    text={isPlayerDesk ? "新進員工" : desk.label} 
+                                    fontSize={12} 
+                                    fill={isPlayerDesk ? "#ffffff" : "#94a3b8"} 
+                                    fontStyle="bold" 
+                                    width={90} 
+                                    align="center" 
+                                    y={5} 
+                                 />
+                              </Group>
+                           </Group>
+                         );
+                       }))}
                        {OFFICE_LAYOUT.objects.map(obj => (
-                         <Group key={obj.id} x={obj.x * 180 + 52} y={obj.y * 104 + 16}>
+                         <Group key={obj.id} x={obj.x * 98 + 11} y={obj.y * 85 + 4.5}>
                             <Rect width={76} height={76} fill="rgba(241, 245, 249, 0.8)" stroke={obj.id === 'printer' ? "#fecaca" : "#dbeafe"} strokeWidth={3} cornerRadius={16} />
                             <Text text={obj.emoji} fontSize={32} x={24} y={13} />
                             <Group y={50}>
-                               <Rect width={76} height={18} fill="rgba(255,255,255,0.8)" cornerRadius={4} />
-                               <Text text={obj.label} fontSize={14} fill="#94a3b8" fontStyle="bold" width={76} align="center" y={3} />
+                               <Rect width={76} height={20} fill="rgba(255,255,255,0.8)" cornerRadius={4} />
+                               <Text text={obj.label} fontSize={12} fill="#94a3b8" fontStyle="bold" width={76} align="center" y={4} />
                             </Group>
                          </Group>
                        ))}
                        <Group x={gameState.bossPosition.x} y={gameState.bossPosition.y}>
                           <Text text="👿" fontSize={36} x={-18} y={-45} />
-                          <Group y={-81}>
+                          <Group y={-75}>
                              <Rect width={72} height={23} fill="rgba(255,255,255,0.8)" x={-36} cornerRadius={8} stroke="#000" strokeWidth={2} />
                              <Text text="抓到你囉!" fontSize={14} fill="#000" fontStyle="bold" width={72} align="center" x={-36} y={6} />
                           </Group>
@@ -297,7 +321,7 @@ export default function App() {
                            <Group key={p.id} x={p.position.x} y={p.position.y} onClick={() => setSelectedPlayerId(p.id)}>
                               <PixelCharacter id={p.id} name={p.name} color={p.id === 'player' ? "#6366f1" : "#10b981"} isSelected={selectedPlayerId === p.id} bobOffset={p.position.y % 4} />
                               {isRecentTarget && showEvent && (
-                                <Group y={-92}>
+                                <Group y={-85}>
                                    <Rect width={90} height={30} fill="rgba(255,255,255,0.8)" x={-45} cornerRadius={9} stroke="#6366f1" strokeWidth={2} shadowBlur={5} shadowColor="rgba(0,0,0,0.1)" />
                                    <Text text="摸魚中..." fontSize={12} fill="#4338ca" fontStyle="bold" width={90} align="center" x={-45} y={9} />
                                    <Rect width={9} height={9} fill="rgba(255,255,255,0.8)" x={-4.5} y={25.5} rotation={45} stroke="#6366f1" strokeWidth={2} />
