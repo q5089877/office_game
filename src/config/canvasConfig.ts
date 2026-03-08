@@ -21,14 +21,22 @@ export const CANVAS_CONFIG = {
 
   // 偏移量常數
   OFFSETS: {
-    // 單元格中心點偏移
+    // 網格系統在畫布中的偏移（用於置中）
+    GRID_OFFSET: {
+      // 水平偏移：讓網格在畫布中置中
+      X: (OFFICE_LAYOUT.width - (OFFICE_LAYOUT.gridSize.x * OFFICE_LAYOUT.cellWidth)) / 2, // (1700 - 1078) / 2 = 311
+      // 垂直偏移：讓網格在畫布中置中（考慮頂部偏移）
+      Y: (OFFICE_LAYOUT.height - (OFFICE_LAYOUT.gridSize.y * OFFICE_LAYOUT.cellHeight)) / 2, // (720 - 595) / 2 = 62.5
+    },
+
+    // 單元格中心點偏移（相對於網格位置）
     CELL_CENTER_X: OFFICE_LAYOUT.cellWidth / 2,   // 49
     CELL_CENTER_Y: OFFICE_LAYOUT.cellHeight / 2,  // 42.5
 
-    // 頂部偏移（用於將畫布內容向下移動）
-    TOP_OFFSET: 80,
+    // 頂部額外偏移（用於將畫布內容向下移動，避免與UI重疊）
+    TOP_EXTRA_OFFSET: 80,
 
-    // 物件特定偏移
+    // 物件特定偏移（相對於單元格中心）
     DESK: {
       X_OFFSET: -45,    // 桌子X軸偏移
       Y_OFFSET: 8.5,    // 桌子Y軸偏移
@@ -65,22 +73,55 @@ export const CANVAS_CONFIG = {
     ULTRA_WIDE_THRESHOLD: 1.3,   // 超寬螢幕閾值
     WIDE_ADJUSTMENT: 1.05,       // 寬螢幕調整係數
   },
+
+  // 文字大小配置（增加 10%）
+  TEXT_SIZE: {
+    // 基礎文字大小
+    BASE_SCALE: 1.1, // 增加 10%
+
+    // NPC 相關文字
+    NPC: {
+      NAME_LABEL: 14 * 1.1,      // 15.4 → 15
+      DESK_LABEL: 12 * 1.1,      // 13.2 → 13
+      OBJECT_LABEL: 12 * 1.1,    // 13.2 → 13
+      OBJECT_EMOJI: 32 * 1.1,    // 35.2 → 35
+    },
+
+    // 對話泡泡文字
+    DIALOGUE: {
+      BOSS: 14 * 1.1,           // 15.4 → 15
+      PLAYER: 13 * 1.1,         // 14.3 → 14
+      TARGET: 14 * 1.1,         // 15.4 → 15
+      WATERING: 14 * 1.1,       // 15.4 → 15
+    },
+
+    // 其他文字
+    OTHER: {
+      PLANT_EMOJI: 28 * 1.1,    // 30.8 → 31
+      BOSS_EMOJI: 50 * 1.1,     // 55 → 55
+    },
+  },
 } as const;
 
 // 工具函數：計算網格位置
 export const GridCalculator = {
   /**
-   * 計算網格單元格的中心X座標
+   * 計算網格單元格的中心X座標（考慮網格置中偏移）
    */
   getCellCenterX(gridX: number): number {
-    return gridX * CANVAS_CONFIG.GRID.CELL_WIDTH + CANVAS_CONFIG.OFFSETS.CELL_CENTER_X;
+    return CANVAS_CONFIG.OFFSETS.GRID_OFFSET.X +
+           gridX * CANVAS_CONFIG.GRID.CELL_WIDTH +
+           CANVAS_CONFIG.OFFSETS.CELL_CENTER_X;
   },
 
   /**
-   * 計算網格單元格的中心Y座標（包含頂部偏移）
+   * 計算網格單元格的中心Y座標（考慮網格置中偏移和頂部額外偏移）
    */
   getCellCenterY(gridY: number): number {
-    return gridY * CANVAS_CONFIG.GRID.CELL_HEIGHT + CANVAS_CONFIG.OFFSETS.CELL_CENTER_Y + CANVAS_CONFIG.OFFSETS.TOP_OFFSET;
+    return CANVAS_CONFIG.OFFSETS.GRID_OFFSET.Y +
+           gridY * CANVAS_CONFIG.GRID.CELL_HEIGHT +
+           CANVAS_CONFIG.OFFSETS.CELL_CENTER_Y +
+           CANVAS_CONFIG.OFFSETS.TOP_EXTRA_OFFSET;
   },
 
   /**
@@ -89,7 +130,10 @@ export const GridCalculator = {
   getDeskPosition(gridX: number, gridY: number) {
     return {
       x: this.getCellCenterX(gridX) + CANVAS_CONFIG.OFFSETS.DESK.X_OFFSET,
-      y: gridY * CANVAS_CONFIG.GRID.CELL_HEIGHT + CANVAS_CONFIG.OFFSETS.DESK.Y_OFFSET + CANVAS_CONFIG.OFFSETS.TOP_OFFSET,
+      y: CANVAS_CONFIG.OFFSETS.GRID_OFFSET.Y +
+         gridY * CANVAS_CONFIG.GRID.CELL_HEIGHT +
+         CANVAS_CONFIG.OFFSETS.DESK.Y_OFFSET +
+         CANVAS_CONFIG.OFFSETS.TOP_EXTRA_OFFSET,
     };
   },
 
@@ -99,7 +143,10 @@ export const GridCalculator = {
   getObjectPosition(gridX: number, gridY: number) {
     return {
       x: this.getCellCenterX(gridX) + CANVAS_CONFIG.OFFSETS.OBJECT.X_OFFSET,
-      y: gridY * CANVAS_CONFIG.GRID.CELL_HEIGHT + CANVAS_CONFIG.OFFSETS.OBJECT.Y_OFFSET + CANVAS_CONFIG.OFFSETS.TOP_OFFSET,
+      y: CANVAS_CONFIG.OFFSETS.GRID_OFFSET.Y +
+         gridY * CANVAS_CONFIG.GRID.CELL_HEIGHT +
+         CANVAS_CONFIG.OFFSETS.OBJECT.Y_OFFSET +
+         CANVAS_CONFIG.OFFSETS.TOP_EXTRA_OFFSET,
     };
   },
 
@@ -109,7 +156,10 @@ export const GridCalculator = {
   getPlantPosition(gridX: number, gridY: number) {
     return {
       x: this.getCellCenterX(gridX),
-      y: gridY * CANVAS_CONFIG.GRID.CELL_HEIGHT + CANVAS_CONFIG.OFFSETS.PLANT.Y_OFFSET + CANVAS_CONFIG.OFFSETS.TOP_OFFSET,
+      y: CANVAS_CONFIG.OFFSETS.GRID_OFFSET.Y +
+         gridY * CANVAS_CONFIG.GRID.CELL_HEIGHT +
+         CANVAS_CONFIG.OFFSETS.PLANT.Y_OFFSET +
+         CANVAS_CONFIG.OFFSETS.TOP_EXTRA_OFFSET,
     };
   },
 
