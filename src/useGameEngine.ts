@@ -30,7 +30,7 @@ export const useGameEngine = () => {
   });
 
   const [lastActionTime, setLastActionTime] = useState(0);
-  const requestRef = useRef<number>();
+  const requestRef = useRef<number | undefined>(undefined);
 
   // 遊戲循環
   const animate = useCallback((time: number) => {
@@ -168,6 +168,7 @@ export const useGameEngine = () => {
     players: [manager.player, ...manager.colleagues].map(c => ({
       id: c.id,
       name: c.name,
+      role: c.id === 'player' ? '新進員工' : '同事',
       stats: {
         hp: c.stats.energy, mp: c.mp, maxMp: c.maxMp, xp: c.xp, level: c.level,
         stress: c.stats.stress, savings: c.stats.money, luck: c.luck, charisma: c.charisma
@@ -186,6 +187,8 @@ export const useGameEngine = () => {
       const t = CARD_POOL.find(c => c.id === tid)!;
       return { ...t, id: uId };
     }),
+    deck: [],
+    discardPile: [],
     bossPosition: { x: manager.boss.displayX * 98 + 49, y: manager.boss.displayY * 85 + 42.5 + 80 },
     plantPosition: { x: manager.plant.gridX, y: manager.plant.gridY }
   };
