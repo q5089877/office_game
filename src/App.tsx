@@ -76,7 +76,7 @@ export default function App() {
   }
 
   return (
-    <div className={`h-screen w-screen ${tw.bg.dark} ${tw.text.primary} font-sans overflow-hidden flex flex-row`}>
+    <div className={`h-screen w-screen ${tw.bg.light} ${tw.text.primary} font-sans overflow-hidden flex flex-row`}>
       <DayTransition
         isChangingDay={isChangingDay}
         summaryData={summaryData}
@@ -98,9 +98,9 @@ export default function App() {
         <div
           className={`flex-1 ${tw.bg.canvas} relative overflow-hidden flex items-center justify-center`}
           style={{
-            backgroundImage: `radial-gradient(${themeColors.secondary[300]} 1px, transparent 1px)`,
+            backgroundImage: `radial-gradient(${themeColors.secondary[200]} 1px, transparent 1px)`,
             backgroundSize: '40px 40px',
-            boxShadow: 'inset 0 0 100px rgba(0,0,0,0.05)'
+            boxShadow: 'inset 0 0 100px rgba(0,0,0,0.02)'
           }}
         >
           {/* 背景裝飾：光暈 */}
@@ -114,10 +114,10 @@ export default function App() {
                 animate={{ opacity: 1, y: 0, x: "-50%" }}
                 exit={{ opacity: 0, y: -20, x: "-50%" }}
                 className="absolute top-8 left-1/2 z-[100] px-8 py-3.5 rounded-2xl shadow-2xl font-black text-sm flex items-center gap-3 border backdrop-blur-md"
-                style={{ 
-                  backgroundColor: `${themeColors.secondary[900]}EE`, 
-                  color: themeColors.primary[50],
-                  borderColor: themeColors.primary[500] 
+                style={{
+                  backgroundColor: `${themeColors.secondary[50]}EE`,
+                  color: themeColors.primary[900],
+                  borderColor: themeColors.primary[500]
                 }}
               >
                 <span className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ backgroundColor: themeColors.error[500] }} />

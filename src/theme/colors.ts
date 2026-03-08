@@ -129,17 +129,17 @@ export const textColors = {
 };
 
 /**
- * 背景顏色主題
- * 使用更溫暖、更協調的中性色，減少純黑純白對比
+ * 背景顏色主題 - Light主題版本
+ * 使用淺色、明亮的背景顏色，創造清新明亮的視覺效果
  */
 export const backgroundColors = {
-  light: '#f9fafb', // 從純白改為溫暖的淺灰色
-  dark: '#111827', // 使用secondary[900]但更一致
-  sidebar: themeColors.secondary[50],
-  card: themeColors.secondary[800],
-  notification: '#1f2937', // 使用secondary[800]作為通知背景
-  canvas: '#f1f3f5', // 畫布背景色
-  surface: '#ffffff', // 表面元素仍可使用純白
+  light: '#ffffff', // 純白色背景
+  dark: '#f8fafc', // 非常淺的灰色作為"深色"背景（實際上是淺色）
+  sidebar: '#ffffff', // 側邊欄白色背景
+  card: '#ffffff', // 卡片白色背景
+  notification: '#f1f5f9', // 通知區域淺灰色背景
+  canvas: '#f8fafc', // 畫布背景色 - 非常淺的灰色
+  surface: '#ffffff', // 表面元素白色
 };
 
 /**
@@ -181,12 +181,12 @@ export const tailwindClasses = {
   },
 
   bg: {
-    light: 'bg-gray-50',
-    dark: 'bg-gray-900',
-    sidebar: 'bg-gray-50',
-    card: 'bg-gray-800',
-    notification: 'bg-gray-800',
-    canvas: 'bg-gray-100',
+    light: 'bg-white',
+    dark: 'bg-slate-50',
+    sidebar: 'bg-white',
+    card: 'bg-white',
+    notification: 'bg-slate-100',
+    canvas: 'bg-slate-50',
     surface: 'bg-white',
   },
 

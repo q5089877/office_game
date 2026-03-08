@@ -236,27 +236,27 @@ export const applyCSSVariables = (element: HTMLElement) => {
 };
 
 /**
- * 獲取通知類型對應的顏色
+ * 獲取通知類型對應的顏色 - Light主題版本
  */
 export const getNotificationColor = (notification: string) => {
   if (notification.includes("❌") || notification.includes("⚠️")) {
     return {
-      text: 'text-rose-300',
-      bg: 'bg-rose-500/10',
-      border: 'border-rose-500',
+      text: 'text-rose-700',
+      bg: 'bg-rose-100',
+      border: 'border-rose-300',
     };
   }
   if (notification.includes("💰")) {
     return {
-      text: 'text-emerald-300',
-      bg: 'bg-emerald-500/10',
-      border: 'border-emerald-500',
+      text: 'text-emerald-700',
+      bg: 'bg-emerald-100',
+      border: 'border-emerald-300',
     };
   }
   return {
-    text: 'text-indigo-200',
-    bg: 'bg-indigo-500/5',
-    border: 'border-indigo-500/50',
+    text: 'text-indigo-700',
+    bg: 'bg-indigo-100',
+    border: 'border-indigo-300',
   };
 };
 

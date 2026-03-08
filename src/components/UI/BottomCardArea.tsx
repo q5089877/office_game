@@ -26,29 +26,29 @@ const BottomCardArea: React.FC<BottomCardAreaProps> = ({
   return (
     <div
       className={cn(
-        "h-[180px] md:h-[220px] border-t flex flex-col px-4 md:px-8 py-4 z-40 overflow-hidden relative shadow-[0_-10px_30px_rgba(0,0,0,0.2)]",
+        "h-[200px] md:h-[240px] border-t flex flex-col px-4 md:px-8 py-3 z-40 overflow-hidden relative shadow-[0_-10px_30px_rgba(0,0,0,0.1)]",
         tw.bg.light
       )}
-      style={{ borderColor: themeColors.secondary[700] }}
+      style={{ borderColor: themeColors.secondary[200] }}
     >
       {/* 裝飾性網格：與 App 統一 */}
       <div className="absolute inset-0 opacity-5 pointer-events-none"
            style={{
              backgroundImage: `linear-gradient(90deg, ${themeColors.primary[500]} 1px, transparent 1px), linear-gradient(0deg, ${themeColors.primary[500]} 1px, transparent 1px)`,
-             backgroundSize: '40px 40px'
+             backgroundSize: '10px 10px'
            }} />
 
-      <div className="flex justify-between items-center mb-4 relative z-10">
+      <div className="flex justify-between items-center mb-2 relative z-10">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <Activity size={16} style={{ color: themeColors.primary[400] }} />
-            <span className="text-xs font-black uppercase tracking-[0.3em]" style={{ color: themeColors.primary[300] }}>
+            <Activity size={16} style={{ color: themeColors.primary[300] }} />
+            <span className="text-xs font-black uppercase tracking-[0.3em]" style={{ color: themeColors.primary[700] }}>
               Tactical Console v1.1
             </span>
           </div>
 
           {/* 核心資源快速監控 */}
-          <div className="flex items-center gap-4 border-l pl-6" style={{ borderColor: themeColors.secondary[700] }}>
+          <div className="flex items-center gap-4 border-l pl-6" style={{ borderColor: themeColors.secondary[200] }}>
             <div className="flex items-center gap-2 group">
               <div
                 className="w-8 h-8 rounded-full border flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.1)]"
@@ -93,28 +93,28 @@ const BottomCardArea: React.FC<BottomCardAreaProps> = ({
             <span className="text-[9px] font-black px-2 py-0.5 rounded border" style={{ color: `${themeColors.error[400]}CC`, borderColor: `${themeColors.error[500]}40` }}>PRANK</span>
             <span className="text-[9px] font-black px-2 py-0.5 rounded border" style={{ color: `${themeColors.primary[300]}CC`, borderColor: `${themeColors.primary[500]}40` }}>EVADE</span>
           </div>
-          <span className={cn("text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full border", tw.bg.card)} style={{ borderColor: themeColors.secondary[700], color: themeColors.secondary[300] }}>
+          <span className={cn("text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full border", tw.bg.card)} style={{ borderColor: themeColors.primary[500], color: themeColors.primary[700] }}>
             HAND: {gameState.hand.length}/5
           </span>
         </div>
       </div>
 
-      <div className="flex items-center gap-4 h-full overflow-hidden relative z-10">
+      <div className="flex items-center gap-1 h-full overflow-hidden relative z-10">
         {/* 抽牌區 */}
         <div
-          className="shrink-0 h-[130px] flex items-center rounded-[28px] border p-2 relative shadow-2xl mr-2 group/slot transition-all"
-          style={{ backgroundColor: `${themeColors.secondary[800]}80`, borderColor: themeColors.secondary[700] }}
+          className="shrink-0 h-[130px] flex items-center rounded-[28px] border p-2 relative shadow-2xl mr-0 group/slot transition-all"
+          style={{ backgroundColor: `${themeColors.secondary[50]}80`, borderColor: themeColors.primary[500] }}
         >
           <button
             onClick={onDrawCard}
             disabled={player.stats.energy <= 0}
             className={cn(
-              "w-24 h-[114px] rounded-2xl flex flex-col items-center justify-between py-3 px-2 transition-all duration-300 relative overflow-hidden group shrink-0 shadow-lg",
+              "w-20 md:w-24 h-[114px] rounded-2xl flex flex-col items-center justify-between py-3 px-2 transition-all duration-300 relative overflow-hidden group shrink-0 shadow-lg",
               player.stats.energy > 0
                 ? "text-white hover:-translate-y-1 active:scale-95"
                 : "cursor-not-allowed opacity-50"
             )}
-            style={{ backgroundColor: player.stats.energy > 0 ? themeColors.primary[600] : themeColors.secondary[700] }}
+            style={{ backgroundColor: player.stats.energy > 0 ? themeColors.primary[500] : themeColors.secondary[800] }}
           >
             <div className="flex flex-col items-center gap-2">
               <PlusCircle size={20} className="group-hover:rotate-90 transition-transform duration-500" />
@@ -132,7 +132,7 @@ const BottomCardArea: React.FC<BottomCardAreaProps> = ({
         </div>
 
         {/* 手牌捲動區 */}
-        <div className="flex-1 flex items-center gap-3 overflow-x-auto no-scrollbar h-full py-2">
+        <div className="flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar h-full py-2">
           {gameState.hand.map((card, idx) => {
             const isPrank = card.type === CardType.PRANK;
             const cardUI = getCardColor(card.type);
@@ -145,14 +145,14 @@ const BottomCardArea: React.FC<BottomCardAreaProps> = ({
                 whileTap={{ scale: 0.98 }}
                 onClick={() => onPlayCard(card.id)}
                 className={cn(
-                  "w-48 h-[120px] border-2 rounded-2xl p-3 cursor-pointer flex flex-col relative transition-all shrink-0 group overflow-hidden shadow-xl",
+                  "w-40 md:w-44 h-[120px] border-2 rounded-2xl p-3 cursor-pointer flex flex-col relative transition-all shrink-0 group overflow-hidden shadow-xl",
                   player.stats.energy < card.energyCost
                     ? "opacity-40 grayscale pointer-events-none border-dashed"
                     : "active:border-indigo-400"
                 )}
                 style={{
-                  backgroundColor: themeColors.secondary[800],
-                  borderColor: themeColors.secondary[700]
+                  backgroundColor: themeColors.secondary[50],
+                  borderColor: themeColors.secondary[200]
                 }}
               >
                 {/* 稀有度指示器 */}
@@ -163,7 +163,7 @@ const BottomCardArea: React.FC<BottomCardAreaProps> = ({
                   <span className={cn("text-[9px] font-black uppercase tracking-widest", tw.text.muted)}>{card.rarity} RANK</span>
                   <div
                     className="px-2 py-1 rounded-lg border flex items-center gap-1"
-                    style={{ backgroundColor: themeColors.secondary[900], borderColor: themeColors.secondary[700] }}
+                    style={{ backgroundColor: themeColors.secondary[100], borderColor: themeColors.secondary[200] }}
                   >
                     <Zap size={10} style={{ color: themeColors.success[400] }} className="fill-current" />
                     <span className="font-mono font-black text-xs" style={{ color: themeColors.success[400] }}>{card.energyCost}</span>

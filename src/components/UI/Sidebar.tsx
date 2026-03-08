@@ -44,13 +44,13 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className={cn("p-6 border-b shadow-sm", tw.bg.light, tw.border.light)}>
         <div className="flex items-center gap-4">
           <div className="relative group">
-            <div 
+            <div
               className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg transition-transform group-hover:scale-105"
-              style={{ background: `linear-gradient(135deg, ${themeColors.secondary[800]}, ${themeColors.secondary[900]})` }}
+              style={{ background: `linear-gradient(135deg, ${themeColors.primary[500]}, ${themeColors.primary[600]})` }}
             >
               <Ghost size={28} />
             </div>
-            <div 
+            <div
               className="absolute -bottom-2 -right-2 text-white text-[10px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm"
               style={{ backgroundColor: themeColors.primary[600] }}
             >
@@ -62,10 +62,10 @@ const Sidebar: React.FC<SidebarProps> = ({
               PIXEL THIEF
             </h1>
             <div className="flex items-center gap-2">
-              <span 
+              <span
                 className="text-[10px] font-black px-2 py-0.5 rounded tracking-widest uppercase border"
-                style={{ 
-                  backgroundColor: themeColors.primary[50], 
+                style={{
+                  backgroundColor: themeColors.primary[50],
                   color: themeColors.primary[600],
                   borderColor: themeColors.primary[100]
                 }}
@@ -81,10 +81,10 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className={cn(
         "flex-1 p-4 mx-4 mt-4 rounded-xl border shadow-2xl overflow-hidden flex flex-col relative group min-h-[240px]",
         tw.bg.notification,
-        "border-gray-700" // 保持終端機深色邊框
+        "border-gray-200" // 改為淺色邊框
       )}>
-        <div className="flex items-center justify-between mb-3 border-b border-gray-700 pb-2">
-          <div 
+        <div className="flex items-center justify-between mb-3 border-b border-gray-200 pb-2">
+          <div
             className="text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-2"
             style={{ color: themeColors.primary[300] }}
           >
@@ -113,7 +113,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     colors.border ? `border-l-4 ${colors.border}` : ""
                   )}
                 >
-                  <span className="shrink-0 opacity-50 mt-1 text-[9px] text-gray-400">
+                  <span className="shrink-0 opacity-50 mt-1 text-[9px] text-gray-500">
                     [{new Date().toLocaleTimeString([], { hour12: false, minute: '2-digit', second: '2-digit' })}]
                   </span>
                   <span>{note}</span>
@@ -122,7 +122,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             })}
           </AnimatePresence>
         </div>
-        <div 
+        <div
           className="absolute inset-0 pointer-events-none opacity-5"
           style={{ backgroundImage: `radial-gradient(${themeColors.primary[500]} 1px, transparent 1px)`, backgroundSize: '20px 20px' }}
         />
@@ -146,8 +146,8 @@ const Sidebar: React.FC<SidebarProps> = ({
           onClick={onToggleShop}
           className={cn(
             "p-3 rounded-xl transition-all shadow-sm border flex items-center gap-2",
-            showShop 
-              ? "text-white" 
+            showShop
+              ? "text-white"
               : cn(tw.bg.light, tw.text.secondary, tw.border.light, `hover:${tw.bg.sidebar}`)
           )}
           style={showShop ? { backgroundColor: themeColors.primary[600], borderColor: themeColors.primary[600] } : {}}
@@ -158,7 +158,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Scrollable Content Area */}
-      <div className="flex-1 overflow-y-auto no-scrollbar p-6 bg-white/30 backdrop-blur-sm">
+      <div className="flex-1 overflow-y-auto no-scrollbar p-6 bg-white/50 backdrop-blur-sm">
         {showShop ? (
           <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <h3 className={cn("text-[11px] font-black uppercase tracking-[0.2em] mb-4", tw.text.muted)}>Available Tools</h3>
@@ -173,13 +173,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onBuyItem(item.id)}
                     className={cn(
                       "w-full text-left p-3 rounded-2xl border transition-all group relative overflow-hidden",
-                      isOwned 
-                        ? cn(tw.bg.sidebar, tw.border.light, "grayscale opacity-60 cursor-not-allowed") 
+                      isOwned
+                        ? cn(tw.bg.sidebar, tw.border.light, "grayscale opacity-60 cursor-not-allowed")
                         : cn("bg-white hover:shadow-md active:scale-95", tw.border.light, "hover:border-indigo-200")
                     )}
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <div 
+                      <div
                         className="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter"
                         style={{ backgroundColor: themeColors.primary[50], color: themeColors.primary[500] }}
                       >
@@ -212,16 +212,16 @@ const Sidebar: React.FC<SidebarProps> = ({
                   </span>
                </div>
                <div className={cn("h-1.5 w-full rounded-full overflow-hidden", tw.bg.light)}>
-                  <motion.div 
-                    className="h-full" 
+                  <motion.div
+                    className="h-full"
                     style={{ backgroundColor: themeColors.warning[400] }}
-                    initial={{ width: 0 }} 
-                    animate={{ width: `${gameState.chaosLevel}%` }} 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${gameState.chaosLevel}%` }}
                   />
                </div>
             </div>
 
-            <div 
+            <div
               className="p-4 rounded-2xl text-white shadow-lg relative overflow-hidden group"
               style={{ backgroundColor: themeColors.primary[600], boxShadow: shadowColors.primary }}
             >
@@ -245,9 +245,9 @@ const Sidebar: React.FC<SidebarProps> = ({
               ? "text-white shadow-xl hover:opacity-90 active:scale-95"
               : cn(tw.bg.light, tw.text.muted, "cursor-not-allowed")
           )}
-          style={gameState.activityThisDay >= 3 ? { 
+          style={gameState.activityThisDay >= 3 ? {
             backgroundColor: themeColors.primary[600],
-            boxShadow: shadowColors.primary 
+            boxShadow: shadowColors.primary
           } : {}}
         >
           下班 (Clock Out)
