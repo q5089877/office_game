@@ -46,6 +46,7 @@ export const OFFICE_LAYOUT = {
     { id: "printer", x: 6, y: 5, label: "冒煙印表機", type: "CHAOS_SOURCE", emoji: "🔥" },
     { id: "toilet", x: 10, y: 5, label: "薪水傳送門", type: "STRESS_RELIEF", emoji: "🧻" },
     { id: "vending", x: 0, y: 5, label: "快樂水機", type: "ENERGY_SOURCE", emoji: "🥤" },
+    { id: "plant", x: 10, y: 0, label: "舒壓植栽", type: "STRESS_RELIEF", emoji: "🪴" },
   ],
   door: { x: 5, y: 0 }
 };
@@ -66,6 +67,7 @@ export const CARD_POOL: Card[] = [
   { id: "c15", name: "背後突襲", description: "「哇！」目標隨機瞬移，混亂度+10", type: CardType.PRANK, energyCost: 15, stressChange: 10, chaosGain: 10, rarity: "B" },
   { id: "c16", name: "代領包裹", description: "幫同事去門口拿包裹。獎金+100", type: CardType.SLACKING, energyCost: 10, stressChange: -10, savingsChange: 100, rarity: "C" },
   { id: "c17", name: "下午茶外送", description: "幫全公司訂珍奶。全體同事壓力-20", type: CardType.GOSSIP, energyCost: 20, stressChange: -20, chaosGain: 15, rarity: "S" },
+  { id: "c18", name: "澆水", description: "幫植物澆水。壓力-15，植物散發芬多精光環。", type: CardType.SLACKING, energyCost: 5, stressChange: -15, rarity: "B" },
 ];
 
 export const SHOP_ITEMS: ShopItem[] = [

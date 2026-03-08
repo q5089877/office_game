@@ -1,6 +1,6 @@
 import { DialogueManager } from "./DialogueManager";
 import { DailyModifier, Gender, EntityType } from "../types";
-import { DAILY_EVENTS } from "../constants";
+import { DAILY_EVENTS, OFFICE_LAYOUT } from "../constants";
 
 /**
  * 搞笑版辦公室生存 - 核心邏輯簡化版 (精力與壓力系統)
@@ -80,8 +80,9 @@ export class Character extends BaseEntity {
   wander() {
     const isCaringPlant = this.type === EntityType.COLLEAGUE && Math.random() < 0.001;
     if (isCaringPlant) {
-      this.gridX = 10;
-      this.gridY = 0;
+      const plantDef = OFFICE_LAYOUT.objects.find(o => o.id === 'plant');
+      this.gridX = plantDef ? plantDef.x : 10;
+      this.gridY = plantDef ? plantDef.y : 0;
       return;
     }
     const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
@@ -138,12 +139,17 @@ export class Boss extends BaseEntity {
 export class Plant extends BaseEntity {
   public gridX: number; public gridY: number;
   public displayX: number; public displayY: number;
+  public boostTimer: number = 0;
+
   constructor(x: number, y: number) {
     super('plant', '舒壓植栽', EntityType.PLANT, Gender.MALE);
     this.gridX = x; this.gridY = y;
     this.displayX = x; this.displayY = y;
   }
-  tick() { this.displayX = this.gridX; this.displayY = this.gridY; }
+  tick(deltaTime: number = 16) {
+    this.displayX = this.gridX; this.displayY = this.gridY;
+    if (this.boostTimer > 0) this.boostTimer -= deltaTime;
+  }
 }
 
 export class GameManager {
@@ -164,7 +170,8 @@ export class GameManager {
     this.player = player || new Character('player', '你', EntityType.PLAYER);
     this.colleagues = colleagues || [];
     this.boss = boss || new Boss(5, 0);
-    this.plant = plant || new Plant(5, 4);
+    const plantDef = OFFICE_LAYOUT.objects.find(o => o.id === 'plant');
+    this.plant = plant || new Plant(plantDef ? plantDef.x : 10, plantDef ? plantDef.y : 0);
     this.day = day || 1; this.chaosLevel = chaosLevel || 0;
   }
 
@@ -177,7 +184,17 @@ export class GameManager {
     this.player.tick(16);
     this.colleagues.forEach(c => c.tick(16));
     this.boss.tick(this.day, this.currentEvent.bossSpeedMult);
-    this.plant.tick();
+    this.plant.tick(16);
+
+    // 植物芬多精光環效果
+    if (this.plant.boostTimer > 0) {
+      const range = 4;
+      [this.player, ...this.colleagues].forEach(c => {
+        if (Math.abs(c.gridX - this.plant.gridX) <= range && Math.abs(c.gridY - this.plant.gridY) <= range) {
+          c.stats.modifyStress(-0.05); // 每幀微幅減少壓力
+        }
+      });
+    }
 
     // 壓力警告
     if (this.player.stats.stress > 90 && Math.random() < 0.01) {
@@ -186,7 +203,10 @@ export class GameManager {
 
     const speakingCount = this.colleagues.filter(c => c.chatMessage !== null).length;
     if (speakingCount < 2) {
-      const quietColleagues = this.colleagues.filter(c => c.chatMessage === null && !(c.gridX === 10 && c.gridY === 0));
+      const plantDef = OFFICE_LAYOUT.objects.find(o => o.id === 'plant');
+      const pX = plantDef ? plantDef.x : 10;
+      const pY = plantDef ? plantDef.y : 0;
+      const quietColleagues = this.colleagues.filter(c => c.chatMessage === null && !(c.gridX === pX && c.gridY === pY));
       if (quietColleagues.length > 0 && Math.random() < 0.005) {
         const luckyOne = quietColleagues[Math.floor(Math.random() * quietColleagues.length)];
         luckyOne.chatMessage = DialogueManager.getRandomQuote(luckyOne, this.currentEvent);
@@ -257,6 +277,7 @@ export class GameManager {
     cloned.currentEvent = this.currentEvent;
     cloned.boss.displayX = this.boss.displayX; cloned.boss.displayY = this.boss.displayY;
     cloned.plant.displayX = this.plant.displayX; cloned.plant.displayY = this.plant.displayY;
+    cloned.plant.boostTimer = this.plant.boostTimer;
     cloned.handIds = [...this.handIds];
     return cloned;
   }

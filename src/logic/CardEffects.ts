@@ -108,5 +108,10 @@ export const CARD_EFFECT_HANDLERS: Record<string, CardEffectFn> = {
       triggerNPCDialogue(c, "珍奶萬歲！謝謝你！", 3000);
     });
     return "珍奶外送到了！全辦公室都聞到了幸福的味道 🥤";
+  },
+  "c18": (game, player, target) => {
+    player.gridX = game.plant.gridX; player.gridY = game.plant.gridY;
+    game.plant.boostTimer = 10000; // 光環持續 10 秒
+    return "你幫植物澆了水，空氣中充滿了芬多精！(周圍壓力持續下降)";
   }
 };

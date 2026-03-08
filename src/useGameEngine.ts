@@ -50,7 +50,7 @@ export const useGameEngine = () => {
   const selectAutoTarget = useCallback((game: GameManager, cardId: string): Character => {
     const cardTemplate = CARD_POOL.find(c => c.id === cardId);
     if (!cardTemplate) return game.player;
-    const selfOnlyCards = ['c1', 'c2', 'c4', 'c5', 'c6', 'c7', 'c10', 'c11', 'c16'];
+    const selfOnlyCards = ['c1', 'c2', 'c4', 'c5', 'c6', 'c7', 'c10', 'c11', 'c16', 'c18'];
     if (selfOnlyCards.includes(cardId) || cardId === 'c17' || game.colleagues.length === 0) return game.player;
     return game.colleagues[Math.floor(Math.random() * game.colleagues.length)];
   }, []);
@@ -196,7 +196,7 @@ export const useGameEngine = () => {
     }),
     bossPosition: PositionService.getNPCDisplayPosition(manager.boss.displayX, manager.boss.displayY),
     bossChatMessage: manager.boss.chatMessage,
-    plantPosition: { x: manager.plant.gridX, y: manager.plant.gridY }
+    plantPosition: PositionService.gridToPixel(manager.plant.gridX, manager.plant.gridY, OfficeEntity.PLANT)
   };
 
   return { gameState, player, playCard, drawCard, clockOut, buyItem };
