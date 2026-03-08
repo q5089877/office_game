@@ -3,13 +3,8 @@ import { DailyModifier, Gender, EntityType } from "../types";
 import { DAILY_EVENTS } from "../constants";
 
 /**
- * 搞笑版辦公室生存 - 遊戲核心邏輯 (RPG 模式)
+ * 搞笑版辦公室生存 - 核心邏輯簡化版 (精力與壓力系統)
  */
-
-
-export enum CardRarity {
-  C = 'C', B = 'B', A = 'A', S = 'S',
-}
 
 export class Stats {
   constructor(
@@ -20,7 +15,7 @@ export class Stats {
   ) {}
 
   modifyEnergy(amount: number) { this.energy = Math.min(this.maxEnergy, Math.max(0, this.energy + amount)); }
-  modifyStress(amount: number) { this.stress = Math.max(0, this.stress + amount); }
+  modifyStress(amount: number) { this.stress = Math.min(100, Math.max(0, this.stress + amount)); }
   modifyMoney(amount: number) { this.money += amount; }
   clone(): Stats { return new Stats(this.energy, this.stress, this.money, this.maxEnergy); }
 }
@@ -47,12 +42,10 @@ export class Character extends BaseEntity {
 
   public xp: number = 0;
   public level: number = 1;
-  public mp: number = 100;
-  public maxMp: number = 100;
   public luck: number = 5;
-  public charisma: number = 10;
   public chatMessage: string | null = null;
   public chatTimer: number = 0;
+  public ownedItemIds: string[] = [];
 
   constructor(id: string, name: string, type: EntityType, stats?: Stats, x: number = 0, y: number = 0, gender: Gender = Gender.MALE) {
     super(id, name, type, gender);
@@ -97,16 +90,14 @@ export class Character extends BaseEntity {
     this.gridY = Math.max(0, Math.min(6, this.gridY + dir[1]));
   }
 
-  move(newX: number, newY: number) { this.gridX = newX; this.gridY = newY; }
-
   clone(): Character {
     const c = new Character(this.id, this.name, this.type, this.stats.clone(), this.gridX, this.gridY, this.gender);
     c.displayX = this.displayX; c.displayY = this.displayY;
     c.homeX = this.homeX; c.homeY = this.homeY;
     c.xp = this.xp; c.level = this.level;
-    c.mp = this.mp; c.maxMp = this.maxMp;
-    c.luck = this.luck; c.charisma = this.charisma;
+    c.luck = this.luck;
     c.chatMessage = this.chatMessage; c.chatTimer = this.chatTimer;
+    c.ownedItemIds = [...this.ownedItemIds];
     return c;
   }
 }
@@ -124,9 +115,8 @@ export class Boss extends BaseEntity {
   }
 
   tick(day: number = 1, speedMult: number = 1) {
-    // 處理對話計時器
     if (this.chatTimer > 0) {
-      this.chatTimer -= 16; // 假設deltaTime為16ms (60fps)
+      this.chatTimer -= 16;
       if (this.chatTimer <= 0) this.chatMessage = null;
     }
 
@@ -143,8 +133,6 @@ export class Boss extends BaseEntity {
       this.gridY = Math.max(0, Math.min(6, this.gridY + dir[1]));
     }
   }
-
-  move(newX: number, newY: number) { this.gridX = newX; this.gridY = newY; }
 }
 
 export class Plant extends BaseEntity {
@@ -169,14 +157,20 @@ export class GameManager {
   public performance: number = 0;
   public currentEvent: DailyModifier = DAILY_EVENTS[0];
   public lastEvent: string | null = "歡迎來到摸魚辦公室！";
+  public notifications: string[] = [];
   public handIds: string[] = [];
 
   constructor(player?: Character, colleagues?: Character[], boss?: Boss, plant?: Plant, day?: number, chaosLevel?: number) {
     this.player = player || new Character('player', '你', EntityType.PLAYER);
     this.colleagues = colleagues || [];
     this.boss = boss || new Boss(5, 0);
-    this.plant = plant || new Plant(5, 4); // 將植物位置從(10,0)改為(5,4) - 辦公室中心位置
+    this.plant = plant || new Plant(5, 4);
     this.day = day || 1; this.chaosLevel = chaosLevel || 0;
+  }
+
+  addNotification(msg: string) {
+    this.notifications.unshift(msg);
+    if (this.notifications.length > 5) this.notifications.pop();
   }
 
   tick() {
@@ -184,6 +178,11 @@ export class GameManager {
     this.colleagues.forEach(c => c.tick(16));
     this.boss.tick(this.day, this.currentEvent.bossSpeedMult);
     this.plant.tick();
+
+    // 壓力警告
+    if (this.player.stats.stress > 90 && Math.random() < 0.01) {
+      this.addNotification("⚠️ 警告：壓力過載！即將崩潰！");
+    }
 
     const speakingCount = this.colleagues.filter(c => c.chatMessage !== null).length;
     if (speakingCount < 2) {
@@ -197,9 +196,23 @@ export class GameManager {
   }
 
   endDay() {
+    let baseMoney = 500 + (this.performance * 5);
+    if (this.player.ownedItemIds.includes('macro_script')) {
+      baseMoney = Math.floor(baseMoney * 1.15);
+    }
+    
+    // 壓力紅利：壓力越低，獎金加成越高
+    let stressBonus = 1.0;
+    if (this.player.stats.stress === 0) {
+      stressBonus = 1.5; // 壓力 0 獎金 1.5 倍
+      this.addNotification("✨ 達成：究極摸魚聖境！獎金大幅提升！");
+    } else if (this.player.stats.stress < 20) {
+      stressBonus = 1.2;
+    }
+    
     const summary = {
       prevDay: this.day,
-      moneyEarned: Math.floor((500 + (this.performance * 5)) * (1 / this.currentEvent.stressMult)),
+      moneyEarned: Math.floor(baseMoney * stressBonus * (1 / this.currentEvent.stressMult)),
       stressChange: -20,
       performance: this.performance,
       wasCaught: false,
@@ -210,12 +223,18 @@ export class GameManager {
     this.chaosLevel = 0;
     this.activityThisDay = 0;
     this.performance = 0;
+    this.notifications = [];
 
-    // 抽取明天的新事件
     this.currentEvent = DAILY_EVENTS[Math.floor(Math.random() * DAILY_EVENTS.length)];
 
-    const recovery = Math.max(20, 100 - this.player.stats.stress);
-    this.player.stats.modifyEnergy(recovery);
+    // 精力恢復與加成
+    let energyRecovery = 100;
+    if (this.player.ownedItemIds.includes('ergo_pillow')) {
+      energyRecovery += 20;
+      this.addNotification("💤 人體工學靠枕：恢復額外精力");
+    }
+    this.player.stats.energy = Math.min(this.player.stats.maxEnergy, this.player.stats.energy + energyRecovery);
+    this.player.stats.modifyStress(-20);
     this.player.stats.modifyMoney(summary.moneyEarned);
 
     const dist = Math.abs(this.player.gridX - this.boss.gridX) + Math.abs(this.player.gridY - this.boss.gridY);
@@ -224,6 +243,7 @@ export class GameManager {
       this.player.stats.modifyMoney(-300);
       summary.moneyEarned -= 300;
       summary.wasCaught = true;
+      this.addNotification("😨 糟糕！被老闆堵個正著！");
     }
     return summary;
   }
@@ -231,6 +251,7 @@ export class GameManager {
   clone(): GameManager {
     const cloned = new GameManager(this.player.clone(), this.colleagues.map(c => c.clone()), new Boss(this.boss.gridX, this.boss.gridY), new Plant(this.plant.gridX, this.plant.gridY), this.day, this.chaosLevel);
     cloned.lastEvent = this.lastEvent;
+    cloned.notifications = [...this.notifications];
     cloned.activityThisDay = this.activityThisDay;
     cloned.performance = this.performance;
     cloned.currentEvent = this.currentEvent;

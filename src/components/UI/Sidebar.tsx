@@ -1,17 +1,16 @@
 /**
- * Sidebar 組件
- * 左側邊欄，包含玩家資訊、狀態、商店、指南等
+ * Sidebar 組件 - 優化 Layout 版本
  */
 
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Ghost, Calendar, Coffee, HelpCircle,
-  Flame, Zap, Sparkles, Clover
+  Flame, Zap, CheckCircle2, Info, Wallet, TrendingUp
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
-import VerticalBar from '../shared/VerticalBar';
-import { GameState, Player } from '../../types';
+import { GameState, Player, ItemType } from '../../types';
+import { SHOP_ITEMS } from '../../constants';
 
 interface SidebarProps {
   gameState: GameState;
@@ -35,93 +34,113 @@ const Sidebar: React.FC<SidebarProps> = ({
   onClockOut,
 }) => {
   return (
-    <aside className="w-72 bg-white border-r border-slate-200 flex flex-col p-4 z-50 shadow-[4px_0_20px_rgba(0,0,0,0.02)] shrink-0 relative">
-      {/* Profile Header */}
-      <div className="flex items-center gap-4 mb-4">
-        <div className="w-14 h-14 bg-[#4F46E5] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-100 border-2 border-white relative shrink-0">
-          <Ghost size={28} className="animate-pulse drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]" />
-          <span className="absolute -bottom-2 -right-2 bg-yellow-400 text-black text-[10px] font-black px-1.5 py-0.5 rounded-full border-2 border-white shadow-sm">
-            LV.{player.stats.level}
+    <aside className="w-80 bg-slate-50 border-r border-slate-200 flex flex-col z-50 shadow-2xl shrink-0 relative overflow-hidden font-sans">
+      
+      {/* Header Section - 玩家資訊與等級 */}
+      <div className="bg-white p-6 border-b border-slate-100 shadow-sm">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="relative group">
+            <div className="w-14 h-14 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 transition-transform group-hover:scale-105">
+              <Ghost size={28} className="animate-pulse" />
+            </div>
+            <div className="absolute -bottom-2 -right-2 bg-amber-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm">
+              LV.{player.stats.level}
+            </div>
+          </div>
+          <div className="min-w-0 flex flex-col">
+            <h1 className="font-black text-xl italic tracking-tighter text-slate-800 leading-none mb-1">
+              PIXEL THIEF
+            </h1>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded tracking-widest uppercase">
+                {player.role}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Vitals - 橫向進度條優化空間 */}
+        <div className="space-y-3">
+          <div className="space-y-1">
+            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-slate-400">
+              <span className="flex items-center gap-1"><Zap size={10} className="text-orange-500" /> 壓力值 (Stress)</span>
+              <span className={cn(player.stats.stress > 80 ? "text-rose-500 animate-pulse" : "text-slate-600")}>{player.stats.stress} / 100</span>
+            </div>
+            <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200/50 shadow-inner">
+              <motion.div 
+                className={cn("h-full transition-colors duration-500", player.stats.stress > 80 ? "bg-rose-500" : "bg-orange-400")}
+                initial={{ width: 0 }}
+                animate={{ width: `${player.stats.stress}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-slate-400">
+              <span className="flex items-center gap-1"><TrendingUp size={10} className="text-emerald-500" /> 精力值 (Energy)</span>
+              <span className="text-slate-600">{player.stats.energy} / {player.stats.maxEnergy}</span>
+            </div>
+            <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200/50 shadow-inner">
+              <motion.div 
+                className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]"
+                initial={{ width: 0 }}
+                animate={{ width: `${(player.stats.energy / player.stats.maxEnergy) * 100}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Notifications Area - 終端機風格日誌 */}
+      <div className="p-4 bg-slate-900 mx-4 mt-4 rounded-xl border border-slate-800 shadow-2xl h-32 overflow-hidden flex flex-col relative group">
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            SYSTEM LOG
+          </div>
+          <div className="flex gap-1">
+            <div className="w-2 h-2 rounded-full bg-slate-800" />
+            <div className="w-2 h-2 rounded-full bg-slate-800" />
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto no-scrollbar space-y-2">
+          <AnimatePresence mode="popLayout">
+            {gameState.notifications.map((note, i) => (
+              <motion.div
+                key={`${note}-${i}`}
+                initial={{ opacity: 0, x: -5 }}
+                animate={{ opacity: 1, x: 0 }}
+                className={cn(
+                  "text-[13px] font-black leading-tight flex items-start gap-2",
+                  note.includes("❌") || note.includes("⚠️") ? "text-rose-400" : 
+                  note.includes("💰") ? "text-emerald-400" : "text-indigo-300"
+                )}
+              >
+                <span className="shrink-0 opacity-50 mt-1">●</span>
+                <span>{note}</span>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+        <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-slate-900/10 via-transparent to-slate-900/40" />
+      </div>
+
+      {/* Economy & Shop Toggle - 錢包風格 */}
+      <div className="px-6 py-4 flex items-center justify-between mt-auto bg-white/50 border-t border-slate-100">
+        <div className="flex flex-col">
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
+            <Wallet size={10} /> SAVINGS
+          </span>
+          <span className="text-3xl font-black text-emerald-600 font-mono tracking-tighter">
+            ${player.stats.savings}
           </span>
         </div>
-        <div className="min-w-0 flex flex-col justify-center">
-          <h1 className="font-black text-xl uppercase italic tracking-tighter bg-gradient-to-br from-[#4F46E5] via-[#4F46E5] to-purple-600 text-transparent bg-clip-text leading-none mb-1 drop-shadow-sm">
-            Pixel Thief
-          </h1>
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] truncate">
-            {player.role}
-          </p>
-        </div>
-      </div>
-
-      {/* Daily Event */}
-      <div className={cn(
-        "mb-4 p-3 rounded-2xl border-2 flex flex-col gap-1 shadow-sm",
-        gameState.currentEvent.id === 'deadline' ? "bg-rose-50 border-rose-100 text-rose-900" :
-        gameState.currentEvent.id === 'friday' ? "bg-emerald-50 border-emerald-100 text-emerald-900" :
-        gameState.currentEvent.id === 'coffee_broken' ? "bg-amber-50 border-amber-100 text-amber-900" :
-        gameState.currentEvent.id === 'boss_meeting' ? "bg-indigo-50 border-indigo-100 text-indigo-900" :
-        "bg-slate-50 border-slate-100 text-slate-900"
-      )}>
-        <div className="flex items-center gap-2 mb-0.5">
-          <Calendar size={14} className="opacity-60" />
-          <span className="text-[10px] font-black uppercase tracking-widest opacity-60">今日事件</span>
-        </div>
-        <p className="font-black text-sm">{gameState.currentEvent.name}</p>
-        <p className="text-[10px] font-bold opacity-70 leading-tight">{gameState.currentEvent.description}</p>
-      </div>
-
-      {/* Vitals (HP/MP/XP) */}
-      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex justify-around mb-4">
-        <VerticalBar
-          value={player.stats.hp}
-          max={100}
-          color="bg-rose-500"
-          label="HP"
-          title="體力：歸零則 Game Over"
-        />
-        <VerticalBar
-          value={player.stats.mp}
-          max={player.stats.maxMp}
-          color="bg-cyan-500"
-          label="MP"
-          title="摸魚值：抽牌出牌用"
-        />
-        <div className="flex flex-col items-center gap-1 h-full group">
-          <div className="w-2.5 h-16 bg-slate-100 rounded-full overflow-hidden relative border border-slate-200 shadow-inner">
-            <motion.div
-              className="absolute bottom-0 w-full bg-amber-400 rounded-full"
-              animate={{ height: `${player.stats.xp}%` }}
-            />
-          </div>
-          <span className="text-[10px] font-black text-slate-700 leading-none mt-0.5">{Math.round(player.stats.xp)}</span>
-          <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">XP</span>
-        </div>
-      </div>
-
-      {/* Economy & Shop Toggle */}
-      <div className="mb-4 px-2 flex justify-between items-end">
-        <div>
-          <p className="text-[11px] text-slate-400 font-bold uppercase mb-1 tracking-wider">Savings</p>
-          <p className="text-4xl font-black text-emerald-500 font-mono tracking-tighter">
-            <span className="text-2xl opacity-50">$</span>{player.stats.savings}
-          </p>
-        </div>
         <div className="flex gap-2">
-          <button
-            onClick={onToggleGuide}
-            className={cn(
-              "p-2 rounded-lg transition-all border shadow-sm",
-              showGuide ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-600 border-slate-100 hover:bg-slate-50"
-            )}
-          >
-            <HelpCircle size={20} />
-          </button>
-          <button
+          <button 
             onClick={onToggleShop}
             className={cn(
-              "p-2 rounded-lg transition-all border shadow-sm",
-              showShop ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-600 border-slate-100 hover:bg-slate-50"
+              "p-3 rounded-xl transition-all shadow-sm border",
+              showShop ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
             )}
           >
             <Coffee size={20} />
@@ -129,95 +148,88 @@ const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
 
-      {/* Attributes / Shop / Guide Panel - SCROLLABLE AREA */}
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-4">
-        {showGuide ? (
-          <div className="flex flex-col gap-3 animate-in fade-in duration-300">
-            <p className="text-[11px] text-[#4F46E5] font-black uppercase mb-1 tracking-widest">遊戲指南</p>
-            <div className="space-y-4 pr-1 text-[11px] font-bold text-slate-500">
-              <section>
-                <h4 className="font-black text-slate-700 mb-1.5 border-b border-slate-100 pb-1 uppercase tracking-tighter text-[10px]">基礎數值</h4>
-                <div className="space-y-1">
-                  <div className="flex justify-between bg-slate-50/50 p-1.5 rounded-md"><span className="text-rose-500">HP (體力)</span><span>歸零則結束</span></div>
-                  <div className="flex justify-between bg-slate-50/50 p-1.5 rounded-md"><span className="text-cyan-500">MP (摸魚)</span><span>抽牌消耗 1</span></div>
-                  <div className="flex justify-between bg-slate-50/50 p-1.5 rounded-md"><span className="text-amber-500">XP (年資)</span><span>100% 則升職</span></div>
-                </div>
-              </section>
+      {/* Scrollable Content Area (Shop/Guide) */}
+      <div className="flex-1 overflow-y-auto no-scrollbar p-6 bg-white/30 backdrop-blur-sm">
+        {showShop ? (
+          <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Available Tools</h3>
+            <div className="grid gap-3">
+              {SHOP_ITEMS.map((item) => {
+                const isOwned = player.ownedItemIds?.includes(item.id);
+                const canAfford = player.stats.savings >= item.price;
+                return (
+                  <button
+                    key={item.id}
+                    disabled={isOwned}
+                    onClick={() => onBuyItem(item.id)}
+                    className={cn(
+                      "w-full text-left p-3 rounded-2xl border transition-all group relative overflow-hidden",
+                      isOwned ? "bg-slate-50 border-slate-200 grayscale opacity-60 cursor-not-allowed" : "bg-white border-slate-100 hover:border-indigo-200 hover:shadow-md active:scale-95",
+                    )}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="text-[9px] font-black px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-500 uppercase tracking-tighter">TOOL</div>
+                      {isOwned ? (
+                        <CheckCircle2 size={16} className="text-emerald-500" />
+                      ) : (
+                        <span className={cn("font-black text-sm", canAfford ? "text-slate-900" : "text-rose-500")}>
+                          ${item.price}
+                        </span>
+                      )}
+                    </div>
+                    <div className="font-black text-sm text-slate-800 mb-1">{item.name}</div>
+                    <div className="text-[10px] font-bold text-slate-500 leading-relaxed">{item.description}</div>
+                  </button>
+                );
+              })}
             </div>
           </div>
-        ) : showShop ? (
-          <div className="flex flex-col gap-2 animate-in fade-in duration-300">
-            <p className="text-[11px] text-[#4F46E5] font-black uppercase mb-2 tracking-widest">Office Shop</p>
-            <button onClick={() => onBuyItem('hp_pot')} className="flex justify-between items-center p-2.5 bg-rose-50 border border-rose-100 rounded-xl hover:bg-rose-100 transition-colors text-xs">
-              <div className="text-left font-black text-rose-700">能量飲料 (+30 HP)</div>
-              <span className="font-black text-rose-600">$200</span>
-            </button>
-            <button onClick={() => onBuyItem('mp_pot')} className="flex justify-between items-center p-2.5 bg-cyan-50 border border-cyan-100 rounded-xl hover:bg-cyan-100 transition-colors text-xs">
-              <div className="text-left font-black text-cyan-700">提神薄荷 (+50 MP)</div>
-              <span className="font-black text-cyan-600">$300</span>
-            </button>
-            <button onClick={() => onBuyItem('luck_up')} className="flex justify-between items-center p-2.5 bg-amber-50 border border-amber-100 rounded-xl hover:bg-amber-100 transition-colors text-xs">
-              <div className="text-left font-black text-amber-700">開運御守 (+2 幸運)</div>
-              <span className="font-black text-amber-600">$500</span>
-            </button>
-          </div>
         ) : (
-          <div className="flex flex-col gap-3 animate-in fade-in duration-300">
-            <p className="text-[11px] text-[#4F46E5] font-black uppercase mb-1 tracking-widest">屬性面板</p>
-            <div className="space-y-2">
-              <div className={cn("flex justify-between items-center bg-slate-50/50 p-2 rounded-lg transition-all", gameState.chaosLevel > 70 && "animate-shake")}>
-                <span className="text-[11px] font-black text-slate-700 uppercase tracking-tighter flex items-center gap-1.5"><Flame size={12} className="text-orange-500" />混亂度</span>
-                <span className="text-[11px] font-black text-orange-500">{gameState.chaosLevel}%</span>
-              </div>
-              <div className="flex justify-between items-center bg-slate-50/50 p-2 rounded-lg border-l-4 border-emerald-400 shadow-sm">
-                <span className="text-[11px] font-black text-slate-700 uppercase tracking-tighter flex items-center gap-1.5"><Clover size={12} className="text-emerald-500" />幸運</span>
-                <span className="text-[11px] font-black text-emerald-500">{player.stats.luck}</span>
-              </div>
-              <div className="flex justify-between items-center bg-slate-50/50 p-2 rounded-lg border-l-4 border-emerald-400 shadow-sm">
-                <span className="text-[11px] font-black text-slate-700 uppercase tracking-tighter flex items-center gap-1.5"><Sparkles size={12} className="text-emerald-500" />魅力</span>
-                <span className="text-[11px] font-black text-emerald-500">{player.stats.charisma}</span>
-              </div>
-              <div className="flex justify-between items-center bg-slate-50/50 p-2 rounded-lg border-l-4 border-rose-400 shadow-sm">
-                <span className="text-[11px] font-black text-slate-700 uppercase tracking-tighter flex items-center gap-1.5"><Zap size={12} className={player.stats.stress > 80 ? "text-rose-500" : "text-slate-400"} />壓力</span>
-                <span className={cn("text-[11px] font-black", player.stats.stress > 80 ? "text-rose-600 animate-pulse" : "text-rose-500")}>{player.stats.stress}</span>
-              </div>
+          <div className="space-y-4 animate-in fade-in duration-300">
+            <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
+               <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><Flame size={12} className="text-orange-500" /> 混亂度</span>
+                  <span className="text-xs font-black text-orange-500">{gameState.chaosLevel}%</span>
+               </div>
+               <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <motion.div className="h-full bg-orange-400" initial={{ width: 0 }} animate={{ width: `${gameState.chaosLevel}%` }} />
+               </div>
+            </div>
+            
+            <div className="p-4 bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-100 relative overflow-hidden group">
+              <Calendar className="absolute -right-2 -top-2 opacity-10 group-hover:rotate-12 transition-transform" size={60} />
+              <p className="text-[10px] font-black opacity-60 uppercase tracking-widest mb-1">今日事件</p>
+              <p className="font-black text-lg leading-tight mb-1">{gameState.currentEvent.name}</p>
+              <p className="text-[11px] font-bold opacity-80">{gameState.currentEvent.description}</p>
             </div>
           </div>
         )}
       </div>
 
-      {/* FIXED FOOTER - Today's Goal & Clock Out */}
-      <div className="pt-4 border-t border-slate-100 bg-white">
-        <p className="text-[11px] text-[#4F46E5] font-black uppercase mb-2 tracking-widest">今日目標</p>
-        <div className="space-y-2 mb-4">
-          <div className="flex justify-between items-center text-[11px] font-black text-slate-600">
-            <span>下班進度</span>
-            <span className="text-emerald-500">{Math.min(100, Math.round(gameState.activityThisDay * 33.3))}%</span>
-          </div>
-          <div className="h-2 w-full bg-emerald-100 rounded-full overflow-hidden shadow-inner">
-            <motion.div 
-              className="h-full bg-emerald-500" 
-              initial={{ width: 0 }} 
-              animate={{ width: `${Math.min(100, gameState.activityThisDay * 33.3)}%` }} 
-              transition={{ duration: 0.5 }} 
-            />
-          </div>
-        </div>
+      {/* Footer - 下班按鈕 */}
+      <div className="p-6 bg-white border-t border-slate-100">
         <button
           disabled={gameState.activityThisDay < 3}
           onClick={onClockOut}
           className={cn(
-            "w-full py-4 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all relative overflow-hidden",
+            "w-full py-4 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all relative overflow-hidden group",
             gameState.activityThisDay >= 3 
-              ? "bg-[#4F46E5] text-white shadow-[0_12px_40px_-6px_rgba(79,70,229,0.4)] animate-pulse cursor-pointer hover:scale-[1.02] active:scale-95" 
-              : "bg-slate-100 text-slate-400 border border-slate-50 cursor-not-allowed"
+              ? "bg-indigo-600 text-white shadow-xl shadow-indigo-200 hover:bg-indigo-700 active:scale-95" 
+              : "bg-slate-100 text-slate-400 cursor-not-allowed"
           )}
         >
-          {gameState.activityThisDay >= 3 && (
-            <div className="absolute inset-0 bg-white/20 animate-ping opacity-10" />
-          )}
           下班 (Clock Out)
+          {gameState.activityThisDay >= 3 && (
+            <motion.div 
+              className="absolute inset-0 bg-white/20"
+              animate={{ x: ['-100%', '100%'] }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+            />
+          )}
         </button>
+        <p className="text-center text-[10px] font-black text-slate-300 mt-3 tracking-widest">
+           PROGRESS: {Math.min(100, Math.round(gameState.activityThisDay * 33.3))}%
+        </p>
       </div>
     </aside>
   );

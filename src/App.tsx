@@ -64,13 +64,13 @@ export default function App() {
       setTimeout(() => setIsChangingDay(false), 1500);
     }
   };
+// 安全判定
+const playerState = gameState.players.find(p => p.id === 'player');
+if (!playerState) return null;
 
-  // 安全判定
-  const playerState = gameState.players.find(p => p.id === 'player');
-  if (!playerState) return null;
-
-  const isGameOver = playerState.stats.hp <= 0 || playerState.stats.savings < -500;
-  if (isGameOver) {
+const isGameOver = playerState.stats.stress >= 100 || playerState.stats.savings < -1000;
+if (isGameOver) {
+// ... existing code ...
     return <GameOverScreen onRestart={() => window.location.reload()} />;
   }
 

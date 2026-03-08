@@ -17,16 +17,33 @@ export enum Gender {
   FEMALE = 'FEMALE',
 }
 
+export enum ItemType {
+  CONSUMABLE = '消耗品',
+  TOOL = '摸魚工具',
+  ABILITY = '特殊能力',
+}
+
+export interface ShopItem {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  type: ItemType;
+  effect: {
+    stat?: keyof PlayerStats;
+    value?: number;
+    passive?: string;
+  };
+}
+
 export interface PlayerStats {
-  hp: number; // Health (混分值)
-  mp: number; // Mana (摸魚值)
-  maxMp: number;
-  xp: number; // Experience (年資)
-  level: number;
-  stress: number;
+  energy: number; // 代替 MP (Action Points)
+  maxEnergy: number;
+  stress: number; // 代替 HP (Survival Line, 100 = Game Over)
   savings: number;
   luck: number;
-  charisma: number;
+  level: number;
+  xp: number;
 }
 
 export interface Player {
@@ -39,6 +56,7 @@ export interface Player {
   position: { x: number; y: number };
   gridX: number;
   gridY: number;
+  ownedItemIds: string[];
 }
 
 export enum CardType {
@@ -48,14 +66,13 @@ export enum CardType {
   GOSSIP = "八卦",
 }
 
-// 每日隨機事件定義
 export interface DailyModifier {
   id: string;
   name: string;
   description: string;
-  stressMult: number; // 壓力增長倍率
-  mpCostMod: number;  // MP 消耗修正
-  bossSpeedMult: number; // 老闆速度倍率
+  stressMult: number;
+  energyCostMod: number;
+  bossSpeedMult: number;
 }
 
 export interface Card {
@@ -63,9 +80,8 @@ export interface Card {
   name: string;
   description: string;
   type: CardType;
-  mpCost: number; // 消耗 MP
-  hpChange?: number; // 恢復 HP
-  stressChange: number;
+  energyCost: number; // 原 mpCost
+  stressChange: number; // 負值為減少壓力，正值為增加
   chaosGain?: number;
   xpGain?: number;
   savingsChange?: number;
@@ -76,8 +92,6 @@ export interface GameState {
   players: Player[];
   day: number;
   hand: Card[];
-  deck: Card[];
-  discardPile: Card[];
   bossPosition: { x: number; y: number };
   bossChatMessage: string | null;
   plantPosition: { x: number; y: number };
@@ -85,12 +99,6 @@ export interface GameState {
   activityThisDay: number;
   performance: number;
   lastEvent: string | null;
-  currentEvent: {
-    id: string;
-    name: string;
-    description: string;
-    stressMult: number;
-    mpCostMod: number;
-    bossSpeedMult: number;
-  };
+  notifications: string[]; // 新增：即時提示列表
+  currentEvent: DailyModifier;
 }
