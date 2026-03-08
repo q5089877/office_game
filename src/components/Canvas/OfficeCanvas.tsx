@@ -9,6 +9,7 @@ import { OFFICE_LAYOUT } from '../../constants';
 import { CANVAS_CONFIG, GridCalculator } from '../../config/canvasConfig';
 import PixelCharacter from '../shared/PixelCharacter';
 import PixelPlant from '../shared/PixelPlant';
+import DebugOverlay from '../shared/DebugOverlay';
 import { GameState, Player } from '../../types';
 
 interface OfficeCanvasProps {
@@ -311,6 +312,18 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
               </Group>
             );
           })}
+
+          {/* 調試疊層 - 只在開發模式顯示 */}
+          {process.env.NODE_ENV !== 'production' && (
+            <DebugOverlay
+              gameState={gameState}
+              showGrid={false} // 關閉網格線以免干擾
+              showDeskPositions={true}
+              showNPCPositions={true}
+              showAlignmentLines={true}
+              showCoordinates={false}
+            />
+          )}
         </Layer>
       </Stage>
     </div>

@@ -8,6 +8,7 @@ import { GameManager, Character, Stats } from './logic/GameClasses';
 import { OFFICE_LAYOUT, CARD_POOL, SHOP_ITEMS } from './constants';
 import { CARD_EFFECT_HANDLERS } from './logic/CardEffects';
 import { PlayerRole, CardType, EntityType, Gender, ItemType } from './types';
+import { PositionService, OfficeEntity } from './utils/PositionService';
 
 const ACTION_COOLDOWN = 500;
 
@@ -29,7 +30,7 @@ export const useGameEngine = () => {
     setManager(prev => {
       const next = prev.clone();
       next.tick();
-      
+
       // 靜音鍵盤效果：主動提示
       if (next.player.ownedItemIds.includes('silent_keyboard') && Math.random() < 0.001) {
         next.player.stats.modifyStress(-1);
@@ -65,7 +66,7 @@ export const useGameEngine = () => {
 
       const hasEnergyDiscount = prev.player.ownedItemIds.includes('hidden_earbuds');
       const actualCost = Math.max(0, cardTemplate.mpCost + prev.currentEvent.energyCostMod - (hasEnergyDiscount ? 1 : 0));
-      
+
       if (prev.player.stats.energy < actualCost) {
         const next = prev.clone();
         next.addNotification("❌ 精力不足！無法執行。");
@@ -77,12 +78,12 @@ export const useGameEngine = () => {
       p.stats.modifyEnergy(-actualCost);
 
       const targetCharacter = next.player.id === selectAutoTarget(prev, originalId).id ? next.player : next.colleagues.find(c => c.id === selectAutoTarget(prev, originalId).id);
-      
+
       if (targetCharacter) {
           // 將原本的 mpCost 邏輯轉為 energy
           targetCharacter.stats.modifyStress(cardTemplate.stressChange);
           if (cardTemplate.savingsChange) next.player.stats.modifyMoney(cardTemplate.savingsChange);
-          
+
           let chaosGain = cardTemplate.chaosGain || 0;
           if (next.player.ownedItemIds.includes('privacy_filter')) chaosGain = Math.floor(chaosGain * 0.8);
           next.chaosLevel += chaosGain;
@@ -179,7 +180,7 @@ export const useGameEngine = () => {
         level: c.level
       },
       gender: c.gender, gridX: c.gridX, gridY: c.gridY, chatMessage: c.chatMessage,
-      position: { x: c.displayX * 98 + 49, y: c.displayY * 85 + 42.5 + 80 }
+      position: PositionService.getNPCDisplayPosition(c.displayX, c.displayY)
     })),
     day: manager.day,
     performance: manager.performance,
@@ -193,7 +194,7 @@ export const useGameEngine = () => {
       const t = CARD_POOL.find(c => c.id === tid)!;
       return { ...t, id: uId };
     }),
-    bossPosition: { x: manager.boss.displayX * 98 + 49, y: manager.boss.displayY * 85 + 42.5 + 80 },
+    bossPosition: PositionService.getNPCDisplayPosition(manager.boss.displayX, manager.boss.displayY),
     bossChatMessage: manager.boss.chatMessage,
     plantPosition: { x: manager.plant.gridX, y: manager.plant.gridY }
   };

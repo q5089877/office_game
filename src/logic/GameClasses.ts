@@ -200,7 +200,7 @@ export class GameManager {
     if (this.player.ownedItemIds.includes('macro_script')) {
       baseMoney = Math.floor(baseMoney * 1.15);
     }
-    
+
     // 壓力紅利：壓力越低，獎金加成越高
     let stressBonus = 1.0;
     if (this.player.stats.stress === 0) {
@@ -209,7 +209,7 @@ export class GameManager {
     } else if (this.player.stats.stress < 20) {
       stressBonus = 1.2;
     }
-    
+
     const summary = {
       prevDay: this.day,
       moneyEarned: Math.floor(baseMoney * stressBonus * (1 / this.currentEvent.stressMult)),

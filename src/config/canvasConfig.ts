@@ -54,8 +54,8 @@ export const CANVAS_CONFIG = {
 
   // UI 佈局常數
   UI: {
-    SIDEBAR_WIDTH: 288,     // 側邊欄寬度
-    BOTTOM_HEIGHT: 200,     // 底部區域高度
+    SIDEBAR_WIDTH: 320,     // 側邊欄寬度 (w-80)
+    BOTTOM_HEIGHT: 220,     // 底部區域高度 (h-[220px])
   },
 
   // 縮放配置

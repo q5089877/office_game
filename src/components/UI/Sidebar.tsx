@@ -34,16 +34,16 @@ const Sidebar: React.FC<SidebarProps> = ({
   onClockOut,
 }) => {
   return (
-    <aside className="w-80 bg-slate-50 border-r border-slate-200 flex flex-col z-50 shadow-2xl shrink-0 relative overflow-hidden font-sans">
-      
+    <aside className="w-64 md:w-80 bg-slate-50 border-r border-slate-200 flex flex-col z-50 shadow-2xl shrink-0 relative overflow-hidden font-sans">
+
       {/* Header Section - 玩家資訊與等級 */}
       <div className="bg-white p-6 border-b border-slate-100 shadow-sm">
-        <div className="flex items-center gap-4 mb-4">
+        <div className="flex items-center gap-4">
           <div className="relative group">
-            <div className="w-14 h-14 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 transition-transform group-hover:scale-105">
-              <Ghost size={28} className="animate-pulse" />
+            <div className="w-14 h-14 bg-gradient-to-tr from-slate-800 to-slate-900 rounded-2xl flex items-center justify-center text-white shadow-lg transition-transform group-hover:scale-105">
+              <Ghost size={28} />
             </div>
-            <div className="absolute -bottom-2 -right-2 bg-amber-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm">
+            <div className="absolute -bottom-2 -right-2 bg-indigo-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm">
               LV.{player.stats.level}
             </div>
           </div>
@@ -52,100 +52,72 @@ const Sidebar: React.FC<SidebarProps> = ({
               PIXEL THIEF
             </h1>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-black bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded tracking-widest uppercase">
+              <span className="text-[10px] font-black bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded tracking-widest uppercase border border-indigo-100">
                 {player.role}
               </span>
             </div>
           </div>
         </div>
-
-        {/* Vitals - 橫向進度條優化空間 */}
-        <div className="space-y-3">
-          <div className="space-y-1">
-            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-slate-400">
-              <span className="flex items-center gap-1"><Zap size={10} className="text-orange-500" /> 壓力值 (Stress)</span>
-              <span className={cn(player.stats.stress > 80 ? "text-rose-500 animate-pulse" : "text-slate-600")}>{player.stats.stress} / 100</span>
-            </div>
-            <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200/50 shadow-inner">
-              <motion.div 
-                className={cn("h-full transition-colors duration-500", player.stats.stress > 80 ? "bg-rose-500" : "bg-orange-400")}
-                initial={{ width: 0 }}
-                animate={{ width: `${player.stats.stress}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1">
-            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-slate-400">
-              <span className="flex items-center gap-1"><TrendingUp size={10} className="text-emerald-500" /> 精力值 (Energy)</span>
-              <span className="text-slate-600">{player.stats.energy} / {player.stats.maxEnergy}</span>
-            </div>
-            <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200/50 shadow-inner">
-              <motion.div 
-                className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]"
-                initial={{ width: 0 }}
-                animate={{ width: `${(player.stats.energy / player.stats.maxEnergy) * 100}%` }}
-              />
-            </div>
-          </div>
-        </div>
       </div>
 
-      {/* Notifications Area - 終端機風格日誌 */}
-      <div className="p-4 bg-slate-900 mx-4 mt-4 rounded-xl border border-slate-800 shadow-2xl h-32 overflow-hidden flex flex-col relative group">
-        <div className="flex items-center justify-between mb-2">
-          <div className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            SYSTEM LOG
+      {/* Notifications Area - 終端機風格日誌 (佔據更多空間) */}
+      <div className="flex-1 p-4 bg-slate-950 mx-4 mt-4 rounded-xl border border-slate-800 shadow-2xl overflow-hidden flex flex-col relative group min-h-[240px]">
+        <div className="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
+          <div className="text-[9px] font-black text-indigo-300 uppercase tracking-[0.2em] flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+            LIVE_SYSTEM_LOG
           </div>
-          <div className="flex gap-1">
-            <div className="w-2 h-2 rounded-full bg-slate-800" />
-            <div className="w-2 h-2 rounded-full bg-slate-800" />
+          <div className="flex gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-rose-500/30" />
+            <div className="w-2 h-2 rounded-full bg-amber-500/30" />
+            <div className="w-2 h-2 rounded-full bg-emerald-500/30" />
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto no-scrollbar space-y-2">
+        <div className="flex-1 overflow-y-auto no-scrollbar space-y-2 font-mono">
           <AnimatePresence mode="popLayout">
             {gameState.notifications.map((note, i) => (
               <motion.div
                 key={`${note}-${i}`}
-                initial={{ opacity: 0, x: -5 }}
+                initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 className={cn(
-                  "text-[13px] font-black leading-tight flex items-start gap-2",
-                  note.includes("❌") || note.includes("⚠️") ? "text-rose-400" : 
-                  note.includes("💰") ? "text-emerald-400" : "text-indigo-300"
+                  "text-[12px] font-bold leading-tight flex items-start gap-2 py-2 px-2 rounded-lg transition-colors",
+                  note.includes("❌") || note.includes("⚠️")
+                    ? "text-rose-300 bg-rose-500/10 border-l-4 border-rose-500" :
+                  note.includes("💰")
+                    ? "text-emerald-300 bg-emerald-500/10 border-l-4 border-emerald-500"
+                    : "text-indigo-200 bg-indigo-500/5 border-l-4 border-indigo-500/50 hover:bg-indigo-500/10"
                 )}
               >
-                <span className="shrink-0 opacity-50 mt-1">●</span>
+                <span className="shrink-0 opacity-50 mt-1 text-[9px] text-slate-300">[{new Date().toLocaleTimeString([], { hour12: false, minute: '2-digit', second: '2-digit' })}]</span>
                 <span>{note}</span>
               </motion.div>
             ))}
           </AnimatePresence>
         </div>
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-slate-900/10 via-transparent to-slate-900/40" />
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(rgba(79,70,229,0.05)_1px,transparent_1px)] bg-[size:20px_20px]" />
       </div>
 
       {/* Economy & Shop Toggle - 錢包風格 */}
-      <div className="px-6 py-4 flex items-center justify-between mt-auto bg-white/50 border-t border-slate-100">
+      <div className="px-6 py-4 flex items-center justify-between mt-4 bg-slate-50 border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
         <div className="flex flex-col">
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
-            <Wallet size={10} /> SAVINGS
+            <Wallet size={10} /> CURRENT SAVINGS
           </span>
-          <span className="text-3xl font-black text-emerald-600 font-mono tracking-tighter">
+          <span className="text-3xl font-black text-slate-900 font-mono tracking-tighter">
             ${player.stats.savings}
           </span>
         </div>
-        <div className="flex gap-2">
-          <button 
-            onClick={onToggleShop}
-            className={cn(
-              "p-3 rounded-xl transition-all shadow-sm border",
-              showShop ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
-            )}
-          >
-            <Coffee size={20} />
-          </button>
-        </div>
+        <button
+          onClick={onToggleShop}
+          className={cn(
+            "p-3 rounded-xl transition-all shadow-sm border flex items-center gap-2",
+            showShop ? "bg-indigo-600 text-white border-indigo-600" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+          )}
+        >
+          <Coffee size={20} />
+          {showShop && <span className="text-[10px] font-black uppercase tracking-widest">Shop</span>}
+        </button>
       </div>
 
       {/* Scrollable Content Area (Shop/Guide) */}
@@ -195,7 +167,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <motion.div className="h-full bg-orange-400" initial={{ width: 0 }} animate={{ width: `${gameState.chaosLevel}%` }} />
                </div>
             </div>
-            
+
             <div className="p-4 bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-100 relative overflow-hidden group">
               <Calendar className="absolute -right-2 -top-2 opacity-10 group-hover:rotate-12 transition-transform" size={60} />
               <p className="text-[10px] font-black opacity-60 uppercase tracking-widest mb-1">今日事件</p>
@@ -213,14 +185,14 @@ const Sidebar: React.FC<SidebarProps> = ({
           onClick={onClockOut}
           className={cn(
             "w-full py-4 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all relative overflow-hidden group",
-            gameState.activityThisDay >= 3 
-              ? "bg-indigo-600 text-white shadow-xl shadow-indigo-200 hover:bg-indigo-700 active:scale-95" 
+            gameState.activityThisDay >= 3
+              ? "bg-indigo-600 text-white shadow-xl shadow-indigo-200 hover:bg-indigo-700 active:scale-95"
               : "bg-slate-100 text-slate-400 cursor-not-allowed"
           )}
         >
           下班 (Clock Out)
           {gameState.activityThisDay >= 3 && (
-            <motion.div 
+            <motion.div
               className="absolute inset-0 bg-white/20"
               animate={{ x: ['-100%', '100%'] }}
               transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
