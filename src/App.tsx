@@ -75,7 +75,7 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen w-screen bg-[#e8e8e8] text-stone-900 font-sans overflow-hidden flex flex-row">
+    <div className="h-screen w-screen bg-[#F8FAFC] text-slate-900 font-sans overflow-hidden flex flex-row">
       <DayTransition
         isChangingDay={isChangingDay}
         summaryData={summaryData}
@@ -95,10 +95,10 @@ export default function App() {
 
       <main className="flex-1 flex flex-col relative h-full">
         <div
-          className="flex-1 bg-white/20 backdrop-blur-sm relative overflow-hidden flex items-center justify-center"
+          className="flex-1 bg-transparent relative overflow-hidden flex items-center justify-center"
           style={{
-            backgroundImage: 'radial-gradient(#cbd5e1 1.5px, transparent 1.5px)',
-            backgroundSize: '120px 87px'
+            backgroundImage: 'radial-gradient(#e2e8f0 1.5px, transparent 1.5px)',
+            backgroundSize: '80px 80px'
           }}
         >
           <AnimatePresence>

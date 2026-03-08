@@ -23,11 +23,11 @@ const BottomCardArea: React.FC<BottomCardAreaProps> = ({
   onPlayCard,
 }) => {
   return (
-    <div className="h-[200px] bg-white/95 backdrop-blur-md border-t border-stone-200 flex flex-col px-8 py-4 z-40 overflow-hidden">
+    <div className="h-[200px] bg-[#E2E8F0]/90 backdrop-blur-md border-t border-slate-300 flex flex-col px-8 py-4 z-40 overflow-hidden">
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center gap-2">
-          <Activity size={16} className="text-indigo-500" />
-          <span className="text-sm font-black text-stone-700 uppercase tracking-widest">
+          <Activity size={16} className="text-[#4F46E5]" />
+          <span className="text-sm font-black text-slate-700 uppercase tracking-widest">
             摸魚協議 (Slacking Protocol)
           </span>
         </div>
@@ -37,7 +37,7 @@ const BottomCardArea: React.FC<BottomCardAreaProps> = ({
             <span className="flex items-center gap-1 text-[10px] font-black text-cyan-600 bg-cyan-50 px-2 py-0.5 rounded-md border border-cyan-100">💨 EVADE</span>
             <span className="flex items-center gap-1 text-[10px] font-black text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-100">🛠️ UTIL</span>
           </div>
-          <span className="text-sm text-stone-400 font-bold uppercase tracking-wider bg-stone-100 px-3 py-1 rounded-full">
+          <span className="text-sm text-slate-500 font-bold uppercase tracking-wider bg-slate-200/50 px-3 py-1 rounded-full">
             手牌: {gameState.hand.length} / 5
           </span>
         </div>
@@ -45,25 +45,25 @@ const BottomCardArea: React.FC<BottomCardAreaProps> = ({
 
       <div className="flex items-center gap-3 h-full overflow-hidden">
         {/* ... */}
-        <div className="shrink-0 h-[126px] flex items-center bg-stone-100/40 rounded-[24px] border border-stone-200/50 p-1.5 relative shadow-inner mr-4 group/slot transition-colors hover:bg-stone-100/60">
+        <div className="shrink-0 h-[126px] flex items-center bg-slate-200/40 rounded-[24px] border border-slate-300/50 p-1.5 relative shadow-inner mr-4 group/slot transition-colors hover:bg-slate-200/60">
           {/* Background Glow */}
-          <div className="absolute inset-0 bg-indigo-500/5 blur-3xl rounded-[24px] pointer-events-none group-hover/slot:bg-indigo-500/10 transition-all" />
+          <div className="absolute inset-0 bg-[#4F46E5]/5 blur-3xl rounded-[24px] pointer-events-none group-hover/slot:bg-[#4F46E5]/10 transition-all" />
 
           {/* 視覺化牌堆 (Deck Stack) */}
           <div className="relative w-12 h-[100px] ml-2 mr-3 opacity-80 pointer-events-none">
             {[...Array(Math.max(1, 5 - gameState.hand.length))].map((_, i) => (
               <div
                 key={i}
-                className="absolute top-0 left-0 w-full h-full bg-stone-200 border border-stone-300 rounded-lg shadow-sm"
+                className="absolute top-0 left-0 w-full h-full bg-slate-300 border border-slate-400 rounded-lg shadow-sm"
                 style={{
                   transform: `translateY(${i * -3}px) translateX(${i * -1}px) rotate(${i % 2 === 0 ? -2 : 2}deg)`,
                   zIndex: i
                 }}
               >
-                <div className="absolute inset-1 border border-stone-300/50 rounded-sm" />
+                <div className="absolute inset-1 border border-slate-400/50 rounded-sm" />
               </div>
             ))}
-            <div className="absolute -bottom-6 left-0 w-full text-center text-[9px] font-black text-stone-400 tracking-widest uppercase">
+            <div className="absolute -bottom-6 left-0 w-full text-center text-[9px] font-black text-slate-500 tracking-widest uppercase">
               DECK
             </div>
           </div>
@@ -74,8 +74,8 @@ const BottomCardArea: React.FC<BottomCardAreaProps> = ({
             className={cn(
               "w-24 h-[114px] rounded-2xl flex flex-col items-center justify-between py-2.5 px-2 transition-all duration-300 relative overflow-hidden group shrink-0 shadow-lg hover:shadow-2xl hover:-translate-y-2 active:scale-95 disabled:grayscale disabled:opacity-50",
               player.stats.mp > 0
-                ? "bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-800 text-white border-t border-indigo-400/40"
-                : "bg-stone-200 text-stone-400 border-none"
+                ? "bg-gradient-to-br from-[#4F46E5] via-[#4F46E5] to-indigo-800 text-white border-t border-white/20"
+                : "bg-slate-300 text-slate-500 border-none"
             )}
           >
             {/* 光澤效果飾條 */}
@@ -114,7 +114,7 @@ const BottomCardArea: React.FC<BottomCardAreaProps> = ({
                 onClick={() => onPlayCard(card.id)}
                 className={cn(
                   "w-44 h-[114px] bg-white border-2 rounded-2xl p-2.5 cursor-pointer flex flex-col relative shadow-md hover:shadow-2xl transition-all shrink-0 overflow-hidden",
-                  isPrank ? "border-stone-200 hover:border-rose-400" : "border-stone-200 hover:border-indigo-400",
+                  isPrank ? "border-slate-200 hover:border-rose-400" : "border-slate-200 hover:border-indigo-400",
                   player.stats.mp < card.mpCost && "opacity-50 grayscale"
                 )}
               >
@@ -126,28 +126,28 @@ const BottomCardArea: React.FC<BottomCardAreaProps> = ({
                 <div className="flex justify-between items-start mb-1.5 mt-1">
                   <span className={cn("text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md border",
                     card.rarity === 'S' ? "text-amber-600 bg-amber-50 border-amber-200" :
-                    card.rarity === 'A' ? "text-indigo-600 bg-indigo-50 border-indigo-200" :
-                    "text-stone-500 bg-stone-50 border-stone-200"
+                    card.rarity === 'A' ? "text-[#4F46E5] bg-indigo-50 border-indigo-200" :
+                    "text-slate-500 bg-slate-50 border-slate-200"
                   )}>
                     {card.rarity} Rank
                   </span>
 
                   {/* 消耗數值強調 */}
-                  <div className="flex items-center gap-1 bg-stone-900 text-white px-2 py-0.5 rounded-full border border-white/20 shadow-sm">
+                  <div className="flex items-center gap-1 bg-slate-900 text-white px-2 py-0.5 rounded-full border border-white/20 shadow-sm">
                     <Zap size={10} className="text-yellow-400 fill-yellow-400" />
                     <span className="font-mono font-black text-[11px] leading-none">{card.mpCost}</span>
                   </div>
                 </div>
 
                 <div className="flex flex-col mb-1.5">
-                  <h3 className="font-black text-sm text-stone-900 leading-tight truncate">{card.name}</h3>
+                  <h3 className="font-black text-sm text-slate-900 leading-tight truncate">{card.name}</h3>
                   <span className={cn("text-[9px] font-black uppercase mt-0.5 flex items-center gap-1",
                     isPrank ? "text-rose-500" : "text-cyan-600"
                   )}>
                     {emoji} {card.type}
                   </span>
                 </div>
-                <p className="text-[11px] text-stone-500 font-medium leading-relaxed line-clamp-2">{card.description}</p>
+                <p className="text-[11px] text-slate-500 font-medium leading-relaxed line-clamp-2">{card.description}</p>
               </motion.div>
             );
           })}

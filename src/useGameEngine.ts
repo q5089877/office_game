@@ -254,9 +254,16 @@ export const useGameEngine = () => {
           const handler = CARD_EFFECT_HANDLERS[originalId];
           let eventMsg = handler ? handler(next, np, targetCharacter, originalId) : `使用了 [${cardTemplate.name}]！`;
 
+          // 處理升級邏輯
+          let levelUpMsg = '';
           if (np.xp >= 100) {
               np.xp = 0; np.level += 1; np.maxMp += 1; np.mp = np.maxMp;
-              next.lastEvent = `🎉 升職了！現在是 LV.${np.level}！`;
+              levelUpMsg = `🎉 升職了！現在是 LV.${np.level}！`;
+          }
+
+          // 合併訊息：卡片效果 + 升級訊息（如果有）
+          if (levelUpMsg) {
+              next.lastEvent = `${eventMsg} ${levelUpMsg}`;
           } else {
               next.lastEvent = eventMsg;
           }

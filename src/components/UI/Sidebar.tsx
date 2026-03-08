@@ -35,20 +35,20 @@ const Sidebar: React.FC<SidebarProps> = ({
   onClockOut,
 }) => {
   return (
-    <aside className="w-72 bg-white border-r border-stone-200 flex flex-col p-4 z-50 shadow-[4px_0_20px_rgba(0,0,0,0.03)] shrink-0 relative">
+    <aside className="w-72 bg-white border-r border-slate-200 flex flex-col p-4 z-50 shadow-[4px_0_20px_rgba(0,0,0,0.02)] shrink-0 relative">
       {/* Profile Header */}
       <div className="flex items-center gap-4 mb-4">
-        <div className="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 border-2 border-white relative shrink-0">
+        <div className="w-14 h-14 bg-[#4F46E5] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-100 border-2 border-white relative shrink-0">
           <Ghost size={28} className="animate-pulse drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]" />
           <span className="absolute -bottom-2 -right-2 bg-yellow-400 text-black text-[10px] font-black px-1.5 py-0.5 rounded-full border-2 border-white shadow-sm">
             LV.{player.stats.level}
           </span>
         </div>
         <div className="min-w-0 flex flex-col justify-center">
-          <h1 className="font-black text-xl uppercase italic tracking-tighter bg-gradient-to-br from-indigo-900 via-indigo-700 to-purple-600 text-transparent bg-clip-text leading-none mb-1 drop-shadow-sm">
+          <h1 className="font-black text-xl uppercase italic tracking-tighter bg-gradient-to-br from-[#4F46E5] via-[#4F46E5] to-purple-600 text-transparent bg-clip-text leading-none mb-1 drop-shadow-sm">
             Pixel Thief
           </h1>
-          <p className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] truncate">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] truncate">
             {player.role}
           </p>
         </div>
@@ -61,7 +61,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         gameState.currentEvent.id === 'friday' ? "bg-emerald-50 border-emerald-100 text-emerald-900" :
         gameState.currentEvent.id === 'coffee_broken' ? "bg-amber-50 border-amber-100 text-amber-900" :
         gameState.currentEvent.id === 'boss_meeting' ? "bg-indigo-50 border-indigo-100 text-indigo-900" :
-        "bg-stone-50 border-stone-100 text-stone-900"
+        "bg-slate-50 border-slate-100 text-slate-900"
       )}>
         <div className="flex items-center gap-2 mb-0.5">
           <Calendar size={14} className="opacity-60" />
@@ -72,7 +72,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Vitals (HP/MP/XP) */}
-      <div className="bg-stone-50 p-4 rounded-2xl border border-stone-100 flex justify-around mb-4">
+      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex justify-around mb-4">
         <VerticalBar
           value={player.stats.hp}
           max={100}
@@ -88,21 +88,21 @@ const Sidebar: React.FC<SidebarProps> = ({
           title="摸魚值：抽牌出牌用"
         />
         <div className="flex flex-col items-center gap-1 h-full group">
-          <div className="w-2.5 h-16 bg-stone-100 rounded-full overflow-hidden relative border border-stone-200 shadow-inner">
+          <div className="w-2.5 h-16 bg-slate-100 rounded-full overflow-hidden relative border border-slate-200 shadow-inner">
             <motion.div
               className="absolute bottom-0 w-full bg-amber-400 rounded-full"
               animate={{ height: `${player.stats.xp}%` }}
             />
           </div>
-          <span className="text-[10px] font-black text-stone-700 leading-none mt-0.5">{Math.round(player.stats.xp)}</span>
-          <span className="text-[9px] font-black text-stone-400 uppercase tracking-wider">XP</span>
+          <span className="text-[10px] font-black text-slate-700 leading-none mt-0.5">{Math.round(player.stats.xp)}</span>
+          <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">XP</span>
         </div>
       </div>
 
       {/* Economy & Shop Toggle */}
       <div className="mb-4 px-2 flex justify-between items-end">
         <div>
-          <p className="text-[11px] text-stone-400 font-bold uppercase mb-1 tracking-wider">Savings</p>
+          <p className="text-[11px] text-slate-400 font-bold uppercase mb-1 tracking-wider">Savings</p>
           <p className="text-4xl font-black text-emerald-500 font-mono tracking-tighter">
             <span className="text-2xl opacity-50">$</span>{player.stats.savings}
           </p>
@@ -112,7 +112,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             onClick={onToggleGuide}
             className={cn(
               "p-2 rounded-lg transition-all border shadow-sm",
-              showGuide ? "bg-stone-900 text-white border-stone-900" : "bg-white text-stone-600 border-stone-100 hover:bg-stone-50"
+              showGuide ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-600 border-slate-100 hover:bg-slate-50"
             )}
           >
             <HelpCircle size={20} />
@@ -121,7 +121,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             onClick={onToggleShop}
             className={cn(
               "p-2 rounded-lg transition-all border shadow-sm",
-              showShop ? "bg-stone-900 text-white border-stone-900" : "bg-white text-stone-600 border-stone-100 hover:bg-stone-50"
+              showShop ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-600 border-slate-100 hover:bg-slate-50"
             )}
           >
             <Coffee size={20} />
@@ -133,21 +133,21 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className="flex-1 overflow-y-auto no-scrollbar pb-4">
         {showGuide ? (
           <div className="flex flex-col gap-3 animate-in fade-in duration-300">
-            <p className="text-[11px] text-indigo-500 font-black uppercase mb-1 tracking-widest">遊戲指南</p>
-            <div className="space-y-4 pr-1 text-[11px] font-bold text-stone-500">
+            <p className="text-[11px] text-[#4F46E5] font-black uppercase mb-1 tracking-widest">遊戲指南</p>
+            <div className="space-y-4 pr-1 text-[11px] font-bold text-slate-500">
               <section>
-                <h4 className="font-black text-stone-700 mb-1.5 border-b border-stone-100 pb-1 uppercase tracking-tighter text-[10px]">基礎數值</h4>
+                <h4 className="font-black text-slate-700 mb-1.5 border-b border-slate-100 pb-1 uppercase tracking-tighter text-[10px]">基礎數值</h4>
                 <div className="space-y-1">
-                  <div className="flex justify-between bg-stone-50/50 p-1.5 rounded-md"><span className="text-rose-500">HP (體力)</span><span>歸零則結束</span></div>
-                  <div className="flex justify-between bg-stone-50/50 p-1.5 rounded-md"><span className="text-cyan-500">MP (摸魚)</span><span>抽牌消耗 1</span></div>
-                  <div className="flex justify-between bg-stone-50/50 p-1.5 rounded-md"><span className="text-amber-500">XP (年資)</span><span>100% 則升職</span></div>
+                  <div className="flex justify-between bg-slate-50/50 p-1.5 rounded-md"><span className="text-rose-500">HP (體力)</span><span>歸零則結束</span></div>
+                  <div className="flex justify-between bg-slate-50/50 p-1.5 rounded-md"><span className="text-cyan-500">MP (摸魚)</span><span>抽牌消耗 1</span></div>
+                  <div className="flex justify-between bg-slate-50/50 p-1.5 rounded-md"><span className="text-amber-500">XP (年資)</span><span>100% 則升職</span></div>
                 </div>
               </section>
             </div>
           </div>
         ) : showShop ? (
           <div className="flex flex-col gap-2 animate-in fade-in duration-300">
-            <p className="text-[11px] text-indigo-500 font-black uppercase mb-2 tracking-widest">Office Shop</p>
+            <p className="text-[11px] text-[#4F46E5] font-black uppercase mb-2 tracking-widest">Office Shop</p>
             <button onClick={() => onBuyItem('hp_pot')} className="flex justify-between items-center p-2.5 bg-rose-50 border border-rose-100 rounded-xl hover:bg-rose-100 transition-colors text-xs">
               <div className="text-left font-black text-rose-700">能量飲料 (+30 HP)</div>
               <span className="font-black text-rose-600">$200</span>
@@ -163,22 +163,22 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
         ) : (
           <div className="flex flex-col gap-3 animate-in fade-in duration-300">
-            <p className="text-[11px] text-indigo-500 font-black uppercase mb-1 tracking-widest">屬性面板</p>
+            <p className="text-[11px] text-[#4F46E5] font-black uppercase mb-1 tracking-widest">屬性面板</p>
             <div className="space-y-2">
-              <div className={cn("flex justify-between items-center bg-stone-50/50 p-2 rounded-lg transition-all", gameState.chaosLevel > 70 && "animate-shake")}>
-                <span className="text-[11px] font-black text-stone-700 uppercase tracking-tighter flex items-center gap-1.5"><Flame size={12} className="text-orange-500" />混亂度</span>
+              <div className={cn("flex justify-between items-center bg-slate-50/50 p-2 rounded-lg transition-all", gameState.chaosLevel > 70 && "animate-shake")}>
+                <span className="text-[11px] font-black text-slate-700 uppercase tracking-tighter flex items-center gap-1.5"><Flame size={12} className="text-orange-500" />混亂度</span>
                 <span className="text-[11px] font-black text-orange-500">{gameState.chaosLevel}%</span>
               </div>
-              <div className="flex justify-between items-center bg-stone-50/50 p-2 rounded-lg border-l-4 border-emerald-400 shadow-sm">
-                <span className="text-[11px] font-black text-stone-700 uppercase tracking-tighter flex items-center gap-1.5"><Clover size={12} className="text-emerald-500" />幸運</span>
+              <div className="flex justify-between items-center bg-slate-50/50 p-2 rounded-lg border-l-4 border-emerald-400 shadow-sm">
+                <span className="text-[11px] font-black text-slate-700 uppercase tracking-tighter flex items-center gap-1.5"><Clover size={12} className="text-emerald-500" />幸運</span>
                 <span className="text-[11px] font-black text-emerald-500">{player.stats.luck}</span>
               </div>
-              <div className="flex justify-between items-center bg-stone-50/50 p-2 rounded-lg border-l-4 border-emerald-400 shadow-sm">
-                <span className="text-[11px] font-black text-stone-700 uppercase tracking-tighter flex items-center gap-1.5"><Sparkles size={12} className="text-emerald-500" />魅力</span>
+              <div className="flex justify-between items-center bg-slate-50/50 p-2 rounded-lg border-l-4 border-emerald-400 shadow-sm">
+                <span className="text-[11px] font-black text-slate-700 uppercase tracking-tighter flex items-center gap-1.5"><Sparkles size={12} className="text-emerald-500" />魅力</span>
                 <span className="text-[11px] font-black text-emerald-500">{player.stats.charisma}</span>
               </div>
-              <div className="flex justify-between items-center bg-stone-50/50 p-2 rounded-lg border-l-4 border-rose-400 shadow-sm">
-                <span className="text-[11px] font-black text-stone-700 uppercase tracking-tighter flex items-center gap-1.5"><Zap size={12} className={player.stats.stress > 80 ? "text-rose-500" : "text-stone-400"} />壓力</span>
+              <div className="flex justify-between items-center bg-slate-50/50 p-2 rounded-lg border-l-4 border-rose-400 shadow-sm">
+                <span className="text-[11px] font-black text-slate-700 uppercase tracking-tighter flex items-center gap-1.5"><Zap size={12} className={player.stats.stress > 80 ? "text-rose-500" : "text-slate-400"} />壓力</span>
                 <span className={cn("text-[11px] font-black", player.stats.stress > 80 ? "text-rose-600 animate-pulse" : "text-rose-500")}>{player.stats.stress}</span>
               </div>
             </div>
@@ -187,10 +187,10 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* FIXED FOOTER - Today's Goal & Clock Out */}
-      <div className="pt-4 border-t border-stone-100 bg-white">
-        <p className="text-[11px] text-indigo-500 font-black uppercase mb-2 tracking-widest">今日目標</p>
+      <div className="pt-4 border-t border-slate-100 bg-white">
+        <p className="text-[11px] text-[#4F46E5] font-black uppercase mb-2 tracking-widest">今日目標</p>
         <div className="space-y-2 mb-4">
-          <div className="flex justify-between items-center text-[11px] font-black text-stone-600">
+          <div className="flex justify-between items-center text-[11px] font-black text-slate-600">
             <span>下班進度</span>
             <span className="text-emerald-500">{Math.min(100, Math.round(gameState.activityThisDay * 33.3))}%</span>
           </div>
@@ -209,8 +209,8 @@ const Sidebar: React.FC<SidebarProps> = ({
           className={cn(
             "w-full py-4 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all relative overflow-hidden",
             gameState.activityThisDay >= 3 
-              ? "bg-[#5D3FD3] text-white shadow-[0_12px_40px_-6px_rgba(93,63,211,0.4)] animate-pulse cursor-pointer hover:scale-[1.02] active:scale-95" 
-              : "bg-stone-100 text-stone-400 border border-stone-50 cursor-not-allowed"
+              ? "bg-[#4F46E5] text-white shadow-[0_12px_40px_-6px_rgba(79,70,229,0.4)] animate-pulse cursor-pointer hover:scale-[1.02] active:scale-95" 
+              : "bg-slate-100 text-slate-400 border border-slate-50 cursor-not-allowed"
           )}
         >
           {gameState.activityThisDay >= 3 && (

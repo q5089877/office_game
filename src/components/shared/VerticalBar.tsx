@@ -33,7 +33,7 @@ const VerticalBar: React.FC<VerticalBarProps> = ({
 
   return (
     <div className="flex flex-col items-center gap-1 h-full group" title={title}>
-      <div className="w-2.5 h-16 bg-stone-100 rounded-full overflow-hidden relative border border-stone-200 shadow-inner">
+      <div className="w-2.5 h-16 bg-slate-100 rounded-full overflow-hidden relative border border-slate-200 shadow-inner">
         <motion.div
           className={cn("absolute bottom-0 w-full rounded-full", color)}
           initial={{ height: 0 }}
@@ -41,10 +41,10 @@ const VerticalBar: React.FC<VerticalBarProps> = ({
           transition={{ type: "spring", stiffness: 100, damping: 20 }}
         />
       </div>
-      <span className="text-[10px] font-black text-stone-700 leading-none mt-0.5">
+      <span className="text-[10px] font-black text-slate-700 leading-none mt-0.5">
         {Math.round(value)}
       </span>
-      <span className="text-[9px] font-bold text-stone-400 uppercase tracking-wider group-hover:text-stone-600 transition-colors">
+      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider group-hover:text-slate-600 transition-colors">
         {label}
       </span>
       {Icon && (

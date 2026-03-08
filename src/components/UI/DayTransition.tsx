@@ -40,13 +40,13 @@ const DayTransition: React.FC<DayTransitionProps> = ({
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", damping: 25 }}
-            className="bg-white rounded-[40px] p-10 max-w-2xl w-full mx-8 shadow-2xl border border-stone-200"
+            className="bg-white rounded-[40px] p-10 max-w-2xl w-full mx-8 shadow-2xl border border-slate-200"
           >
             <div className="text-center mb-8">
-              <h2 className="text-5xl font-black uppercase italic tracking-tighter text-stone-900 mb-2">
+              <h2 className="text-5xl font-black uppercase italic tracking-tighter text-slate-900 mb-2">
                 DAY {summaryData?.prevDay} 結束
               </h2>
-              <p className="text-stone-500 font-bold text-sm uppercase tracking-widest">
+              <p className="text-slate-500 font-bold text-sm uppercase tracking-widest">
                 今日摸魚報告
               </p>
             </div>
@@ -78,12 +78,12 @@ const DayTransition: React.FC<DayTransitionProps> = ({
 
               <div className="bg-indigo-50 p-6 rounded-3xl border border-indigo-100">
                 <div className="flex items-center gap-3 mb-3">
-                  <Trophy size={20} className="text-indigo-600" />
-                  <span className="text-sm font-black uppercase tracking-wider text-indigo-700">
+                  <Trophy size={20} className="text-[#4F46E5]" />
+                  <span className="text-sm font-black uppercase tracking-wider text-[#4F46E5]">
                     績效評分
                   </span>
                 </div>
-                <p className="text-4xl font-black text-indigo-600 font-mono">
+                <p className="text-4xl font-black text-[#4F46E5] font-mono">
                   {summaryData?.performance || 0}%
                 </p>
               </div>
@@ -102,15 +102,15 @@ const DayTransition: React.FC<DayTransitionProps> = ({
             </div>
 
             <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-3 bg-stone-100 px-6 py-3 rounded-full">
-                <span className="text-sm font-bold text-stone-500 uppercase tracking-wider">今日評級</span>
-                <span className="text-2xl font-black text-stone-900 uppercase italic">{summaryData?.rank || 'C'}</span>
+              <div className="inline-flex items-center gap-3 bg-slate-100 px-6 py-3 rounded-full">
+                <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">今日評級</span>
+                <span className="text-2xl font-black text-slate-900 uppercase italic">{summaryData?.rank || 'C'}</span>
               </div>
             </div>
 
             <button
               onClick={onStartNewDay}
-              className="w-full py-4 bg-stone-900 text-white rounded-2xl font-black text-lg uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95 flex items-center justify-center gap-3"
+              className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-lg uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95 flex items-center justify-center gap-3"
             >
               迎接新的一天 <Sparkles size={20} />
             </button>

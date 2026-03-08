@@ -29,7 +29,7 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
   onPlayerClick,
 }) => {
   return (
-    <div className="bg-white rounded-[32px] shadow-2xl border border-stone-200/60 overflow-hidden relative flex items-center justify-center">
+    <div className="bg-white rounded-[32px] shadow-2xl border border-slate-200/60 overflow-hidden relative flex items-center justify-center">
       <Stage
         width={CANVAS_CONFIG.BASE_WIDTH * scale}
         height={CANVAS_CONFIG.BASE_HEIGHT * scale}
@@ -94,17 +94,17 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
                     <Rect
                       width={90} height={70}
                       fill={isPlayerDesk ? "rgba(79, 70, 229, 0.25)" : "rgba(248, 250, 252, 0.8)"}
-                      stroke={isPlayerDesk ? "#4f46e5" : "#e2e8f0"}
+                      stroke={isPlayerDesk ? "#4F46E5" : "#e2e8f0"}
                       strokeWidth={isPlayerDesk ? 3 : 1.5}
                       cornerRadius={10}
                       shadowBlur={15}
-                      shadowColor={isPlayerDesk ? "rgba(99, 102, 241, 0.4)" : "rgba(0,0,0,0.15)"}
+                      shadowColor={isPlayerDesk ? "rgba(79, 70, 229, 0.4)" : "rgba(0,0,0,0.15)"}
                       shadowOffset={{ x: 5, y: 15 }}
                     />
                     <Group x={5} y={45}>
                       <Rect
                         width={80} height={22}
-                        fill={isPlayerDesk ? "#4f46e5" : "rgba(255,255,255,0.8)"}
+                        fill={isPlayerDesk ? "#4F46E5" : "rgba(255,255,255,0.8)"}
                         cornerRadius={6}
                       />
                       <Text
@@ -302,7 +302,7 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
                 <PixelCharacter
                   id={p.id}
                   name={p.name}
-                  color={p.id === 'player' ? "#6366f1" : "#10b981"}
+                  color={p.id === 'player' ? "#4F46E5" : "#10b981"}
                   isSelected={selectedPlayerId === p.id}
                   bobOffset={p.position.y % 4}
                   gender={p.gender}
