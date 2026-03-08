@@ -1,11 +1,13 @@
 /**
- * 主應用程式組件 - 模組化重構版本
+ * 主應用程式組件 - 視覺統一重構版本
  */
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useGameEngine } from './useGameEngine';
 import { CANVAS_CONFIG } from './config/canvasConfig';
+import { tw, getThemeColor } from './theme/colorUtils';
+import { themeColors } from './theme/colors';
 
 // 導入模組化組件
 import OfficeCanvas from './components/Canvas/OfficeCanvas';
@@ -17,7 +19,6 @@ import DayTransition from './components/UI/DayTransition';
 export default function App() {
   const {
     gameState,
-    player: rawPlayer, // 這是 Character 實例
     playCard,
     drawCard,
     clockOut,
@@ -64,18 +65,18 @@ export default function App() {
       setTimeout(() => setIsChangingDay(false), 1500);
     }
   };
-// 安全判定
-const playerState = gameState.players.find(p => p.id === 'player');
-if (!playerState) return null;
 
-const isGameOver = playerState.stats.stress >= 100 || playerState.stats.savings < -1000;
-if (isGameOver) {
-// ... existing code ...
+  // 安全判定
+  const playerState = gameState.players.find(p => p.id === 'player');
+  if (!playerState) return null;
+
+  const isGameOver = playerState.stats.stress >= 100 || playerState.stats.savings < -1000;
+  if (isGameOver) {
     return <GameOverScreen onRestart={() => window.location.reload()} />;
   }
 
   return (
-    <div className="h-screen w-screen bg-[#F8FAFC] text-slate-900 font-sans overflow-hidden flex flex-row">
+    <div className={`h-screen w-screen ${tw.bg.dark} ${tw.text.primary} font-sans overflow-hidden flex flex-row`}>
       <DayTransition
         isChangingDay={isChangingDay}
         summaryData={summaryData}
@@ -95,21 +96,31 @@ if (isGameOver) {
 
       <main className="flex-1 flex flex-col relative h-full">
         <div
-          className="flex-1 bg-transparent relative overflow-hidden flex items-center justify-center"
+          className={`flex-1 ${tw.bg.canvas} relative overflow-hidden flex items-center justify-center`}
           style={{
-            backgroundImage: 'radial-gradient(#e2e8f0 1.5px, transparent 1.5px)',
-            backgroundSize: '80px 80px'
+            backgroundImage: `radial-gradient(${themeColors.secondary[300]} 1px, transparent 1px)`,
+            backgroundSize: '40px 40px',
+            boxShadow: 'inset 0 0 100px rgba(0,0,0,0.05)'
           }}
         >
+          {/* 背景裝飾：光暈 */}
+          <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20"
+               style={{ background: `radial-gradient(circle at 50% 50%, ${themeColors.primary[100]}, transparent 70%)` }} />
+
           <AnimatePresence>
             {showEvent && gameState.lastEvent && (
               <motion.div
                 initial={{ opacity: 0, y: -40, x: "-50%" }}
                 animate={{ opacity: 1, y: 0, x: "-50%" }}
                 exit={{ opacity: 0, y: -20, x: "-50%" }}
-                className="absolute top-8 left-1/2 z-[100] bg-white/80 text-indigo-950 px-8 py-3.5 rounded-2xl shadow-xl font-black text-sm flex items-center gap-3 border border-white/60 backdrop-blur-md"
+                className="absolute top-8 left-1/2 z-[100] px-8 py-3.5 rounded-2xl shadow-2xl font-black text-sm flex items-center gap-3 border backdrop-blur-md"
+                style={{ 
+                  backgroundColor: `${themeColors.secondary[900]}EE`, 
+                  color: themeColors.primary[50],
+                  borderColor: themeColors.primary[500] 
+                }}
               >
-                <span className="w-2.5 h-2.5 bg-rose-500 rounded-full animate-pulse" />
+                <span className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ backgroundColor: themeColors.error[500] }} />
                 {gameState.lastEvent}
               </motion.div>
             )}

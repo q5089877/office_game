@@ -4,40 +4,40 @@
  */
 
 export const themeColors = {
-  // 主色調
+  // 主色調 - 溫暖的藍紫色調，更柔和協調
   primary: {
-    50: '#eef2ff',
-    100: '#e0e7ff',
-    200: '#c7d2fe',
-    300: '#a5b4fc',
-    400: '#818cf8',
-    500: '#6366f1', // 主要品牌色
+    50: '#f5f7ff',
+    100: '#e8edff',
+    200: '#d0d8ff',
+    300: '#a8b6ff',
+    400: '#7d8ef9',
+    500: '#6366f1', // 主要品牌色保持不變
     600: '#4f46e5',
     700: '#4338ca',
     800: '#3730a3',
-    900: '#312e81',
+    900: '#2a2678',
   },
 
-  // 次要色調
+  // 次要色調 - 溫暖的灰色，減少黑白對比
   secondary: {
-    50: '#f8fafc',
-    100: '#f1f5f9',
-    200: '#e2e8f0',
-    300: '#cbd5e1',
-    400: '#94a3b8',
-    500: '#64748b',
-    600: '#475569',
-    700: '#334155',
-    800: '#1e293b',
-    900: '#0f172a',
+    50: '#f9fafb',
+    100: '#f1f3f5',
+    200: '#e4e7eb',
+    300: '#cfd4da',
+    400: '#9ca3af',
+    500: '#6b7280',
+    600: '#4b5563',
+    700: '#374151',
+    800: '#1f2937',
+    900: '#111827',
   },
 
-  // 成功/綠色
+  // 成功/綠色 - 稍微調整為更柔和的綠色
   success: {
-    50: '#f0fdf4',
-    100: '#dcfce7',
-    200: '#bbf7d0',
-    300: '#86efac',
+    50: '#f0fdf6',
+    100: '#dcfce9',
+    200: '#bbf7d3',
+    300: '#86efad',
     400: '#4ade80',
     500: '#22c55e',
     600: '#16a34a',
@@ -46,21 +46,21 @@ export const themeColors = {
     900: '#14532d',
   },
 
-  // 警告/橙色
+  // 警告/橙色 - 調整為更溫暖的琥珀色
   warning: {
-    50: '#fff7ed',
-    100: '#ffedd5',
-    200: '#fed7aa',
-    300: '#fdba74',
-    400: '#fb923c',
-    500: '#f97316',
-    600: '#ea580c',
-    700: '#c2410c',
-    800: '#9a3412',
-    900: '#7c2d12',
+    50: '#fffbeb',
+    100: '#fef3c7',
+    200: '#fde68a',
+    300: '#fcd34d',
+    400: '#fbbf24',
+    500: '#f59e0b',
+    600: '#d97706',
+    700: '#b45309',
+    800: '#92400e',
+    900: '#78350f',
   },
 
-  // 錯誤/紅色
+  // 錯誤/紅色 - 調整為更柔和的紅色
   error: {
     50: '#fef2f2',
     100: '#fee2e2',
@@ -74,16 +74,44 @@ export const themeColors = {
     900: '#7f1d1d',
   },
 
-  // 遊戲特定顏色
+  // 紫色 - 用於 ESCAPE 卡片
+  purple: {
+    50: '#f5f3ff',
+    100: '#ede9fe',
+    200: '#ddd6fe',
+    300: '#c4b5fd',
+    400: '#a78bfa',
+    500: '#8b5cf6',
+    600: '#7c3aed',
+    700: '#6d28d9',
+    800: '#5b21b6',
+    900: '#4c1d95',
+  },
+
+  // 粉色 - 用於 GOSSIP 卡片
+  pink: {
+    50: '#fdf2f8',
+    100: '#fce7f3',
+    200: '#fbcfe8',
+    300: '#f9a8d4',
+    400: '#f472b6',
+    500: '#ec4899',
+    600: '#db2777',
+    700: '#be185d',
+    800: '#9d174d',
+    900: '#831843',
+  },
+
+  // 遊戲特定顏色 - 調整為更協調的色調
   game: {
-    player: '#4f46e5', // 玩家顏色
-    colleague: '#10b981', // 同事顏色
-    boss: '#ef4444', // 老闆顏色
-    plant: '#22c55e', // 植物顏色
-    cardPrank: '#ef4444', // 惡作劇卡片
-    cardSlacking: '#3b82f6', // 摸魚卡片
-    cardEscape: '#8b5cf6', // 逃避卡片
-    cardGossip: '#ec4899', // 八卦卡片
+    player: '#4f46e5', // 玩家顏色保持不變
+    colleague: '#10b981', // 同事顏色保持不變
+    boss: '#dc2626', // 老闆顏色調整為更柔和的紅色
+    plant: '#16a34a', // 植物顏色調整為更深的綠色
+    cardPrank: '#dc2626', // 惡作劇卡片調整為更柔和的紅色
+    cardSlacking: '#3b82f6', // 摸魚卡片保持不變
+    cardEscape: '#8b5cf6', // 逃避卡片保持不變
+    cardGossip: '#ec4899', // 八卦卡片保持不變
   },
 };
 
@@ -102,13 +130,16 @@ export const textColors = {
 
 /**
  * 背景顏色主題
+ * 使用更溫暖、更協調的中性色，減少純黑純白對比
  */
 export const backgroundColors = {
-  light: '#ffffff',
-  dark: themeColors.secondary[900],
+  light: '#f9fafb', // 從純白改為溫暖的淺灰色
+  dark: '#111827', // 使用secondary[900]但更一致
   sidebar: themeColors.secondary[50],
   card: themeColors.secondary[800],
-  notification: themeColors.secondary[950] || '#030712',
+  notification: '#1f2937', // 使用secondary[800]作為通知背景
+  canvas: '#f1f3f5', // 畫布背景色
+  surface: '#ffffff', // 表面元素仍可使用純白
 };
 
 /**
@@ -136,30 +167,33 @@ export const shadowColors = {
 
 /**
  * 獲取Tailwind CSS類名對應
+ * 更新以匹配新的色彩系統
  */
 export const tailwindClasses = {
   text: {
-    primary: 'text-slate-900',
-    secondary: 'text-slate-600',
-    muted: 'text-slate-400',
-    onDark: 'text-slate-50',
+    primary: 'text-gray-900',
+    secondary: 'text-gray-600',
+    muted: 'text-gray-400',
+    onDark: 'text-gray-50',
     success: 'text-emerald-600',
     warning: 'text-amber-600',
-    error: 'text-rose-600',
+    error: 'text-red-600',
   },
 
   bg: {
-    light: 'bg-white',
-    dark: 'bg-slate-900',
-    sidebar: 'bg-slate-50',
-    card: 'bg-slate-800',
-    notification: 'bg-slate-950',
+    light: 'bg-gray-50',
+    dark: 'bg-gray-900',
+    sidebar: 'bg-gray-50',
+    card: 'bg-gray-800',
+    notification: 'bg-gray-800',
+    canvas: 'bg-gray-100',
+    surface: 'bg-white',
   },
 
   border: {
-    light: 'border-slate-200',
-    medium: 'border-slate-300',
-    dark: 'border-slate-700',
+    light: 'border-gray-200',
+    medium: 'border-gray-300',
+    dark: 'border-gray-700',
     focus: 'border-indigo-500',
   },
 };

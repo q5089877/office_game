@@ -11,6 +11,7 @@ import PixelCharacter from '../shared/PixelCharacter';
 import PixelPlant from '../shared/PixelPlant';
 import DebugOverlay from '../shared/DebugOverlay';
 import { GameState, Player } from '../../types';
+import { themeColors } from '../../theme/colors';
 
 interface OfficeCanvasProps {
   gameState: GameState;
@@ -41,32 +42,13 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
           {/* 畫布背景 */}
           <Rect width={CANVAS_CONFIG.BASE_WIDTH} height={CANVAS_CONFIG.BASE_HEIGHT} fill="#fff" />
 
-          {/* Environment Tinting (環境分區) */}
-          {/* 安全區: 座位區域 */}
-          {OFFICE_LAYOUT.clusters.map((cluster, idx) => {
-            const pos = GridCalculator.getDeskPosition(cluster.desks[0].x, cluster.desks[0].y);
-            return (
-              <Rect
-                key={`safe-zone-${idx}`}
-                x={pos.x - 20}
-                y={pos.y - 20}
-                width={220}
-                height={180}
-                fill="#f0f9ff"
-                cornerRadius={20}
-                opacity={0.8}
-              />
-            );
-          })}
-          {/* 危險區: 走廊標示 (淡灰色路徑) */}
-          <Rect x={0} y={380} width={CANVAS_CONFIG.BASE_WIDTH} height={120} fill="#f8fafc" opacity={0.5} />
 
           {/* 網格點 */}
           {[...Array(CANVAS_CONFIG.GRID.COLUMNS)].map((_, i) =>
             [...Array(CANVAS_CONFIG.GRID.ROWS)].map((_, j) => {
               const pos = GridCalculator.getGridPointPosition(i, j);
               return (
-                <Circle key={`${i}-${j}`} x={pos.x} y={pos.y} radius={1} fill="#cbd5e1" />
+                <Circle key={`${i}-${j}`} x={pos.x} y={pos.y} radius={1} fill={themeColors.secondary[300]} />
               );
             })
           )}
@@ -78,12 +60,12 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
               <Group x={GridCalculator.getDeskPosition(cluster.desks[0].x, cluster.desks[0].y).x - 40}
                      y={GridCalculator.getDeskPosition(cluster.desks[0].x, cluster.desks[0].y).y + 80}>
                 {/* 垃圾桶 */}
-                <Rect width={24} height={30} fill="#cbd5e1" cornerRadius={3} shadowBlur={10} shadowColor="rgba(0,0,0,0.1)" shadowOffset={{ x: 5, y: 15 }} />
-                <Rect width={28} height={6} fill="#94a3b8" x={-2} y={-4} cornerRadius={2} />
-                <Text text="🗑️" fontSize={14} x={3} y={6} opacity={0.6} />
-                {/* 散落紙張 */}
-                <Rect width={12} height={16} fill="#fff" x={30} y={15} rotation={15} shadowBlur={2} shadowColor="rgba(0,0,0,0.1)" />
-                <Rect width={12} height={16} fill="#f8fafc" x={25} y={20} rotation={-10} shadowBlur={2} shadowColor="rgba(0,0,0,0.1)" />
+                  <Rect width={24} height={30} fill={themeColors.secondary[300]} cornerRadius={3} shadowBlur={10} shadowColor="rgba(0,0,0,0.1)" shadowOffset={{ x: 5, y: 15 }} />
+                  <Rect width={28} height={6} fill={themeColors.secondary[400]} x={-2} y={-4} cornerRadius={2} />
+                  <Text text="🗑️" fontSize={14} x={3} y={6} opacity={0.6} />
+                  {/* 散落紙張 */}
+                  <Rect width={12} height={16} fill="#fff" x={30} y={15} rotation={15} shadowBlur={2} shadowColor="rgba(0,0,0,0.1)" />
+                  <Rect width={12} height={16} fill={themeColors.secondary[100]} x={25} y={20} rotation={-10} shadowBlur={2} shadowColor="rgba(0,0,0,0.1)" />
               </Group>
 
               {cluster.desks.map(desk => {
@@ -94,24 +76,24 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
                     {/* 桌子本體增加統一方向投影 */}
                     <Rect
                       width={90} height={70}
-                      fill={isPlayerDesk ? "rgba(79, 70, 229, 0.25)" : "rgba(248, 250, 252, 0.8)"}
-                      stroke={isPlayerDesk ? "#4F46E5" : "#e2e8f0"}
+                      fill={isPlayerDesk ? `${themeColors.primary[600]}40` : `${themeColors.secondary[100]}CC`}
+                      stroke={isPlayerDesk ? themeColors.primary[600] : themeColors.secondary[200]}
                       strokeWidth={isPlayerDesk ? 3 : 1.5}
                       cornerRadius={10}
                       shadowBlur={15}
-                      shadowColor={isPlayerDesk ? "rgba(79, 70, 229, 0.4)" : "rgba(0,0,0,0.15)"}
+                      shadowColor={isPlayerDesk ? `${themeColors.primary[600]}66` : "rgba(0,0,0,0.15)"}
                       shadowOffset={{ x: 5, y: 15 }}
                     />
                     <Group x={5} y={45}>
                       <Rect
                         width={80} height={22}
-                        fill={isPlayerDesk ? "#4F46E5" : "rgba(255,255,255,0.8)"}
+                        fill={isPlayerDesk ? themeColors.primary[600] : "rgba(255,255,255,0.8)"}
                         cornerRadius={6}
                       />
                       <Text
                         text={isPlayerDesk ? "新進員工" : desk.label}
                         fontSize={CANVAS_CONFIG.TEXT_SIZE.NPC.DESK_LABEL}
-                        fill={isPlayerDesk ? "#ffffff" : "#94a3b8"}
+                        fill={isPlayerDesk ? "#ffffff" : themeColors.secondary[400]}
                         fontStyle="bold"
                         width={80}
                         align="center"
@@ -131,14 +113,14 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
               <Group key={obj.id} x={pos.x} y={pos.y} cursor="pointer">
                 {/* 統一的金黃色底座與框 - 增加外發光感與方向投影 */}
                 <Rect width={70} height={70} fill="#fff"
-                      stroke="#fbbf24" strokeWidth={3} cornerRadius={16}
-                      shadowBlur={15} shadowColor="rgba(251, 191, 36, 0.3)"
+                      stroke={themeColors.warning[400]} strokeWidth={3} cornerRadius={16}
+                      shadowBlur={15} shadowColor={`${themeColors.warning[400]}4D`}
                       shadowOffset={{ x: 5, y: 15 }} />
                 <Text text={obj.emoji} fontSize={CANVAS_CONFIG.TEXT_SIZE.NPC.OBJECT_EMOJI} x={20} y={13} />
                 <Group y={50}>
-                  <Rect width={70} height={20} fill="rgba(251, 191, 36, 0.15)" cornerRadius={4} />
+                  <Rect width={70} height={20} fill={`${themeColors.warning[400]}26`} cornerRadius={4} />
                   <Text text={obj.label} fontSize={CANVAS_CONFIG.TEXT_SIZE.NPC.OBJECT_LABEL}
-                        fill="#b45309" fontStyle="bold" width={70} align="center" y={4} />
+                        fill={themeColors.warning[700]} fontStyle="bold" width={70} align="center" y={4} />
                 </Group>
               </Group>
             );
@@ -152,8 +134,8 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
               outerRadius={160}
               angle={120}
               rotation={30}
-              fill="rgba(239, 68, 68, 0.1)"
-              stroke="rgba(239, 68, 68, 0.2)"
+              fill={`${themeColors.error[500]}1A`}
+              stroke={`${themeColors.error[500]}33`}
               strokeWidth={2}
               dash={[10, 10]}
               x={0}
@@ -164,7 +146,7 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
             <PixelCharacter
               id="boss"
               name="大老闆"
-              color="#dc2626"
+              color={themeColors.error[600]}
               isSelected={false}
               bobOffset={gameState.bossPosition.y % 4}
               gender="MALE"
@@ -303,7 +285,7 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
                 <PixelCharacter
                   id={p.id}
                   name={p.name}
-                  color={p.id === 'player' ? "#4F46E5" : "#10b981"}
+                  color={p.id === 'player' ? themeColors.primary[600] : themeColors.success[500]}
                   isSelected={selectedPlayerId === p.id}
                   bobOffset={p.position.y % 4}
                   gender={p.gender}
