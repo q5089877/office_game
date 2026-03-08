@@ -13,17 +13,17 @@ export const OFFICE_LAYOUT = {
         { id: "lynn", x: 1, y: 1, label: "Lynn", owner: "lynn", gender: Gender.FEMALE },
         { id: "karen", x: 1, y: 2, label: "Karen", owner: "karen", gender: Gender.FEMALE },
         { id: "felicity", x: 1, y: 3, label: "Felicity", owner: "felicity", gender: Gender.FEMALE },
-        { id: "empty_l1", x: 2, y: 1, label: "待招募", owner: null },
-        { id: "empty_l2", x: 2, y: 2, label: "待招募", owner: null },
+        { id: "empty_l1", x: 2, y: 1, label: "", owner: null },
+        { id: "empty_l2", x: 2, y: 2, label: "", owner: null },
         { id: "lara", x: 2, y: 3, label: "Lara", owner: "lara", gender: Gender.FEMALE },
       ]
     },
     {
       name: "中間島嶼",
       desks: [
-        { id: "empty_m1", x: 4, y: 1, label: "待招募", owner: null },
-        { id: "empty_m2", x: 5, y: 1, label: "待招募", owner: null },
-        { id: "empty_m3", x: 4, y: 2, label: "待招募", owner: null },
+        { id: "empty_m1", x: 4, y: 1, label: "", owner: null },
+        { id: "empty_m2", x: 5, y: 1, label: "", owner: null },
+        { id: "empty_m3", x: 4, y: 2, label: "", owner: null },
         { id: "andy", x: 5, y: 2, label: "Andy", owner: "andy", gender: Gender.MALE },
         { id: "neil", x: 4, y: 3, label: "Neil", owner: "neil", gender: Gender.MALE },
         { id: "adi", x: 5, y: 3, label: "Adi", owner: "adi", gender: Gender.MALE },
@@ -33,8 +33,8 @@ export const OFFICE_LAYOUT = {
     {
       name: "右側島嶼",
       desks: [
-        { id: "empty_r1", x: 7, y: 1, label: "待招募", owner: null },
-        { id: "empty_r2", x: 8, y: 1, label: "待招募", owner: null },
+        { id: "empty_r1", x: 7, y: 1, label: "", owner: null },
+        { id: "empty_r2", x: 8, y: 1, label: "", owner: null },
         { id: "jacky", x: 7, y: 2, label: "Jacky", owner: "jacky", gender: Gender.MALE },
         { id: "hank", x: 8, y: 2, label: "Hank", owner: "hank", gender: Gender.MALE },
         { id: "cian", x: 7, y: 3, label: "Cian", owner: "cian", gender: Gender.MALE },

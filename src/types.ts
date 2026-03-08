@@ -79,6 +79,7 @@ export interface GameState {
   deck: Card[];
   discardPile: Card[];
   bossPosition: { x: number; y: number };
+  bossChatMessage: string | null;
   plantPosition: { x: number; y: number };
   chaosLevel: number;
   activityThisDay: number;

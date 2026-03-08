@@ -74,7 +74,7 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
           {OFFICE_LAYOUT.clusters.map((cluster, cIdx) => (
             <React.Fragment key={`cluster-${cIdx}`}>
               {/* 裝飾性垃圾桶與散落的紙張 (放在每個群組的角落) */}
-              <Group x={GridCalculator.getDeskPosition(cluster.desks[0].x, cluster.desks[0].y).x - 40} 
+              <Group x={GridCalculator.getDeskPosition(cluster.desks[0].x, cluster.desks[0].y).x - 40}
                      y={GridCalculator.getDeskPosition(cluster.desks[0].x, cluster.desks[0].y).y + 80}>
                 {/* 垃圾桶 */}
                 <Rect width={24} height={30} fill="#cbd5e1" cornerRadius={3} shadowBlur={10} shadowColor="rgba(0,0,0,0.1)" shadowOffset={{ x: 5, y: 15 }} />
@@ -159,7 +159,7 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
               y={0}
               listening={false}
             />
-            
+
             <PixelCharacter
               id="boss"
               name="大老闆"
@@ -169,29 +169,34 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
               gender="MALE"
             />
 
-            {/* 只有在抓到人時才顯示氣泡 */}
-            {gameState.players.some(p => p.id === 'player' &&
+            {/* 顯示老闆的對話泡泡 - 卡片觸發或抓到玩家時 */}
+            {(gameState.bossChatMessage || gameState.players.some(p => p.id === 'player' &&
               Math.abs(p.position.x - gameState.bossPosition.x) < 50 &&
               Math.abs(p.position.y - gameState.bossPosition.y) < 40
-            ) && (() => {
-              const bossText = "發現你在摸魚~";
-              const bubbleWidth = 140;
+            )) && (() => {
+              const bossText = gameState.bossChatMessage || "發現你在摸魚~";
+              const bubbleWidth = Math.max(140, bossText.length * 10 + 20);
               const lineHeight = 20;
               const lineCount = Math.ceil(bossText.length / 12);
               const bubbleHeight = Math.max(32, lineCount * lineHeight + 16);
+              const bubbleFill = gameState.bossChatMessage ? "rgba(255, 255, 255, 0.95)" : "rgba(255,255,255,0.9)";
+              const bubbleStroke = gameState.bossChatMessage ? "#dc2626" : "#f87171";
+              const textColor = gameState.bossChatMessage ? "#7f1d1d" : "#991b1b";
+
               return (
                 <Group y={-80}>
-                  <Rect width={bubbleWidth} height={bubbleHeight} fill="rgba(255,255,255,0.9)"
+                  <Rect width={bubbleWidth} height={bubbleHeight} fill={bubbleFill}
                         x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={12}
-                        stroke="#f87171" strokeWidth={2} />
+                        stroke={bubbleStroke} strokeWidth={2}
+                        shadowBlur={10} shadowColor="rgba(0,0,0,0.1)" />
                   <Text text={bossText} fontSize={CANVAS_CONFIG.TEXT_SIZE.NPC.NAME_LABEL}
-                        fill="#991b1b" fontStyle="bold" width={bubbleWidth - 10}
+                        fill={textColor} fontStyle="bold" width={bubbleWidth - 10}
                         align="center" x={-(bubbleWidth - 10) / 2}
                         y={-bubbleHeight + (lineCount > 1 ? 10 : 9)} wrap="char" />
-                  <Rect width={2} height={20} fill="#f87171" x={-1} y={0} />
-                  <Rect width={8} height={8} fill="rgba(255,255,255,0.9)" x={-4} y={20}
-                        rotation={45} stroke="#f87171" strokeWidth={2} />
-                  <Rect width={12} height={6} fill="rgba(255,255,255,0.9)" x={-6} y={0} />
+                  <Rect width={2} height={20} fill={bubbleStroke} x={-1} y={0} />
+                  <Rect width={8} height={8} fill={bubbleFill} x={-4} y={20}
+                        rotation={45} stroke={bubbleStroke} strokeWidth={2} />
+                  <Rect width={12} height={6} fill={bubbleFill} x={-6} y={0} />
                 </Group>
               );
             })()}
@@ -208,10 +213,10 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
             const isRecentTarget = gameState.lastEvent?.includes(p.name) ||
               (p.id === 'player' && (gameState.lastEvent?.includes("你") ||
                gameState.lastEvent?.includes("手速") || gameState.lastEvent?.includes("戴上")));
-            
+
             // 將澆水判定改為：距離植物位置很近時顯示
             const distToPlant = Math.sqrt(
-              Math.pow(p.position.x - gameState.plantPosition.x, 2) + 
+              Math.pow(p.position.x - gameState.plantPosition.x, 2) +
               Math.pow(p.position.y - gameState.plantPosition.y, 2)
             );
             const isWatering = p.id !== 'player' && distToPlant < 40;
@@ -230,7 +235,7 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
                   const charPerLine = 12; // 估計每行字數
                   const lineCount = Math.ceil(p.chatMessage.length / charPerLine);
                   const bubbleHeight = Math.max(32, lineCount * lineHeight + padding);
-                  
+
                   return (
                     <Group y={-65}>
                       <Rect width={bubbleWidth} height={bubbleHeight} fill={bubbleFill}

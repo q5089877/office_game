@@ -12,15 +12,13 @@ import { GameState, Player, Card, CardType } from '../../types';
 interface BottomCardAreaProps {
   gameState: GameState;
   player: Player;
-  selectedPlayerId: string;
   onDrawCard: () => void;
-  onPlayCard: (cardId: string, playerId: string) => void;
+  onPlayCard: (cardId: string) => void; // 不再需要playerId參數
 }
 
 const BottomCardArea: React.FC<BottomCardAreaProps> = ({
   gameState,
   player,
-  selectedPlayerId,
   onDrawCard,
   onPlayCard,
 }) => {
@@ -113,7 +111,7 @@ const BottomCardArea: React.FC<BottomCardAreaProps> = ({
                 key={`${card.id}-${idx}`}
                 layoutId={card.id}
                 whileHover={{ y: -12, scale: 1.05, zIndex: 10 }}
-                onClick={() => onPlayCard(card.id, selectedPlayerId)}
+                onClick={() => onPlayCard(card.id)}
                 className={cn(
                   "w-44 h-[114px] bg-white border-2 rounded-2xl p-2.5 cursor-pointer flex flex-col relative shadow-md hover:shadow-2xl transition-all shrink-0 overflow-hidden",
                   isPrank ? "border-stone-200 hover:border-rose-400" : "border-stone-200 hover:border-indigo-400",
@@ -128,12 +126,12 @@ const BottomCardArea: React.FC<BottomCardAreaProps> = ({
                 <div className="flex justify-between items-start mb-1.5 mt-1">
                   <span className={cn("text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md border",
                     card.rarity === 'S' ? "text-amber-600 bg-amber-50 border-amber-200" :
-                    card.rarity === 'A' ? "text-indigo-600 bg-indigo-50 border-indigo-200" : 
+                    card.rarity === 'A' ? "text-indigo-600 bg-indigo-50 border-indigo-200" :
                     "text-stone-500 bg-stone-50 border-stone-200"
                   )}>
                     {card.rarity} Rank
                   </span>
-                  
+
                   {/* 消耗數值強調 */}
                   <div className="flex items-center gap-1 bg-stone-900 text-white px-2 py-0.5 rounded-full border border-white/20 shadow-sm">
                     <Zap size={10} className="text-yellow-400 fill-yellow-400" />

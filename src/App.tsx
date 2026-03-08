@@ -15,13 +15,13 @@ import GameOverScreen from './components/UI/GameOverScreen';
 import DayTransition from './components/UI/DayTransition';
 
 export default function App() {
-  const { 
-    gameState, 
+  const {
+    gameState,
     player: rawPlayer, // 這是 Character 實例
-    playCard, 
-    drawCard, 
-    clockOut, 
-    buyItem 
+    playCard,
+    drawCard,
+    clockOut,
+    buyItem
   } = useGameEngine();
 
   const [selectedPlayerId, setSelectedPlayerId] = useState('player');
@@ -128,7 +128,6 @@ export default function App() {
         <BottomCardArea
           gameState={gameState}
           player={playerState as any}
-          selectedPlayerId={selectedPlayerId}
           onDrawCard={drawCard}
           onPlayCard={playCard}
         />

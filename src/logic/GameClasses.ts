@@ -114,6 +114,8 @@ export class Character extends BaseEntity {
 export class Boss extends BaseEntity {
   public gridX: number; public gridY: number;
   public displayX: number; public displayY: number;
+  public chatMessage: string | null = null;
+  public chatTimer: number = 0;
 
   constructor(x: number, y: number) {
     super('boss', '大老闆', EntityType.BOSS, Gender.MALE);
@@ -122,6 +124,12 @@ export class Boss extends BaseEntity {
   }
 
   tick(day: number = 1, speedMult: number = 1) {
+    // 處理對話計時器
+    if (this.chatTimer > 0) {
+      this.chatTimer -= 16; // 假設deltaTime為16ms (60fps)
+      if (this.chatTimer <= 0) this.chatMessage = null;
+    }
+
     const currentSpeed = 0.08 * (1 + (day - 1) * 0.1) * speedMult;
     const dx = this.gridX - this.displayX;
     const dy = this.gridY - this.displayY;
@@ -167,7 +175,7 @@ export class GameManager {
     this.player = player || new Character('player', '你', EntityType.PLAYER);
     this.colleagues = colleagues || [];
     this.boss = boss || new Boss(5, 0);
-    this.plant = plant || new Plant(10, 0);
+    this.plant = plant || new Plant(5, 4); // 將植物位置從(10,0)改為(5,4) - 辦公室中心位置
     this.day = day || 1; this.chaosLevel = chaosLevel || 0;
   }
 
