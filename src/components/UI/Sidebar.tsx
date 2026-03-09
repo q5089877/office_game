@@ -79,9 +79,10 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Notifications Area - 終端機風格日誌 */}
       <div className={cn(
-        "flex-1 p-4 mx-4 mt-4 rounded-xl border shadow-2xl overflow-hidden flex flex-col relative group min-h-[240px]",
+        "mx-4 rounded-xl border shadow-2xl overflow-hidden flex flex-col relative group transition-all duration-500 ease-in-out",
         tw.bg.notification,
-        "border-gray-200" // 改為淺色邊框
+        "border-gray-200", // 改為淺色邊框
+        showShop ? "flex-[0] min-h-0 h-0 p-0 mt-0 opacity-0 border-0" : "flex-1 min-h-[240px] p-4 mt-4 opacity-100"
       )}>
         <div className="flex items-center justify-between mb-3 border-b border-gray-200 pb-2">
           <div

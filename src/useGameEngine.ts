@@ -65,7 +65,7 @@ export const useGameEngine = () => {
       if (!cardTemplate) return prev;
 
       const hasEnergyDiscount = prev.player.ownedItemIds.includes('hidden_earbuds');
-      const actualCost = Math.max(0, cardTemplate.mpCost + prev.currentEvent.energyCostMod - (hasEnergyDiscount ? 1 : 0));
+      const actualCost = Math.max(0, cardTemplate.energyCost + prev.currentEvent.energyCostMod - (hasEnergyDiscount ? 1 : 0));
 
       if (prev.player.stats.energy < actualCost) {
         const next = prev.clone();
