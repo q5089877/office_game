@@ -165,6 +165,7 @@ export class GameManager {
   public lastEvent: string | null = "歡迎來到摸魚辦公室！";
   public notifications: string[] = [];
   public handIds: string[] = [];
+  public stressAccumulator: number = 0;
 
   constructor(player?: Character, colleagues?: Character[], boss?: Boss, plant?: Plant, day?: number, chaosLevel?: number) {
     this.player = player || new Character('player', '你', EntityType.PLAYER);
@@ -186,6 +187,18 @@ export class GameManager {
     this.boss.tick(this.day, this.currentEvent.bossSpeedMult);
     this.plant.tick(16);
 
+    // 自然壓力增長：隨時間自動上升
+    this.stressAccumulator += 0.02 * this.currentEvent.stressMult;
+    if (this.stressAccumulator >= 1) {
+      this.player.stats.modifyStress(1);
+      this.stressAccumulator -= 1;
+    }
+
+    // 壓力過載懲罰：精力快速流失 (模擬崩潰狀態)
+    if (this.player.stats.stress >= 100) {
+      this.player.stats.modifyEnergy(-0.5);
+    }
+
     // 植物芬多精光環效果
     if (this.plant.boostTimer > 0) {
       const range = 4;
@@ -197,7 +210,9 @@ export class GameManager {
     }
 
     // 壓力警告
-    if (this.player.stats.stress > 90 && Math.random() < 0.01) {
+    if (this.player.stats.stress >= 100 && Math.random() < 0.05) {
+      this.addNotification("❌ 崩潰中！精力正在快速流失！");
+    } else if (this.player.stats.stress > 90 && Math.random() < 0.01) {
       this.addNotification("⚠️ 警告：壓力過載！即將崩潰！");
     }
 
@@ -278,6 +293,7 @@ export class GameManager {
     cloned.boss.displayX = this.boss.displayX; cloned.boss.displayY = this.boss.displayY;
     cloned.plant.displayX = this.plant.displayX; cloned.plant.displayY = this.plant.displayY;
     cloned.plant.boostTimer = this.plant.boostTimer;
+    cloned.stressAccumulator = this.stressAccumulator;
     cloned.handIds = [...this.handIds];
     return cloned;
   }
