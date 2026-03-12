@@ -47,6 +47,12 @@ export class Character extends BaseEntity {
   public chatTimer: number = 0;
   public ownedItemIds: string[] = [];
 
+  // 攻擊系統屬性
+  public lastAttackTime: number = 0;
+  public attackCooldown: number = 30000; // 30秒冷卻
+  public isAttacking: boolean = false;
+  public attackStartTime: number = 0;
+
   constructor(id: string, name: string, type: EntityType, stats?: Stats, x: number = 0, y: number = 0, gender: Gender = Gender.MALE) {
     super(id, name, type, gender);
     this.stats = stats || new Stats();
@@ -91,6 +97,20 @@ export class Character extends BaseEntity {
     this.gridY = Math.max(0, Math.min(6, this.gridY + dir[1]));
   }
 
+  // 攻擊系統方法
+  canAttack(): boolean {
+    return Date.now() - this.lastAttackTime > this.attackCooldown;
+  }
+
+  attack(target: Character): number {
+    this.lastAttackTime = Date.now();
+    this.isAttacking = true;
+    this.attackStartTime = Date.now();
+    const stressDamage = 10 + Math.floor(Math.random() * 11); // 10-20壓力
+    target.stats.modifyStress(stressDamage);
+    return stressDamage;
+  }
+
   clone(): Character {
     const c = new Character(this.id, this.name, this.type, this.stats.clone(), this.gridX, this.gridY, this.gender);
     c.displayX = this.displayX; c.displayY = this.displayY;
@@ -99,6 +119,10 @@ export class Character extends BaseEntity {
     c.luck = this.luck;
     c.chatMessage = this.chatMessage; c.chatTimer = this.chatTimer;
     c.ownedItemIds = [...this.ownedItemIds];
+    c.lastAttackTime = this.lastAttackTime;
+    c.attackCooldown = this.attackCooldown;
+    c.isAttacking = this.isAttacking;
+    c.attackStartTime = this.attackStartTime;
     return c;
   }
 }
@@ -187,6 +211,14 @@ export class GameManager {
     this.boss.tick(this.day, this.currentEvent.bossSpeedMult);
     this.plant.tick(16);
 
+    // 自動清除過期的攻擊狀態（攻擊後3秒）
+    const now = Date.now();
+    this.colleagues.forEach(colleague => {
+      if (colleague.isAttacking && now - colleague.attackStartTime > 3000) {
+        colleague.isAttacking = false;
+      }
+    });
+
     // 自然壓力增長：隨時間自動上升
     this.stressAccumulator += 0.02 * this.currentEvent.stressMult;
     if (this.stressAccumulator >= 1) {
@@ -222,10 +254,51 @@ export class GameManager {
       const pX = plantDef ? plantDef.x : 10;
       const pY = plantDef ? plantDef.y : 0;
       const quietColleagues = this.colleagues.filter(c => c.chatMessage === null && !(c.gridX === pX && c.gridY === pY));
-      if (quietColleagues.length > 0 && Math.random() < 0.005) {
+       if (quietColleagues.length > 0 && Math.random() < 0.005) {
         const luckyOne = quietColleagues[Math.floor(Math.random() * quietColleagues.length)];
         luckyOne.chatMessage = DialogueManager.getRandomQuote(luckyOne, this.currentEvent);
         luckyOne.chatTimer = 3000;
+      }
+    }
+
+    // NPC主動攻擊檢查
+    this.colleagues.forEach(colleague => {
+      // 檢查攻擊冷卻
+      if (!colleague.canAttack()) return;
+
+      // 計算與玩家的距離
+      const distance = Math.abs(colleague.gridX - this.player.gridX) +
+                       Math.abs(colleague.gridY - this.player.gridY);
+
+      // 攻擊觸發條件：距離≤2且隨機機率
+      const attackChance = 0.001 * (1 + this.day * 0.1); // 隨天數增加
+      if (distance <= 2 && Math.random() < attackChance) {
+        // 執行攻擊
+        const stressDamage = colleague.attack(this.player);
+
+        // 顯示攻擊對話
+        colleague.chatMessage = DialogueManager.getAttackQuote();
+        colleague.chatTimer = 3000;
+
+        // 添加通知
+        this.addNotification(`⚠️ ${colleague.name} 把工作丟給你了！壓力 +${stressDamage}`);
+
+        // 標記攻擊狀態（用於對話選擇）
+        colleague.isAttacking = true;
+        colleague.attackStartTime = Date.now();
+      }
+    });
+
+    // 情境對話觸發（非攻擊時）
+    if (Math.random() < 0.003) { // 每天約0.3%機率
+      const quietColleagues = this.colleagues.filter(c => c.chatMessage === null);
+      if (quietColleagues.length > 0) {
+        const npc = quietColleagues[Math.floor(Math.random() * quietColleagues.length)];
+        npc.chatMessage = DialogueManager.getContextualQuote(npc, this.player, {
+          day: this.day,
+          chaosLevel: this.chaosLevel
+        });
+        npc.chatTimer = 3000;
       }
     }
   }

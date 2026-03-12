@@ -14,7 +14,20 @@ const ACTION_COOLDOWN = 500;
 
 export const useGameEngine = () => {
   const [manager, setManager] = useState(() => {
-    const player = new Character('player', '新進員工', EntityType.PLAYER, undefined, 1, 1, Gender.MALE);
+    // 獲取隨機空位子
+    const getRandomEmptyDesk = () => {
+      const emptyDesks = OFFICE_LAYOUT.clusters.flatMap(c =>
+        c.desks.filter(d => d.label === "" && d.owner === null)
+      );
+      if (emptyDesks.length === 0) {
+        return { x: 1, y: 1 }; // 備用位置
+      }
+      const randomDesk = emptyDesks[Math.floor(Math.random() * emptyDesks.length)];
+      return { x: randomDesk.x, y: randomDesk.y };
+    };
+
+    const randomDesk = getRandomEmptyDesk();
+    const player = new Character('player', '菜鳥', EntityType.PLAYER, undefined, randomDesk.x, randomDesk.y, Gender.MALE);
     const colleagues = OFFICE_LAYOUT.clusters.flatMap(c =>
       c.desks
         .filter(d => d.id !== 'player-desk' && d.owner !== null)
@@ -170,7 +183,7 @@ export const useGameEngine = () => {
     players: [manager.player, ...manager.colleagues].map(c => ({
       id: c.id,
       name: c.name,
-      role: c.id === 'player' ? '新進員工' : '同事',
+      role: c.id === 'player' ? '菜鳥' : '同事',
       stats: {
         energy: c.stats.energy,
         maxEnergy: c.stats.maxEnergy,

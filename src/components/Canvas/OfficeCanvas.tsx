@@ -83,22 +83,25 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
                       shadowColor={isPlayerDesk ? `${themeColors.primary[600]}66` : "rgba(0,0,0,0.15)"}
                       shadowOffset={{ x: 5, y: 15 }}
                     />
-                    <Group x={5} y={45}>
-                      <Rect
-                        width={80} height={22}
-                        fill={isPlayerDesk ? themeColors.primary[600] : "rgba(255,255,255,0.8)"}
-                        cornerRadius={6}
-                      />
-                      <Text
-                        text={isPlayerDesk ? "新進員工" : desk.label}
-                        fontSize={CANVAS_CONFIG.TEXT_SIZE.NPC.DESK_LABEL}
-                        fill={isPlayerDesk ? "#ffffff" : themeColors.secondary[400]}
-                        fontStyle="bold"
-                        width={80}
-                        align="center"
-                        y={5}
-                      />
-                    </Group>
+                    {/* 桌子標籤 - 只有非玩家桌子顯示 */}
+                    {!isPlayerDesk && (
+                      <Group x={5} y={45}>
+                        <Rect
+                          width={80} height={22}
+                          fill="rgba(255,255,255,0.8)"
+                          cornerRadius={6}
+                        />
+                        <Text
+                          text={desk.label}
+                          fontSize={CANVAS_CONFIG.TEXT_SIZE.NPC.DESK_LABEL}
+                          fill={themeColors.secondary[400]}
+                          fontStyle="bold"
+                          width={80}
+                          align="center"
+                          y={5}
+                        />
+                      </Group>
+                    )}
                   </Group>
                 );
               })}

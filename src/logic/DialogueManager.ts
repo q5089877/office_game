@@ -30,4 +30,43 @@ export class DialogueManager {
   private static pickRandom(list: string[]): string {
     return list[Math.floor(Math.random() * list.length)];
   }
+
+  /**
+   * 獲取攻擊對話
+   */
+  public static getAttackQuote(): string {
+    return this.pickRandom(DIALOGUE_POOL.ATTACK);
+  }
+
+  /**
+   * 根據情境獲取對話
+   */
+  public static getContextualQuote(npc: any, player: any, gameState: any): string {
+    // 情境感知對話選擇
+    if (npc.isAttacking) {
+      return this.getAttackQuote();
+    }
+
+    if (player.stats && player.stats.stress > 70) {
+      return this.pickRandom(DIALOGUE_POOL.FAKE_SYMPATHY);
+    }
+
+    if (npc.stats && npc.stats.stress > 80) {
+      return this.pickRandom(DIALOGUE_POOL.DIRECT_INSULT);
+    }
+
+    if (gameState.day < 3) {
+      return this.pickRandom(DIALOGUE_POOL.CONDESCENDING_ADVICE);
+    }
+
+    // 隨機選擇其他類別
+    const categories = [
+      DIALOGUE_POOL.PASSIVE_AGGRESSIVE,
+      DIALOGUE_POOL.WORK_PRESSURE,
+      DIALOGUE_POOL.BACKHANDED_COMPLIMENT,
+      DIALOGUE_POOL.GENERIC
+    ];
+    const selectedPool = categories[Math.floor(Math.random() * categories.length)];
+    return this.pickRandom(selectedPool);
+  }
 }
