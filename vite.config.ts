@@ -7,8 +7,8 @@ export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
   return {
     // 1. 加入 base，這會解決資源找不到 (404) 的問題
-    // 請確認您的 GitHub 儲存庫名稱是否為 OFFICE (大小寫需一致)
-    base: '/OFFICE/', 
+    // 請確認您的 GitHub 儲存庫名稱是否為 office_game (大小寫需一致)
+    base: '/office_game/', 
 
     plugins: [react(), tailwindcss()],
     resolve: {
