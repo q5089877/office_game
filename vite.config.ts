@@ -8,7 +8,7 @@ export default defineConfig(({mode}) => {
   return {
     // 1. 加入 base，這會解決資源找不到 (404) 的問題
     // 請確認您的 GitHub 儲存庫名稱是否為 office_game (大小寫需一致)
-    base: '/office_game/', 
+    base: './', 
 
     plugins: [react(), tailwindcss()],
     resolve: {
