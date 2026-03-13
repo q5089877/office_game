@@ -6,7 +6,8 @@ import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Ghost, Calendar, Coffee,
-  Flame, Wallet, CheckCircle2
+  Flame, Wallet, CheckCircle2,
+  HelpCircle, BookOpen, AlertTriangle, Zap
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { GameState, Player } from '../../types';
@@ -17,7 +18,6 @@ import { tw, getNotificationColor, getChaosColorClass, getThemeColor } from '../
 interface SidebarProps {
   gameState: GameState;
   player: Player;
-  showGuide: boolean;
   showShop: boolean;
   onToggleGuide: () => void;
   onToggleShop: () => void;
@@ -29,6 +29,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   gameState,
   player,
   showShop,
+  onToggleGuide,
   onToggleShop,
   onBuyItem,
   onClockOut,
@@ -143,22 +144,32 @@ const Sidebar: React.FC<SidebarProps> = ({
             ${player.stats.savings}
           </span>
         </div>
-        <button
-          onClick={onToggleShop}
-          className={cn(
-            "p-3 rounded-xl transition-all shadow-sm border flex items-center gap-2",
-            showShop
-              ? "text-white"
-              : cn(tw.bg.light, tw.text.secondary, tw.border.light, `hover:${tw.bg.sidebar}`)
-          )}
-          style={showShop ? { backgroundColor: themeColors.primary[600], borderColor: themeColors.primary[600] } : {}}
-        >
-          <Coffee size={20} />
-          {showShop && <span className="text-[10px] font-black uppercase tracking-widest">Shop</span>}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={onToggleGuide}
+            className={cn(
+              "p-3 rounded-xl transition-all shadow-sm border flex items-center gap-2",
+              cn(tw.bg.light, tw.text.secondary, tw.border.light, `hover:${tw.bg.sidebar}`)
+            )}
+          >
+            <HelpCircle size={20} />
+          </button>
+          <button
+            onClick={onToggleShop}
+            className={cn(
+              "p-3 rounded-xl transition-all shadow-sm border flex items-center gap-2",
+              showShop
+                ? "text-white"
+                : cn(tw.bg.light, tw.text.secondary, tw.border.light, `hover:${tw.bg.sidebar}`)
+            )}
+            style={showShop ? { backgroundColor: themeColors.primary[600], borderColor: themeColors.primary[600] } : {}}
+          >
+            <Coffee size={20} />
+            {showShop && <span className="text-[10px] font-black uppercase tracking-widest">Shop</span>}
+          </button>
+        </div>
       </div>
 
-      {/* Scrollable Content Area */}
       <div className="flex-1 overflow-y-auto no-scrollbar p-6 bg-white/50 backdrop-blur-sm">
         {showShop ? (
           <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -175,16 +186,16 @@ const Sidebar: React.FC<SidebarProps> = ({
                     className={cn(
                       "w-full text-left p-3 rounded-2xl border transition-all group relative overflow-hidden",
                       isOwned
-                        ? cn(tw.bg.sidebar, tw.border.light, "grayscale opacity-60 cursor-not-allowed")
+                        ? "bg-slate-800 border-slate-700 text-white shadow-inner"
                         : cn("bg-white hover:shadow-md active:scale-95", tw.border.light, "hover:border-indigo-200")
                     )}
                   >
-                    <div className="flex justify-between items-start mb-2">
+                    <div className="flex justify-between items-start mb-2 relative z-10">
                       <div
                         className="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter"
-                        style={{ backgroundColor: themeColors.primary[50], color: themeColors.primary[500] }}
+                        style={isOwned ? { backgroundColor: 'transparent', color: '#94a3b8', border: '1px solid #475569' } : { backgroundColor: themeColors.primary[50], color: themeColors.primary[500] }}
                       >
-                        TOOL
+                        {isOwned ? "EQUIPPED" : "TOOL"}
                       </div>
                       {isOwned ? (
                         <CheckCircle2 size={16} className="text-emerald-500" />
@@ -194,8 +205,14 @@ const Sidebar: React.FC<SidebarProps> = ({
                         </span>
                       )}
                     </div>
-                    <div className={cn("font-black text-sm mb-1", tw.text.primary)}>{item.name}</div>
-                    <div className={cn("text-[10px] font-bold leading-relaxed", tw.text.secondary)}>{item.description}</div>
+                    <div className={cn("font-black text-sm mb-1 relative z-10", isOwned ? "text-white" : tw.text.primary)}>{item.name}</div>
+                    <div className={cn("text-[10px] font-bold leading-relaxed relative z-10", isOwned ? "text-slate-400" : tw.text.secondary)}>{item.description}</div>
+                    
+                    {isOwned && (
+                       <div className="absolute -right-4 -bottom-4 opacity-10 rotate-12">
+                          <CheckCircle2 size={64} />
+                       </div>
+                    )}
                   </button>
                 );
               })}

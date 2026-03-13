@@ -72,7 +72,7 @@ const DayTransition: React.FC<DayTransitionProps> = ({
                   </span>
                 </div>
                 <p className={`text-4xl font-black font-mono ${(summaryData?.stressChange || 0) > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
-                  {summaryData?.stressChange || 0 > 0 ? '+' : ''}{summaryData?.stressChange || 0}
+                  {(summaryData?.stressChange || 0) > 0 ? '+' : ''}{(summaryData?.stressChange || 0).toFixed(1)}
                 </p>
               </div>
 

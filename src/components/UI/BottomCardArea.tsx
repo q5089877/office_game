@@ -59,7 +59,7 @@ const BottomCardArea: React.FC<BottomCardAreaProps> = ({
               <div className="flex flex-col">
                 <span className={cn("text-[9px] font-black uppercase leading-none mb-1", tw.text.muted)}>Energy</span>
                 <span className="text-sm font-black font-mono leading-none" style={{ color: themeColors.success[400] }}>
-                  {player.stats.energy}<span className={cn("text-[10px]", tw.text.muted)}>/{player.stats.maxEnergy}</span>
+                  {player.stats.energy.toFixed(1)}<span className={cn("text-[10px]", tw.text.muted)}>/{player.stats.maxEnergy}</span>
                 </span>
               </div>
             </div>
@@ -81,7 +81,7 @@ const BottomCardArea: React.FC<BottomCardAreaProps> = ({
               <div className="flex flex-col">
                 <span className={cn("text-[9px] font-black uppercase leading-none mb-1", tw.text.muted)}>Stress</span>
                 <span className={cn("text-sm font-black font-mono leading-none", getStressColorClass(player.stats.stress))}>
-                  {player.stats.stress}<span className={cn("text-[10px]", tw.text.muted)}>/100</span>
+                  {player.stats.stress.toFixed(1)}<span className={cn("text-[10px]", tw.text.muted)}>/100</span>
                 </span>
               </div>
             </div>

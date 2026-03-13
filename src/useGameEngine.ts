@@ -149,16 +149,19 @@ export const useGameEngine = () => {
   }, [lastActionTime]);
 
   const clockOut = useCallback(() => {
-    setManager(prev => {
-      if (prev.activityThisDay < 3) {
-        prev.addNotification("❌ 工作進度不足，不能下班！");
-        return prev;
-      }
-      const next = prev.clone();
-      next.endDay();
-      return next;
-    });
-  }, []);
+    if (manager.activityThisDay < 3) {
+      setManager(prev => {
+        const next = prev.clone();
+        next.addNotification("❌ 工作進度不足，不能下班！");
+        return next;
+      });
+      return undefined;
+    }
+    const nextManager = manager.clone();
+    const summary = nextManager.endDay();
+    setManager(nextManager);
+    return summary;
+  }, [manager]);
 
   const buyItem = useCallback((itemId: string) => {
     setManager(prev => {
@@ -173,7 +176,7 @@ export const useGameEngine = () => {
       const next = prev.clone();
       next.player.stats.modifyMoney(-item.price);
       next.player.ownedItemIds.push(itemId);
-      next.addNotification(`💰 購買成功：${item.name}`);
+      next.addNotification(`💎 已裝備神器！[${item.name}] 效果已啟動！`);
       return next;
     });
   }, []);
@@ -190,10 +193,12 @@ export const useGameEngine = () => {
         stress: c.stats.stress,
         savings: c.stats.money,
         xp: c.xp,
-        level: c.level
+        level: c.level,
+        luck: c.luck
       },
       gender: c.gender, gridX: c.gridX, gridY: c.gridY, chatMessage: c.chatMessage,
-      position: PositionService.getNPCDisplayPosition(c.displayX, c.displayY)
+      position: PositionService.getNPCDisplayPosition(c.displayX, c.displayY),
+      ownedItemIds: c.ownedItemIds
     })),
     day: manager.day,
     performance: manager.performance,

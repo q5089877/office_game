@@ -15,6 +15,7 @@ import Sidebar from './components/UI/Sidebar';
 import BottomCardArea from './components/UI/BottomCardArea';
 import GameOverScreen from './components/UI/GameOverScreen';
 import DayTransition from './components/UI/DayTransition';
+import TutorialModal from './components/UI/TutorialModal';
 
 export default function App() {
   const {
@@ -28,7 +29,7 @@ export default function App() {
   const [selectedPlayerId, setSelectedPlayerId] = useState('player');
   const [showEvent, setShowEvent] = useState(false);
   const [showShop, setShowShop] = useState(false);
-  const [showGuide, setShowGuide] = useState(false);
+  const [showGuide, setShowGuide] = useState(() => localStorage.getItem('pixelThief_guided') !== 'true');
   const [scale, setScale] = useState(1);
   const [summaryData, setSummaryData] = useState<any>(null);
   const [isChangingDay, setIsChangingDay] = useState(false);
@@ -62,7 +63,6 @@ export default function App() {
     if (summary) {
       setSummaryData(summary);
       setIsChangingDay(true);
-      setTimeout(() => setIsChangingDay(false), 1500);
     }
   };
 
@@ -80,15 +80,19 @@ export default function App() {
       <DayTransition
         isChangingDay={isChangingDay}
         summaryData={summaryData}
-        onStartNewDay={() => setSummaryData(null)}
+        onStartNewDay={() => {
+          setSummaryData(null);
+          setIsChangingDay(false);
+        }}
       />
 
       <Sidebar
         gameState={gameState}
         player={playerState as any}
-        showGuide={showGuide}
         showShop={showShop}
-        onToggleGuide={() => { setShowGuide(!showGuide); setShowShop(false); }}
+        onToggleGuide={() => { 
+          setShowGuide(true); 
+        }}
         onToggleShop={() => { setShowShop(!showShop); setShowGuide(false); }}
         onBuyItem={buyItem}
         onClockOut={handleClockOut}
@@ -141,6 +145,14 @@ export default function App() {
           player={playerState as any}
           onDrawCard={drawCard}
           onPlayCard={playCard}
+        />
+
+        <TutorialModal 
+          isOpen={showGuide} 
+          onClose={() => {
+            setShowGuide(false);
+            localStorage.setItem('pixelThief_guided', 'true');
+          }} 
         />
       </main>
     </div>

@@ -220,7 +220,7 @@ export class GameManager {
     });
 
     // 自然壓力增長：隨時間自動上升
-    this.stressAccumulator += 0.02 * this.currentEvent.stressMult;
+    this.stressAccumulator += 0.04 * this.currentEvent.stressMult; // Increased from 0.02
     if (this.stressAccumulator >= 1) {
       this.player.stats.modifyStress(1);
       this.stressAccumulator -= 1;
@@ -318,10 +318,12 @@ export class GameManager {
       stressBonus = 1.2;
     }
 
+    const initialStress = this.player.stats.stress;
+
     const summary = {
       prevDay: this.day,
       moneyEarned: Math.floor(baseMoney * stressBonus * (1 / this.currentEvent.stressMult)),
-      stressChange: -20,
+      stressChange: 0,
       performance: this.performance,
       wasCaught: false,
       rank: this.performance > 100 ? 'S' : this.performance > 70 ? 'A' : 'B'
@@ -337,12 +339,14 @@ export class GameManager {
 
     // 精力恢復與加成
     let energyRecovery = 100;
+    let stressRelief = -20;
     if (this.player.ownedItemIds.includes('ergo_pillow')) {
       energyRecovery += 20;
+      stressRelief -= 10;
       this.addNotification("💤 人體工學靠枕：恢復額外精力");
     }
     this.player.stats.energy = Math.min(this.player.stats.maxEnergy, this.player.stats.energy + energyRecovery);
-    this.player.stats.modifyStress(-20);
+    this.player.stats.modifyStress(stressRelief);
     this.player.stats.modifyMoney(summary.moneyEarned);
 
     const dist = Math.abs(this.player.gridX - this.boss.gridX) + Math.abs(this.player.gridY - this.boss.gridY);
@@ -353,6 +357,8 @@ export class GameManager {
       summary.wasCaught = true;
       this.addNotification("😨 糟糕！被老闆堵個正著！");
     }
+
+    summary.stressChange = this.player.stats.stress - initialStress;
     return summary;
   }
 
