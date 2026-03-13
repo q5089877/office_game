@@ -377,13 +377,26 @@ export class GameManager {
       rank: this.performance > 100 ? 'S' : this.performance > 70 ? 'A' : 'B'
     };
 
+    const oldWorkload = Math.min(8, 3 + Math.floor((this.day - 1) / 2));
     this.day += 1;
+    const newWorkload = Math.min(8, 3 + Math.floor((this.day - 1) / 2));
+    
     this.chaosLevel = 0;
     this.activityThisDay = 0;
     this.performance = 0;
-    this.notifications = [];
+    this.notifications = []; 
+
+    if (newWorkload > oldWorkload) {
+      const msg = `📈 門檻提高！今日需完成 ${newWorkload} 件事才能下班。`;
+      this.addNotification(msg);
+      this.lastEvent = msg;
+    }
 
     this.currentEvent = DAILY_EVENTS[Math.floor(Math.random() * DAILY_EVENTS.length)];
+    this.addNotification(`📅 今日狀態：${this.currentEvent.name}`);
+    if (!this.lastEvent || !this.lastEvent.includes("門檻提高")) {
+        this.lastEvent = `今日：${this.currentEvent.name}`;
+    }
 
     // 精力恢復與加成
     let energyRecovery = 100;

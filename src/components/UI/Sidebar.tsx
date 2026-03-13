@@ -177,7 +177,8 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div className="grid gap-3">
               {SHOP_ITEMS.map((item) => {
                 const isOwned = player.ownedItemIds?.includes(item.id);
-                const canAfford = player.stats.savings >= item.price;
+                const currentPrice = item.id === 'specialty_coffee' ? gameState.coffeePrice : item.price;
+                const canAfford = player.stats.savings >= currentPrice;
                 return (
                   <button
                     key={item.id}
@@ -201,7 +202,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         <CheckCircle2 size={16} className="text-emerald-500" />
                       ) : (
                         <span className={cn("font-black text-sm", canAfford ? tw.text.primary : "text-rose-500")}>
-                          ${item.price}
+                          ${currentPrice}
                         </span>
                       )}
                     </div>
@@ -255,21 +256,21 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* Footer - 下班按鈕 */}
       <div className={cn("p-6 bg-white border-t", tw.border.light)}>
         <button
-          disabled={gameState.activityThisDay < 3}
+          disabled={gameState.activityThisDay < Math.min(8, 3 + Math.floor((gameState.day - 1) / 2))}
           onClick={onClockOut}
           className={cn(
             "w-full py-4 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all relative overflow-hidden group",
-            gameState.activityThisDay >= 3
+            gameState.activityThisDay >= Math.min(8, 3 + Math.floor((gameState.day - 1) / 2))
               ? "text-white shadow-xl hover:opacity-90 active:scale-95"
               : cn(tw.bg.light, tw.text.muted, "cursor-not-allowed")
           )}
-          style={gameState.activityThisDay >= 3 ? {
+          style={gameState.activityThisDay >= Math.min(8, 3 + Math.floor((gameState.day - 1) / 2)) ? {
             backgroundColor: themeColors.primary[600],
             boxShadow: shadowColors.primary
           } : {}}
         >
-          下班 (Clock Out)
-          {gameState.activityThisDay >= 3 && (
+          {gameState.activityThisDay >= Math.min(8, 3 + Math.floor((gameState.day - 1) / 2)) ? "打卡下班 (Clock Out)" : `工作進度不足 (${gameState.activityThisDay}/${Math.min(8, 3 + Math.floor((gameState.day - 1) / 2))})`}
+          {gameState.activityThisDay >= Math.min(8, 3 + Math.floor((gameState.day - 1) / 2)) && (
             <motion.div
               className="absolute inset-0 bg-white/20"
               animate={{ x: ['-100%', '100%'] }}
@@ -278,7 +279,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           )}
         </button>
         <p className={cn("text-center text-[10px] font-black mt-3 tracking-widest", tw.text.muted)}>
-           PROGRESS: {Math.min(100, Math.round(gameState.activityThisDay * 33.3))}%
+           PROGRESS: {Math.min(100, Math.round(gameState.activityThisDay / Math.min(8, 3 + Math.floor((gameState.day - 1) / 2)) * 100))}%
         </p>
       </div>
     </aside>

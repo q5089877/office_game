@@ -74,42 +74,58 @@ export const SHOP_ITEMS: ShopItem[] = [
   {
     id: 'privacy_filter',
     name: '防窺螢幕貼',
-    description: '降低摸魚時被盯上的機率。出牌造成的混亂度增加速度 -20%。',
+    description: '降低摸魚時被盯上的機率。出牌造成的混亂度增加速度 -30%。',
     price: 400,
     type: ItemType.TOOL,
     effect: { passive: 'REDUCE_CHAOS' }
   },
   {
     id: 'silent_keyboard',
-    name: '靜音機械鍵盤',
-    description: '敲擊聲極小，不易引起注意。遊戲中壓力會緩慢自動下降。',
-    price: 600,
+    name: '靜音紅軸鍵盤',
+    description: '敲擊聲極小。出牌時有 15% 機率自動回復 1 點精力。',
+    price: 1500,
     type: ItemType.TOOL,
     effect: { passive: 'REDUCE_STRESS_TICK' }
   },
   {
     id: 'macro_script',
     name: '自動辦公腳本',
-    description: '背景自動跑報表。每日結算時獲得的獎金 +15%。',
-    price: 1000,
+    description: '背景自動跑報表。每日結算獎金 2 倍，且所有卡片有 10% 機率不扣錢。',
+    price: 2200,
     type: ItemType.TOOL,
     effect: { passive: 'BONUS_PERFORMANCE' }
   },
   {
-    id: 'hidden_earbuds',
-    name: '隱藏式藍牙耳機',
-    description: '上班聽 Podcast 是常識。所有摸魚卡片的精力消耗 -1。',
-    price: 1500,
+    id: 'noise_canceling_headphones',
+    name: '頂級降噪耳機',
+    description: '阻隔同事八卦。30% 機率閃避同事丟過來的壓力攻擊。',
+    price: 3000,
     type: ItemType.TOOL,
-    effect: { passive: 'LOWER_MP_COST' }
+    effect: { passive: 'DODGE_ATTACK' }
   },
   {
     id: 'ergo_pillow',
     name: '人體工學靠枕',
-    description: '坐再久都不累。每日下班壓力額外減少 10。',
+    description: '坐再久都不累。每日下班壓力額外減少 20。',
     price: 800,
     type: ItemType.TOOL,
     effect: { passive: 'BONUS_RECOVERY' }
+  },
+  {
+    id: 'fancy_watch',
+    name: '無用但很帥的機械錶',
+    description: '單純炫耀？其實能在結算時提高遇到「主管讚賞」卡牌的權重。',
+    price: 5000,
+    type: ItemType.TOOL,
+    effect: { passive: 'LUCK_BOOST' }
+  },
+  {
+    id: 'specialty_coffee',
+    name: '頂級特調咖啡',
+    description: '【消耗品】立即回復 30 精力 + 消除 40 壓力。購買後價格會永久上漲。',
+    price: 1500,
+    type: ItemType.CONSUMABLE,
+    effect: { value: 30, stat: 'energy' }
   }
 ];
 

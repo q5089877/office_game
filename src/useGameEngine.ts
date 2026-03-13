@@ -37,6 +37,7 @@ export const useGameEngine = () => {
   });
 
   const [lastActionTime, setLastActionTime] = useState(0);
+  const [coffeeInflation, setCoffeeInflation] = useState(0); // 每買一杯咖啡增加的額外負擔
   const requestRef = useRef<number | undefined>(undefined);
 
   const animate = useCallback((time: number) => {
@@ -98,8 +99,16 @@ export const useGameEngine = () => {
           if (cardTemplate.savingsChange) next.player.stats.modifyMoney(cardTemplate.savingsChange);
 
           let chaosGain = cardTemplate.chaosGain || 0;
-          if (next.player.ownedItemIds.includes('privacy_filter')) chaosGain = Math.floor(chaosGain * 0.8);
+          if (next.player.ownedItemIds.includes('privacy_filter')) {
+            chaosGain = Math.floor(chaosGain * 0.7); // 從 0.8 改為 0.7
+          }
           next.chaosLevel += chaosGain;
+
+          // 靜音紅軸鍵盤出牌效果：15% 機率回 1 精力
+          if (next.player.ownedItemIds.includes('silent_keyboard') && Math.random() < 0.15) {
+            p.stats.modifyEnergy(1);
+            next.addNotification("⌨️ 靜音紅軸：完美敲擊，精力 +1");
+          }
 
           p.xp += 15;
           next.activityThisDay += 1;
@@ -149,10 +158,13 @@ export const useGameEngine = () => {
   }, [lastActionTime]);
 
   const clockOut = useCallback(() => {
-    if (manager.activityThisDay < 3) {
+    const requiredDays = 3 + Math.floor((manager.day - 1) / 2);
+    const limitDays = Math.min(8, requiredDays);
+
+    if (manager.activityThisDay < limitDays) {
       setManager(prev => {
         const next = prev.clone();
-        next.addNotification("❌ 工作進度不足，不能下班！");
+        next.addNotification(`❌ 工作進度不足，下班需完成 ${limitDays} 件事！`);
         return next;
       });
       return undefined;
@@ -166,20 +178,43 @@ export const useGameEngine = () => {
   const buyItem = useCallback((itemId: string) => {
     setManager(prev => {
       const item = SHOP_ITEMS.find(i => i.id === itemId);
-      if (!item || prev.player.stats.money < item.price) {
+      if (!item) return prev;
+
+      let currentPrice = item.price;
+      if (itemId === 'specialty_coffee') {
+        currentPrice += coffeeInflation;
+      }
+
+      if (prev.player.stats.money < currentPrice) {
         const next = prev.clone();
-        next.addNotification("❌ 餘額不足！");
+        next.addNotification(`❌ 餘額不足！(需要 $${currentPrice})`);
         return next;
       }
-      if (prev.player.ownedItemIds.includes(itemId)) return prev;
+      
+      // 非消耗品且已擁有則不動作
+      if (item.type !== ItemType.CONSUMABLE && prev.player.ownedItemIds.includes(itemId)) {
+        return prev;
+      }
 
       const next = prev.clone();
-      next.player.stats.modifyMoney(-item.price);
-      next.player.ownedItemIds.push(itemId);
-      next.addNotification(`💎 已裝備神器！[${item.name}] 效果已啟動！`);
+      next.player.stats.modifyMoney(-currentPrice);
+
+      if (item.type === ItemType.CONSUMABLE) {
+          // 這裡目前只有咖啡
+          if (itemId === 'specialty_coffee') {
+            next.player.stats.modifyEnergy(30);
+            next.player.stats.modifyStress(-40);
+            setCoffeeInflation(c => c + 300); // 每次購買漲 300
+            next.addNotification(`☕ 喝下特調咖啡！壓力大減，且咖啡變得更貴了...`);
+          }
+      } else {
+        next.player.ownedItemIds.push(itemId);
+        next.addNotification(`💎 已裝備神器！[${item.name}] 效果已啟動！`);
+      }
+      
       return next;
     });
-  }, []);
+  }, [coffeeInflation]);
 
   const player = manager.player;
   const gameState = {
@@ -214,6 +249,7 @@ export const useGameEngine = () => {
     }),
     bossPosition: PositionService.getNPCDisplayPosition(manager.boss.displayX, manager.boss.displayY),
     bossChatMessage: manager.boss.chatMessage,
+    coffeePrice: (SHOP_ITEMS.find(i => i.id === 'specialty_coffee')?.price || 1500) + coffeeInflation,
     plantPosition: PositionService.gridToPixel(manager.plant.gridX, manager.plant.gridY, OfficeEntity.PLANT)
   };
 

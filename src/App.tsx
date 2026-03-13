@@ -112,7 +112,8 @@ export default function App() {
                style={{ background: `radial-gradient(circle at 50% 50%, ${themeColors.primary[100]}, transparent 70%)` }} />
 
           <AnimatePresence>
-            {showEvent && gameState.lastEvent && (
+            {/* 僅在非出牌事件時顯示 (例如事件改變或系統通知)，或可直接由 Log 處理，這裡我們大幅減少干擾 */}
+            {showEvent && gameState.lastEvent && !gameState.lastEvent.includes("使用了 [") && (
               <motion.div
                 initial={{ opacity: 0, y: -40, x: "-50%" }}
                 animate={{ opacity: 1, y: 0, x: "-50%" }}

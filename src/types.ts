@@ -101,4 +101,5 @@ export interface GameState {
   lastEvent: string | null;
   notifications: string[]; // 新增：即時提示列表
   currentEvent: DailyModifier;
+  coffeePrice?: number; // 新增：動態咖啡價格
 }
