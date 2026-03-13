@@ -91,11 +91,28 @@ export class Character extends BaseEntity {
       this.gridY = plantDef ? plantDef.y : 0;
       return;
     }
-    const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+    const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [0, 0]];
     const dir = directions[Math.floor(Math.random() * directions.length)];
-    this.gridX = Math.max(0, Math.min(10, this.gridX + dir[0]));
-    this.gridY = Math.max(0, Math.min(6, this.gridY + dir[1]));
+    if (dir[0] === 0 && dir[1] === 0) return; // 選擇原地停留
+
+    const nextX = Math.max(0, Math.min(10, this.gridX + dir[0]));
+    const nextY = Math.max(0, Math.min(6, this.gridY + dir[1]));
+
+    // Collision Check needs external state but since we can't easily access global from here, 
+    // we'll rely on the GameManager to handle collision resolution later if needed,
+    // or we can pass a callback/reference. A simpler way is to check the GameManager's list
+    // if we had it. Since we don't, we'll implement a static registry or just let them move.
+    
+    // Better approach: We can't do full collision without game state here. 
+    // Let's modify the gridX/gridY and let GameManager handle it, OR we just let it be.
+    // Wait, the user wants a "better approach" for overlapping. We can implement a simple separation force 
+    // in the render logic, or we can add collision logic in tick().
+    
+    this.gridX = nextX;
+    this.gridY = nextY;
   }
+
+  // NOTE: collision resolution is handled in GameManager tick
 
   // 攻擊系統方法
   canAttack(): boolean {
@@ -211,6 +228,37 @@ export class GameManager {
     this.boss.tick(this.day, this.currentEvent.bossSpeedMult);
     this.plant.tick(16);
 
+    // 實體防重疊機制 (Separation Force)
+    const entities = [this.player, ...this.colleagues];
+    for (let i = 0; i < entities.length; i++) {
+        for (let j = i + 1; j < entities.length; j++) {
+            const e1 = entities[i];
+            const e2 = entities[j];
+            const dx = e1.gridX - e2.gridX;
+            const dy = e1.gridY - e2.gridY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            // 如果距離過近 (重疊或幾乎重疊)
+            if (dist < 0.6) {
+                // 如果完全重疊，給一個隨機方向的初始推力
+                const pushX = dist === 0 ? (Math.random() - 0.5) * 0.1 : (dx / dist) * 0.1;
+                const pushY = dist === 0 ? (Math.random() - 0.5) * 0.1 : (dy / dist) * 0.1;
+                
+                // e1 往外推，如果是玩家則推動量較小
+                if (e1 !== this.player) {
+                    e1.gridX = Math.max(0, Math.min(10, e1.gridX + pushX));
+                    e1.gridY = Math.max(0, Math.min(6, e1.gridY + pushY));
+                }
+                
+                // e2 反向推，如果是玩家則推動量較小
+                if (e2 !== this.player) {
+                    e2.gridX = Math.max(0, Math.min(10, e2.gridX - pushX));
+                    e2.gridY = Math.max(0, Math.min(6, e2.gridY - pushY));
+                }
+            }
+        }
+    }
+
     // 自動清除過期的攻擊狀態（攻擊後3秒）
     const now = Date.now();
     this.colleagues.forEach(colleague => {
@@ -249,12 +297,12 @@ export class GameManager {
     }
 
     const speakingCount = this.colleagues.filter(c => c.chatMessage !== null).length;
-    if (speakingCount < 2) {
+    if (speakingCount < 1) { // 限制最多只有一個人同時說話
       const plantDef = OFFICE_LAYOUT.objects.find(o => o.id === 'plant');
       const pX = plantDef ? plantDef.x : 10;
       const pY = plantDef ? plantDef.y : 0;
       const quietColleagues = this.colleagues.filter(c => c.chatMessage === null && !(c.gridX === pX && c.gridY === pY));
-       if (quietColleagues.length > 0 && Math.random() < 0.005) {
+       if (quietColleagues.length > 0 && Math.random() < 0.0008) { // 機率從 0.005 降到 0.0008
         const luckyOne = quietColleagues[Math.floor(Math.random() * quietColleagues.length)];
         luckyOne.chatMessage = DialogueManager.getRandomQuote(luckyOne, this.currentEvent);
         luckyOne.chatTimer = 3000;
@@ -290,7 +338,7 @@ export class GameManager {
     });
 
     // 情境對話觸發（非攻擊時）
-    if (Math.random() < 0.003) { // 每天約0.3%機率
+    if (Math.random() < 0.0005) { // 每天約0.05%機率
       const quietColleagues = this.colleagues.filter(c => c.chatMessage === null);
       if (quietColleagues.length > 0) {
         const npc = quietColleagues[Math.floor(Math.random() * quietColleagues.length)];
