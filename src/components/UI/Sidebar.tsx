@@ -18,22 +18,61 @@ interface SidebarProps {
   onToggleGuide: () => void;
   onToggleShop: () => void;
   onBuyItem: (itemId: string) => void;
-  onClockOut: () => void; // Unused here, kept for Prop interface consistency if needed elsewhere
+  onClockOut: () => void;
+  isMobile?: boolean;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
   gameState,
   player,
   onBuyItem,
-  onToggleGuide
+  onToggleGuide,
+  isMobile = false
 }) => {
   const activityRatio = Math.min(100, Math.round(gameState.activityThisDay / Math.min(8, 3 + Math.floor((gameState.day - 1) / 2)) * 100));
+  const [isShopOpen, setIsShopOpen] = React.useState(!isMobile);
+
+  // 如果是手機版且沒開啟商店，只顯示濃縮的狀態橫條
+  if (isMobile && !isShopOpen) {
+    return (
+      <div className="w-full flex items-center justify-between bg-white/90 backdrop-blur-md rounded-2xl shadow-xl p-2 border border-slate-200">
+        <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
+              <Ghost className="w-4 h-4" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-black text-slate-900 leading-none">{player.name}</span>
+              <span className="text-[10px] text-amber-500 font-black flex items-center gap-0.5"><Coins className="w-3 h-3"/>{player.stats.savings}</span>
+            </div>
+        </div>
+        <div className="flex gap-2">
+            <button 
+              onClick={() => setIsShopOpen(true)}
+              className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-white rounded-xl text-xs font-black shadow-md shadow-amber-500/30 flex items-center gap-1"
+            >
+              <ShoppingBag className="w-3 h-3" /> 商店
+            </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full flex flex-col gap-4 font-sans max-w-[320px]">
+    <div className={cn(
+      "font-sans flex flex-col gap-4",
+      isMobile ? "fixed inset-x-4 top-20 z-50 pointer-events-auto max-h-[60vh]" : "w-full max-w-[320px]"
+    )}>
       
-      {/* 個人核心數據 */}
-      <div className="bg-white rounded-3xl shadow-2xl p-4 border border-slate-200">
+      {/* 個人核心數據 (若是手機版顯示關閉按鈕) */}
+      <div className="bg-white rounded-3xl shadow-2xl p-4 border border-slate-200 shrink-0 relative">
+        {isMobile && (
+          <button 
+            onClick={() => setIsShopOpen(false)}
+            className="absolute top-2 right-2 w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 font-bold"
+          >
+            ×
+          </button>
+        )}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">

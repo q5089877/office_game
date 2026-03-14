@@ -54,45 +54,45 @@ export const OFFICE_LAYOUT = {
 export const EVENT_POOL: ActionEvent[] = [
   // ================= 摸魚類 (SLACKING) =================
   // 正面 (低耗能 / 回壓)
-  { id: "s1", name: "廁所滑手機", description: "進入精神時光屋。壓力-10", category: ActionCategory.SLACKING, energyCost: 5, stressChange: -10 },
-  { id: "s2", name: "假裝看報表", description: "眉頭深鎖假裝查錯。壓力-10", category: ActionCategory.SLACKING, energyCost: 5, stressChange: -10 },
+  { id: "s1", name: "廁所滑手機", description: "進入精神時光屋。壓力-10", category: ActionCategory.SLACKING, energyCost: 15, stressChange: -10 },
+  { id: "s2", name: "假裝看報表", description: "眉頭深鎖假裝查錯。壓力-10", category: ActionCategory.SLACKING, energyCost: 15, stressChange: -10 },
   { id: "s3", name: "伸懶腰", description: "拉筋放鬆。壓力-5，恢復 2 精力", category: ActionCategory.SLACKING, energyCost: 0, stressChange: -5, xpGain: 5 },
-  { id: "s4", name: "偷吃零食", description: "咀嚼聲很小心。壓力-12", category: ActionCategory.SLACKING, energyCost: 5, stressChange: -12 },
-  { id: "s5", name: "戴耳機開會", description: "全世界以為你在聽簡報。壓力-15", category: ActionCategory.SLACKING, energyCost: 10, stressChange: -15 },
-  { id: "s6", name: "整理桌面", description: "假裝很忙的經典招式。壓力-8，混亂-5", category: ActionCategory.SLACKING, energyCost: 5, stressChange: -8, chaosGain: -5 },
-  { id: "s7", name: "主管讚賞", description: "老闆路過順口稱讚。壓力-20", category: ActionCategory.SLACKING, energyCost: 5, stressChange: -20, xpGain: 20 },
-  { id: "s8", name: "喝口手搖飲", description: "微糖去冰，靈魂救贖。壓力-15", category: ActionCategory.SLACKING, energyCost: 5, stressChange: -15 },
+  { id: "s4", name: "偷吃零食", description: "咀嚼聲很小心。壓力-12", category: ActionCategory.SLACKING, energyCost: 15, stressChange: -12 },
+  { id: "s5", name: "戴耳機開會", description: "全世界以為你在聽簡報。壓力-15", category: ActionCategory.SLACKING, energyCost: 25, stressChange: -15 },
+  { id: "s6", name: "整理桌面", description: "假裝很忙的經典招式。壓力-8，混亂-5", category: ActionCategory.SLACKING, energyCost: 15, stressChange: -8, chaosGain: -5 },
+  { id: "s7", name: "主管讚賞", description: "老闆路過順口稱讚。壓力-20", category: ActionCategory.SLACKING, energyCost: 15, stressChange: -20, xpGain: 20 },
+  { id: "s8", name: "喝口手搖飲", description: "微糖去冰，靈魂救贖。壓力-15", category: ActionCategory.SLACKING, energyCost: 10, stressChange: -15 },
   // 負面 (摸魚翻車)
-  { id: "s9", name: "逛網拍手滑", description: "不小心刷了卡... 存款-500", category: ActionCategory.SLACKING, energyCost: 5, stressChange: 0, savingsChange: -500 },
-  { id: "s10", name: "流口水被笑", description: "睡太熟被同事發現。壓力+15", category: ActionCategory.SLACKING, energyCost: 5, stressChange: 15 },
-  { id: "s11", name: "滑過頭", description: "看影片忘了時間。老闆接近度增加", category: ActionCategory.SLACKING, energyCost: 5, stressChange: 5, chaosGain: 10 },
+  { id: "s9", name: "逛網拍手滑", description: "不小心刷了卡... 存款-500", category: ActionCategory.SLACKING, energyCost: 15, stressChange: 0, savingsChange: -500 },
+  { id: "s10", name: "流口水被笑", description: "睡太熟被同事發現。壓力+15", category: ActionCategory.SLACKING, energyCost: 15, stressChange: 15 },
+  { id: "s11", name: "滑過頭", description: "看影片忘了時間。老闆接近度增加", category: ActionCategory.SLACKING, energyCost: 15, stressChange: 5, chaosGain: 10 },
 
   // ================= 搞事類 (PRANK) =================
   // 正面 (高XP / 混亂度)
-  { id: "p1", name: "傳播八卦", description: "湊過去講秘密。混亂度+20", category: ActionCategory.PRANK, energyCost: 15, stressChange: -5, chaosGain: 20, xpGain: 30 },
-  { id: "p2", name: "滑鼠貼膠帶", description: "看同事修滑鼠。對方壓力+30", category: ActionCategory.PRANK, energyCost: 10, stressChange: 5, chaosGain: 15, xpGain: 20 },
-  { id: "p3", name: "無情甩鍋", description: "這不歸我管。自己壓力-20，指定同事壓力+40", category: ActionCategory.PRANK, energyCost: 15, stressChange: -20, xpGain: 25 },
-  { id: "p4", name: "背後突襲", description: "「哇！」目標隨機瞬移，混亂度+10", category: ActionCategory.PRANK, energyCost: 15, stressChange: 0, chaosGain: 10, xpGain: 15 },
-  { id: "p5", name: "拔掉網路線", description: "全區斷網！混亂度+40", category: ActionCategory.PRANK, energyCost: 20, stressChange: -10, chaosGain: 40, xpGain: 50 },
-  { id: "p6", name: "把文件碎掉", description: "消滅證據。壓力-15", category: ActionCategory.PRANK, energyCost: 10, stressChange: -15, chaosGain: 5 },
-  { id: "p7", name: "假傳聖旨", description: "「老闆說這份給你做」。XP大量增加", category: ActionCategory.PRANK, energyCost: 15, stressChange: -10, chaosGain: 20, xpGain: 40 },
+  { id: "p1", name: "傳播八卦", description: "湊過去講秘密。混亂度+20", category: ActionCategory.PRANK, energyCost: 35, stressChange: -5, chaosGain: 20, xpGain: 30 },
+  { id: "p2", name: "滑鼠貼膠帶", description: "看同事修滑鼠。對方壓力+30", category: ActionCategory.PRANK, energyCost: 25, stressChange: 5, chaosGain: 15, xpGain: 20 },
+  { id: "p3", name: "無情甩鍋", description: "這不歸我管。自己壓力-20，指定同事壓力+40", category: ActionCategory.PRANK, energyCost: 40, stressChange: -20, xpGain: 25 },
+  { id: "p4", name: "背後突襲", description: "「哇！」目標隨機瞬移，混亂度+10", category: ActionCategory.PRANK, energyCost: 35, stressChange: 0, chaosGain: 10, xpGain: 15 },
+  { id: "p5", name: "拔掉網路線", description: "全區斷網！混亂度+40", category: ActionCategory.PRANK, energyCost: 50, stressChange: -10, chaosGain: 40, xpGain: 50 },
+  { id: "p6", name: "把文件碎掉", description: "消滅證據。壓力-15", category: ActionCategory.PRANK, energyCost: 25, stressChange: -15, chaosGain: 5 },
+  { id: "p7", name: "假傳聖旨", description: "「老闆說這份給你做」。XP大量增加", category: ActionCategory.PRANK, energyCost: 40, stressChange: -10, chaosGain: 20, xpGain: 40 },
   // 負面 (搞事翻車)
-  { id: "p8", name: "搞事被抓包", description: "同事立刻反擊！壓力+30", category: ActionCategory.PRANK, energyCost: 15, stressChange: 30, chaosGain: 10 },
-  { id: "p9", name: "拔錯線", description: "拔到老闆電腦的電源線... (立刻引來老闆)", category: ActionCategory.PRANK, energyCost: 15, stressChange: 50, chaosGain: 50 },
-  { id: "p10", name: "八卦傳錯人", description: "對方剛好是當事人！壓力+25", category: ActionCategory.PRANK, energyCost: 15, stressChange: 25 },
+  { id: "p8", name: "搞事被抓包", description: "同事立刻反擊！壓力+30", category: ActionCategory.PRANK, energyCost: 35, stressChange: 30, chaosGain: 10 },
+  { id: "p9", name: "拔錯線", description: "拔到老闆電腦的電源線... (立刻引來老闆)", category: ActionCategory.PRANK, energyCost: 35, stressChange: 50, chaosGain: 50 },
+  { id: "p10", name: "八卦傳錯人", description: "對方剛好是當事人！壓力+25", category: ActionCategory.PRANK, energyCost: 35, stressChange: 25 },
 
   // ================= 閃避類 (EVADE) =================
   // 正面 (改變走位 / 大降壓)
-  { id: "e1", name: "殘影閃現", description: "瞬間長距離位移。躲避攻擊！", category: ActionCategory.EVADE, energyCost: 15, stressChange: 0, xpGain: 10 },
-  { id: "e2", name: "椅子噴火衝刺", description: "輪子磨出火花！長距位移，混亂+15", category: ActionCategory.EVADE, energyCost: 20, stressChange: -5, chaosGain: 15 },
-  { id: "e3", name: "請客收買人心", description: "幫全辦公室訂飲料。全體同仁壓力-20", category: ActionCategory.EVADE, energyCost: 15, stressChange: -30, savingsChange: -300 },
-  { id: "e4", name: "戰略性深呼吸", description: "瞬間進入禪定。壓力-25", category: ActionCategory.EVADE, energyCost: 15, stressChange: -25 },
-  { id: "e5", name: "代領包裹", description: "跑去門口拿快遞。位移到門口，壓力-10", category: ActionCategory.EVADE, energyCost: 10, stressChange: -10 },
-  { id: "e6", name: "光速回報", description: "瞬間交出報告。XP+50，壓力-12", category: ActionCategory.EVADE, energyCost: 20, stressChange: -12, xpGain: 50 },
+  { id: "e1", name: "殘影閃現", description: "瞬間長距離位移。躲避攻擊！", category: ActionCategory.EVADE, energyCost: 40, stressChange: 0, xpGain: 10 },
+  { id: "e2", name: "椅子噴火衝刺", description: "輪子磨出火花！長距位移，混亂+15", category: ActionCategory.EVADE, energyCost: 50, stressChange: -5, chaosGain: 15 },
+  { id: "e3", name: "請客收買人心", description: "幫全辦公室訂飲料。全體同仁壓力-20", category: ActionCategory.EVADE, energyCost: 35, stressChange: -30, savingsChange: -300 },
+  { id: "e4", name: "戰略性深呼吸", description: "瞬間進入禪定。壓力-25", category: ActionCategory.EVADE, energyCost: 35, stressChange: -25 },
+  { id: "e5", name: "代領包裹", description: "跑去門口拿快遞。位移到門口，壓力-10", category: ActionCategory.EVADE, energyCost: 25, stressChange: -10 },
+  { id: "e6", name: "光速回報", description: "瞬間交出報告。XP+50，壓力-12", category: ActionCategory.EVADE, energyCost: 50, stressChange: -12, xpGain: 50 },
   // 負面 (閃避翻車)
-  { id: "e7", name: "閃現撞牆", description: "頭超痛！壓力+30", category: ActionCategory.EVADE, energyCost: 15, stressChange: 30 },
-  { id: "e8", name: "衝進老闆懷裡", description: "位移到老闆旁邊！危險度爆表", category: ActionCategory.EVADE, energyCost: 15, stressChange: 40 },
-  { id: "e9", name: "假請客被識破", description: "大家發現是用公費買的。壓力+35", category: ActionCategory.EVADE, energyCost: 15, stressChange: 35 }
+  { id: "e7", name: "閃現撞牆", description: "頭超痛！壓力+30", category: ActionCategory.EVADE, energyCost: 35, stressChange: 30 },
+  { id: "e8", name: "衝進老闆懷裡", description: "位移到老闆旁邊！危險度爆表", category: ActionCategory.EVADE, energyCost: 35, stressChange: 40 },
+  { id: "e9", name: "假請客被識破", description: "大家發現是用公費買的。壓力+35", category: ActionCategory.EVADE, energyCost: 35, stressChange: 35 }
 ];
 
 export const SHOP_ITEMS: ShopItem[] = [

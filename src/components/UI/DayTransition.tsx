@@ -19,12 +19,14 @@ interface DaySummary {
 interface DayTransitionProps {
   isChangingDay: boolean;
   summaryData: DaySummary | null;
+  notifications: string[];
   onStartNewDay: () => void;
 }
 
 const DayTransition: React.FC<DayTransitionProps> = ({
   isChangingDay,
   summaryData,
+  notifications,
   onStartNewDay,
 }) => {
   return (
@@ -102,9 +104,31 @@ const DayTransition: React.FC<DayTransitionProps> = ({
             </div>
 
             <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-3 bg-slate-100 px-6 py-3 rounded-full">
+              <div className="inline-flex items-center gap-3 bg-slate-100 px-6 py-3 rounded-full mb-6">
                 <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">今日評級</span>
                 <span className="text-2xl font-black text-slate-900 uppercase italic">{summaryData?.rank || 'C'}</span>
+              </div>
+
+              {/* 今日工作日誌縮影 */}
+              <div className="w-full bg-slate-50 rounded-2xl p-5 border border-slate-200 text-left">
+                  <h3 className="text-slate-500 text-xs font-black uppercase tracking-widest mb-3 flex items-center justify-center gap-2">
+                      <Clock size={14} /> 下班前的最後足跡
+                  </h3>
+                  <div className="space-y-2">
+                      {notifications && notifications.length > 0 ? (
+                          [...notifications].slice(0, 6).reverse().map((msg, i, arr) => {
+                              const logIndex = notifications.length - (arr.length - 1 - i);
+                              return (
+                                  <div key={i} className="text-sm text-slate-600 font-medium flex gap-2">
+                                      <span className="text-slate-400 font-mono flex-shrink-0 w-8">#{logIndex}</span>
+                                      <span className="truncate">{msg}</span>
+                                  </div>
+                              );
+                          })
+                      ) : (
+                          <div className="text-slate-400 text-sm italic text-center py-2">今天真是平靜的一天...</div>
+                      )}
+                  </div>
               </div>
             </div>
 

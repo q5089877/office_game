@@ -9,8 +9,9 @@ import { OFFICE_LAYOUT, EVENT_POOL, SHOP_ITEMS } from './constants';
 import { CARD_EFFECT_HANDLERS } from './logic/CardEffects';
 import { PlayerRole, ActionCategory, EntityType, Gender, ItemType } from './types';
 import { PositionService, OfficeEntity } from './utils/PositionService';
+import { DialogueManager } from './logic/DialogueManager';
 
-const ACTION_COOLDOWN = 500;
+const ACTION_COOLDOWN = 800; // 延長冷卻至 800ms
 
 export const useGameEngine = () => {
   const [manager, setManager] = useState(() => {
@@ -40,7 +41,7 @@ export const useGameEngine = () => {
     return manager;
   });
 
-  const [lastActionTime, setLastActionTime] = useState(0);
+  const lastActionTimeRef = useRef(0);
   const [coffeeInflation, setCoffeeInflation] = useState(0); // 每買一杯咖啡增加的額外負擔
   const requestRef = useRef<number | undefined>(undefined);
 
@@ -66,8 +67,9 @@ export const useGameEngine = () => {
   }, [animate]);
 
   const executeAction = useCallback((category: ActionCategory) => {
-    if (Date.now() - lastActionTime < ACTION_COOLDOWN) return;
-    setLastActionTime(Date.now());
+    const now = Date.now();
+    if (now - lastActionTimeRef.current < ACTION_COOLDOWN) return;
+    lastActionTimeRef.current = now;
 
     setManager(prev => {
       const next = prev.clone();
@@ -187,7 +189,7 @@ export const useGameEngine = () => {
 
       return next;
     });
-  }, [lastActionTime]);
+  }, []); // 移除 lastActionTime 依賴，改用 ref 內部獲取
 
   const clockOut = useCallback(() => {
     const requiredDays = 3 + Math.floor((manager.day - 1) / 2);
@@ -280,10 +282,51 @@ export const useGameEngine = () => {
     plantPosition: PositionService.gridToPixel(manager.plant.gridX, manager.plant.gridY, OfficeEntity.PLANT)
   };
 
+  // NPC 互動：點擊 NPC 時觸發對話
+  const interactWithNPC = useCallback((npcId: string) => {
+    setManager(prev => {
+      const next = prev.clone();
+      
+      // 不處理玩家自己
+      if (npcId === 'player') return next;
+
+      // 找同事
+      let targetNPC = next.colleagues.find(c => c.id === npcId);
+      
+      // 若找不到，可能是點了老闆
+      if (!targetNPC && npcId === 'boss') {
+          targetNPC = next.boss as any; // 簡單轉型或處理
+          
+          if (next.boss) {
+             next.boss.chatMessage = "專心工作！別盯著我看！";
+             next.boss.chatTimer = 3000;
+             // 老闆被點擊會增加一點壓力
+             next.player.stats.modifyStress(5);
+             next.addNotification("⚠️ 【警告】你一直盯著老闆看，引起了不滿... 壓力 +5");
+             return next;
+          }
+      }
+
+      if (targetNPC) {
+        // 使用 DialogueManager 取得一句話
+        targetNPC.chatMessage = DialogueManager.getContextualQuote(targetNPC, next.player, next);
+        targetNPC.chatTimer = 3000;
+        
+        // 稍微打斷他們的行動
+        targetNPC.idleTimer = 3000;
+        if (targetNPC.behaviorState === 'WORKING') {
+           next.addNotification(`💬 拍了拍 ${targetNPC.name} 的肩膀，打斷了他們的工作。`);
+        }
+      }
+      return next;
+    });
+  }, []);
+
   return {
     gameState: gameState,
     executeAction,
     buyItem,
-    clockOut
+    clockOut,
+    interactWithNPC
   };
 };

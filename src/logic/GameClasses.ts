@@ -16,7 +16,7 @@ export class Stats {
 
   modifyEnergy(amount: number) { this.energy = Math.min(this.maxEnergy, Math.max(0, this.energy + amount)); }
   modifyStress(amount: number) { this.stress = Math.min(100, Math.max(0, this.stress + amount)); }
-  modifyMoney(amount: number) { this.money += amount; }
+  modifyMoney(amount: number) { this.money = Math.max(0, this.money + amount); }
   clone(): Stats { return new Stats(this.energy, this.stress, this.money, this.maxEnergy); }
 }
 
@@ -81,21 +81,21 @@ export class Character extends BaseEntity {
       // 即使在發呆，也要更新 display 座標確保動畫平滑
     } else {
         const moveSpeed = 0.1;
-        
+
         // 如果有目標位置，則穩定朝目標移動
         if (this.targetX !== null && this.targetY !== null) {
           const dx = this.targetX - this.gridX;
           const dy = this.targetY - this.gridY;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
-          if (dist > 0.1) {
-            // 每步移動一小格
-            this.gridX += (dx / dist) * 0.1;
-            this.gridY += (dy / dist) * 0.1;
+          if (dist > 0.04) {
+            // 每步移動一小格 (從 0.2 降至 0.04，變慢更優雅)
+            this.gridX += (dx / dist) * 0.02;
+            this.gridY += (dy / dist) * 0.02;
           } else {
             this.gridX = this.targetX;
             this.gridY = this.targetY;
-            this.targetX = null; // 到達後清除目標，防止重複觸發
+            this.targetX = null;
             this.targetY = null;
             this.onReachedTarget();
           }
@@ -104,7 +104,7 @@ export class Character extends BaseEntity {
 
     const dDisplayX = this.gridX - this.displayX;
     const dDisplayY = this.gridY - this.displayY;
-    const moveSpeed = 0.1;
+    const moveSpeed = 0.09; // 從 0.1 降至 0.09，讓視覺追隨更柔和
 
     if (Math.abs(dDisplayX) > 0.01 || Math.abs(dDisplayY) > 0.01) {
       this.displayX += dDisplayX * moveSpeed;
@@ -146,9 +146,9 @@ export class Character extends BaseEntity {
   }
 
   onReachedTarget() {
-      // 到達目標後發呆一段時間
-      this.idleTimer = 3000 + Math.random() * 5000;
-      
+      // 到達目標後發呆更久 (從 3-8s 延長至 8-15s，降低繁忙感)
+      this.idleTimer = 5000 + Math.random() * 5000;
+
       // 如果是去逛物件，有機會碎碎念
       if (this.behaviorState === 'VISITING_OBJECT' && Math.random() < 0.7) {
           // 使用靜態方法，傳入自身以獲取對話
@@ -216,7 +216,8 @@ export class Boss extends BaseEntity {
       if (this.chatTimer <= 0) this.chatMessage = null;
     }
 
-    const currentSpeed = 0.08 * (1 + (day - 1) * 0.1) * speedMult;
+    // 降低老闆巡邏速度 (0.08 -> 0.04)
+    const currentSpeed = 0.04 * (1 + (day - 1) * 0.1) * speedMult;
     const dx = this.gridX - this.displayX;
     const dy = this.gridY - this.displayY;
     if (Math.abs(dx) > 0.01) this.displayX += dx * currentSpeed;
@@ -228,6 +229,15 @@ export class Boss extends BaseEntity {
       this.gridX = Math.max(0, Math.min(10, this.gridX + dir[0]));
       this.gridY = Math.max(0, Math.min(6, this.gridY + dir[1]));
     }
+  }
+
+  clone(): Boss {
+    const b = new Boss(this.gridX, this.gridY);
+    b.displayX = this.displayX;
+    b.displayY = this.displayY;
+    b.chatMessage = this.chatMessage;
+    b.chatTimer = this.chatTimer;
+    return b;
   }
 }
 
@@ -244,6 +254,13 @@ export class Plant extends BaseEntity {
   tick(deltaTime: number = 16) {
     this.displayX = this.gridX; this.displayY = this.gridY;
     if (this.boostTimer > 0) this.boostTimer -= deltaTime;
+  }
+  clone(): Plant {
+    const p = new Plant(this.gridX, this.gridY);
+    p.displayX = this.displayX;
+    p.displayY = this.displayY;
+    p.boostTimer = this.boostTimer;
+    return p;
   }
 }
 
@@ -274,8 +291,9 @@ export class GameManager {
   }
 
   addNotification(msg: string) {
+    if (this.notifications[0] === msg) return; // 防止重複訊息洗頻
     this.notifications.unshift(msg);
-    if (this.notifications.length > 5) this.notifications.pop();
+    if (this.notifications.length > 20) this.notifications.pop();
   }
 
   tick() {
@@ -293,19 +311,19 @@ export class GameManager {
             const dx = e1.gridX - e2.gridX;
             const dy = e1.gridY - e2.gridY;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            
+
             // 如果距離過近 (重疊或幾乎重疊)
             if (dist < 0.6) {
                 // 如果完全重疊，給一個隨機方向的初始推力
                 const pushX = dist === 0 ? (Math.random() - 0.5) * 0.1 : (dx / dist) * 0.1;
                 const pushY = dist === 0 ? (Math.random() - 0.5) * 0.1 : (dy / dist) * 0.1;
-                
+
                 // e1 往外推，如果是玩家則推動量較小
                 if (e1 !== this.player) {
                     e1.gridX = Math.max(0, Math.min(10, e1.gridX + pushX));
                     e1.gridY = Math.max(0, Math.min(6, e1.gridY + pushY));
                 }
-                
+
                 // e2 反向推，如果是玩家則推動量較小
                 if (e2 !== this.player) {
                     e2.gridX = Math.max(0, Math.min(10, e2.gridX - pushX));
@@ -328,6 +346,13 @@ export class GameManager {
     if (this.stressAccumulator >= 1) {
       this.player.stats.modifyStress(1);
       this.stressAccumulator -= 1;
+    }
+
+    // 自然精力恢復 (放空發呆的回血機制，避免卡暴)
+    if (this.player.stats.energy < this.player.stats.maxEnergy) {
+      // 沒體力時恢復較快 (每秒約回 5 點)，有體力時恢復較慢 (每秒約回 2 點)
+      const recoveryRate = this.player.stats.energy < 15 ? 0.08 : 0.03;
+      this.player.stats.modifyEnergy(recoveryRate);
     }
 
     // 壓力過載懲罰：精力快速流失 (模擬崩潰狀態)
@@ -423,7 +448,7 @@ export class GameManager {
     }
 
     const initialStress = this.player.stats.stress;
-    
+
     const summary = {
       prevDay: this.day,
       moneyEarned: Math.floor(baseMoney * stressBonus * (1 / this.currentEvent.stressMult)),
@@ -436,11 +461,10 @@ export class GameManager {
     const oldWorkload = Math.min(8, 3 + Math.floor((this.day - 1) / 2));
     this.day += 1;
     const newWorkload = Math.min(8, 3 + Math.floor((this.day - 1) / 2));
-    
+
     this.chaosLevel = 0;
     this.activityThisDay = 0;
     this.performance = 0;
-    this.notifications = []; 
 
     if (newWorkload > oldWorkload) {
       const msg = `📈 門檻提高！今日需完成 ${newWorkload} 件事才能下班。`;
@@ -450,7 +474,7 @@ export class GameManager {
 
     this.currentEvent = DAILY_EVENTS[Math.floor(Math.random() * DAILY_EVENTS.length)];
     this.addNotification(`📅 今日狀態：${this.currentEvent.name}`);
-    
+
     // --- 動態 NPC 出勤邏輯 ---
     this.refreshAttendance();
 
@@ -480,6 +504,7 @@ export class GameManager {
     }
 
     summary.stressChange = this.player.stats.stress - initialStress;
+    (summary as any).notifications = [...this.notifications];
     return summary;
   }
 
@@ -492,13 +517,13 @@ export class GameManager {
     // 隨機抽選 60%-75% 的同事上班
     const attendanceRate = 0.6 + Math.random() * 0.15;
     const activeCount = Math.max(1, Math.floor(this.fullColleaguePool.length * attendanceRate));
-    
+
     // 洗牌
     const shuffled = [...this.fullColleaguePool].sort(() => Math.random() - 0.5);
-    
+
     // 設定今日出勤者
     this.colleagues = shuffled.slice(0, activeCount).map(c => c.clone());
-    
+
     // 隨機選擇 2 位缺席者記錄原因 (保持日誌清爽)
     const absentColleagues = shuffled.slice(activeCount);
     if (absentColleagues.length > 0) {
@@ -512,11 +537,11 @@ export class GameManager {
 
   clone(): GameManager {
     const cloned = new GameManager(
-        this.player.clone(), 
-        this.colleagues.map(c => c.clone()), 
-        new Boss(this.boss.gridX, this.boss.gridY), 
-        new Plant(this.plant.gridX, this.plant.gridY), 
-        this.day, 
+        this.player.clone(),
+        this.colleagues.map(c => c.clone()),
+        this.boss.clone(),
+        this.plant.clone(),
+        this.day,
         this.chaosLevel,
         this.fullColleaguePool.map(c => c.clone())
     );
@@ -525,8 +550,6 @@ export class GameManager {
     cloned.activityThisDay = this.activityThisDay;
     cloned.performance = this.performance;
     cloned.currentEvent = this.currentEvent;
-    cloned.boss.displayX = this.boss.displayX; cloned.boss.displayY = this.boss.displayY;
-    cloned.plant.displayX = this.plant.displayX; cloned.plant.displayY = this.plant.displayY;
     cloned.plant.boostTimer = this.plant.boostTimer;
     cloned.stressAccumulator = this.stressAccumulator;
     cloned.handIds = [...this.handIds];

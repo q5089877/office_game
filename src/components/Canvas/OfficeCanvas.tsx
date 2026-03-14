@@ -141,12 +141,11 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
               ...gameState.players.map(p => ({ type: 'player' as const, data: p, y: p.position.y })),
               { type: 'boss' as const, data: gameState.bossPosition, y: gameState.bossPosition.y }
             ];
-
             // 根據 Y 座標排序：Y 越小越先畫 (即越遠處的角色會在底層)
             return entities.sort((a, b) => a.y - b.y).map((ent) => {
               if (ent.type === 'boss') {
                 return (
-                  <Group key="boss" x={gameState.bossPosition.x} y={gameState.bossPosition.y}>
+                  <Group key="boss" x={gameState.bossPosition.x} y={gameState.bossPosition.y} onClick={() => onPlayerClick('boss')}>
                     {/* 紅色扇形警戒區 */}
                     <Arc
                       innerRadius={0}

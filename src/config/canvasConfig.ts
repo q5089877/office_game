@@ -33,8 +33,8 @@ export const CANVAS_CONFIG = {
     CELL_CENTER_X: OFFICE_LAYOUT.cellWidth / 2,   // 49
     CELL_CENTER_Y: OFFICE_LAYOUT.cellHeight / 2,  // 42.5
 
-    // 頂部額外偏移（用於將畫布內容向下移動，避免與UI重疊）
-    TOP_EXTRA_OFFSET: 80,
+    // 頂部額外偏移（稍微微調讓視覺居中更自然，不再強制留白過多）
+    TOP_EXTRA_OFFSET: 20,
 
     // 物件特定偏移（相對於單元格中心）
     DESK: {
@@ -74,17 +74,15 @@ export const CANVAS_CONFIG = {
     WIDE_ADJUSTMENT: 1.05,       // 寬螢幕調整係數
   },
 
-  // 文字大小配置（增加 10%）
+  // 文字大小配置
   TEXT_SIZE: {
-    // 基礎文字大小
-    BASE_SCALE: 1.1, // 增加 10%
-
-    // NPC 相關文字
     NPC: {
-      NAME_LABEL: 14 * 1.1,      // 15.4 → 15
-      DESK_LABEL: 12 * 1.1,      // 13.2 → 13
-      OBJECT_LABEL: 12 * 1.1,    // 13.2 → 13
-      OBJECT_EMOJI: 32 * 1.1,    // 35.2 → 35
+      CHAT_BUBBLE: 18,        // 對話氣泡文字大小
+      NAME_LABEL: 14,         // 名字標籤文字大小
+      EMOJI: 24,              // 表情符號大小
+      DESK_LABEL: 14,         // 辦公桌署名大小
+      OBJECT_LABEL: 14,       // 物件名稱大小
+      OBJECT_EMOJI: 40,       // 設施顏文字大小
     },
 
     // 對話泡泡文字
