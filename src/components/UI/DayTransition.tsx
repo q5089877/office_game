@@ -44,7 +44,7 @@ const DayTransition: React.FC<DayTransitionProps> = ({
           >
             <div className="text-center mb-8">
               <h2 className="text-5xl font-black uppercase italic tracking-tighter text-slate-900 mb-2">
-                DAY {summaryData?.prevDay} 結束
+                第 {summaryData?.prevDay} 天 結束
               </h2>
               <p className="text-slate-500 font-bold text-sm uppercase tracking-widest">
                 今日摸魚報告

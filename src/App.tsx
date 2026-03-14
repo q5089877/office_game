@@ -11,24 +11,27 @@ import { themeColors } from './theme/colors';
 
 // 導入模組化組件
 import OfficeCanvas from './components/Canvas/OfficeCanvas';
+import ConsolePanel from './components/UI/ConsolePanel';
 import Sidebar from './components/UI/Sidebar';
-import BottomCardArea from './components/UI/BottomCardArea';
 import GameOverScreen from './components/UI/GameOverScreen';
 import DayTransition from './components/UI/DayTransition';
 import TutorialModal from './components/UI/TutorialModal';
+import LogWindow from './components/UI/LogWindow';
 
 export default function App() {
   const {
     gameState,
-    playCard,
-    drawCard,
+    executeAction,
     clockOut,
     buyItem
   } = useGameEngine();
 
-  const [selectedPlayerId, setSelectedPlayerId] = useState('player');
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>('player');
   const [showEvent, setShowEvent] = useState(false);
   const [showShop, setShowShop] = useState(false);
+
+  // 取得玩家狀態
+
   const [showGuide, setShowGuide] = useState(() => localStorage.getItem('pixelThief_guided') !== 'true');
   const [scale, setScale] = useState(1);
   const [summaryData, setSummaryData] = useState<any>(null);
@@ -76,7 +79,7 @@ export default function App() {
   }
 
   return (
-    <div className={`h-screen w-screen ${tw.bg.light} ${tw.text.primary} font-sans overflow-hidden flex flex-row`}>
+    <div className={`relative h-screen w-screen bg-[#f1f5f9] font-sans overflow-hidden text-slate-300 selection:bg-indigo-500/30`}>
       <DayTransition
         isChangingDay={isChangingDay}
         summaryData={summaryData}
@@ -85,77 +88,89 @@ export default function App() {
           setIsChangingDay(false);
         }}
       />
-
-      <Sidebar
-        gameState={gameState}
-        player={playerState as any}
-        showShop={showShop}
-        onToggleGuide={() => { 
-          setShowGuide(true); 
-        }}
-        onToggleShop={() => { setShowShop(!showShop); setShowGuide(false); }}
-        onBuyItem={buyItem}
-        onClockOut={handleClockOut}
+      <TutorialModal 
+        isOpen={showGuide} 
+        onClose={() => {
+          setShowGuide(false);
+          localStorage.setItem('pixelThief_guided', 'true');
+        }} 
       />
 
-      <main className="flex-1 flex flex-col relative h-full">
-        <div
-          className={`flex-1 ${tw.bg.canvas} relative overflow-hidden flex items-center justify-center`}
-          style={{
-            backgroundImage: `radial-gradient(${themeColors.secondary[200]} 1px, transparent 1px)`,
-            backgroundSize: '40px 40px',
-            boxShadow: 'inset 0 0 100px rgba(0,0,0,0.02)'
-          }}
-        >
-          {/* 背景裝飾：光暈 */}
-          <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20"
-               style={{ background: `radial-gradient(circle at 50% 50%, ${themeColors.primary[100]}, transparent 70%)` }} />
+      {/* Layer 0: Map Canvas */}
+      <div className="absolute inset-0 z-0 bg-white">
+        {/* 背景裝飾：網格與周圍暗角 (Vignette) */}
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/grid-me.png')] bg-repeat opacity-[0.08]" />
+        <div className="absolute inset-0 pointer-events-none z-10"
+             style={{ 
+               background: `radial-gradient(circle at 50% 50%, transparent 40%, rgba(0,0,0,0.6) 100%)`,
+               boxShadow: 'inset 0 0 120px rgba(0,0,0,0.8)'
+             }} />
 
-          <AnimatePresence>
-            {/* 僅在非出牌事件時顯示 (例如事件改變或系統通知)，或可直接由 Log 處理，這裡我們大幅減少干擾 */}
-            {showEvent && gameState.lastEvent && !gameState.lastEvent.includes("使用了 [") && (
-              <motion.div
-                initial={{ opacity: 0, y: -40, x: "-50%" }}
-                animate={{ opacity: 1, y: 0, x: "-50%" }}
-                exit={{ opacity: 0, y: -20, x: "-50%" }}
-                className="absolute top-8 left-1/2 z-[100] px-8 py-3.5 rounded-2xl shadow-2xl font-black text-sm flex items-center gap-3 border backdrop-blur-md"
-                style={{
-                  backgroundColor: `${themeColors.secondary[50]}EE`,
-                  color: themeColors.primary[900],
-                  borderColor: themeColors.primary[500]
-                }}
-              >
-                <span className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ backgroundColor: themeColors.error[500] }} />
-                {gameState.lastEvent}
-              </motion.div>
-            )}
-          </AnimatePresence>
+        <AnimatePresence>
+          {/* 僅在重大事件時顯示 */}
+          {showEvent && gameState.lastEvent && (
+            <motion.div
+              initial={{ opacity: 0, y: -40, x: "-50%" }}
+              animate={{ opacity: 1, y: 0, x: "-50%" }}
+              exit={{ opacity: 0, y: -20, x: "-50%" }}
+              className="absolute top-8 left-1/2 z-[100] px-8 py-3.5 rounded-2xl shadow-2xl font-black text-sm flex items-center gap-3 border backdrop-blur-md"
+              style={{
+                backgroundColor: `${themeColors.secondary[50]}EE`,
+                color: themeColors.primary[900],
+                borderColor: themeColors.primary[500]
+              }}
+            >
+              <span className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ backgroundColor: themeColors.error[500] }} />
+              {gameState.lastEvent}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-          <OfficeCanvas
-            gameState={gameState}
-            scale={scale}
-            showEvent={showEvent}
-            selectedPlayerId={selectedPlayerId}
-            player={playerState as any}
-            onPlayerClick={(id) => setSelectedPlayerId(id)}
-          />
+        <OfficeCanvas
+          gameState={gameState}
+          scale={scale}
+          showEvent={showEvent}
+          selectedPlayerId={selectedPlayerId}
+          player={playerState as any}
+          onPlayerClick={(id) => setSelectedPlayerId(id)}
+        />
+      </div>
+
+      {/* Layer 1: U-Shape HUD */}
+      <div className="absolute inset-0 pointer-events-none z-20 flex flex-col justify-between">
+        
+        {/* Top: The Wings */}
+        <div className="flex justify-between items-start p-4 md:p-6 h-full overflow-hidden">
+          
+          {/* Left Wing: LogWindow */}
+          <div className="pointer-events-auto flex flex-col gap-4 h-full w-72 md:w-80">
+            <LogWindow notifications={gameState.notifications} />
+          </div>
+
+          {/* Right Wing: Status & Shop */}
+          <div className="pointer-events-auto flex flex-col gap-4 h-full">
+            <Sidebar
+              gameState={gameState}
+              player={playerState as any}
+              showShop={true}
+              onToggleGuide={() => setShowGuide(true)}
+              onToggleShop={() => {}}
+              onBuyItem={buyItem}
+              onClockOut={handleClockOut}
+            />
+          </div>
         </div>
 
-        <BottomCardArea
-          gameState={gameState}
-          player={playerState as any}
-          onDrawCard={drawCard}
-          onPlayCard={playCard}
-        />
-
-        <TutorialModal 
-          isOpen={showGuide} 
-          onClose={() => {
-            setShowGuide(false);
-            localStorage.setItem('pixelThief_guided', 'true');
-          }} 
-        />
-      </main>
+        {/* Bottom: Tactical Console */}
+        <div className="pointer-events-auto shrink-0 w-full">
+          <ConsolePanel
+            gameState={gameState}
+            player={playerState as any}
+            onExecuteAction={executeAction}
+            onClockOut={handleClockOut}
+          />
+        </div>
+      </div>
     </div>
   );
 }

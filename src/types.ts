@@ -59,11 +59,11 @@ export interface Player {
   ownedItemIds: string[];
 }
 
-export enum CardType {
-  PRANK = "惡作劇",
+export enum ActionCategory {
   SLACKING = "摸魚",
-  ESCAPE = "逃避",
-  GOSSIP = "八卦",
+  PRANK = "搞事",
+  EVADE = "閃避",
+  INTERACT = "互動",
 }
 
 export interface DailyModifier {
@@ -75,23 +75,21 @@ export interface DailyModifier {
   bossSpeedMult: number;
 }
 
-export interface Card {
+export interface ActionEvent {
   id: string;
   name: string;
   description: string;
-  type: CardType;
+  category: ActionCategory;
   energyCost: number; // 原 mpCost
   stressChange: number; // 負值為減少壓力，正值為增加
   chaosGain?: number;
   xpGain?: number;
   savingsChange?: number;
-  rarity: "C" | "B" | "A" | "S";
 }
 
 export interface GameState {
   players: Player[];
   day: number;
-  hand: Card[];
   bossPosition: { x: number; y: number };
   bossChatMessage: string | null;
   plantPosition: { x: number; y: number };

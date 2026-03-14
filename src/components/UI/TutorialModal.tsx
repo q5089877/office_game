@@ -39,7 +39,7 @@ const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose }) => {
                     <BookOpen size={24} />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-black text-slate-800 tracking-tight">生存指南 <span className="text-indigo-600">GUIDE</span></h2>
+                    <h2 className="text-2xl font-black text-slate-800 tracking-tight">生存指南 <span className="text-indigo-600">手冊</span></h2>
                     <p className="text-sm font-bold text-slate-500">歡迎來到 PIXEL THIEF 摸魚辦公室</p>
                   </div>
                 </div>
@@ -73,11 +73,11 @@ const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose }) => {
                   <ul className="space-y-3 text-sm font-bold text-slate-600">
                     <li className="flex flex-col md:flex-row gap-1 md:gap-2">
                        <span className="text-emerald-500 font-black shrink-0">精力 (Energy):</span>
-                       <span>這決定你的行動力。打牌需要消耗精力。</span>
+                       <span>這決定你的行動力。點擊動作按鈕需要消耗精力。</span>
                     </li>
                     <li className="flex flex-col md:flex-row gap-1 md:gap-2">
                        <span className="text-rose-500 font-black shrink-0">壓力 (Stress):</span>
-                       <span>隨時間被動增加。當壓力到達 <strong className="text-rose-600 bg-rose-50 px-1 rounded">100</strong> 時，精力會快速見底，導致你崩潰 Game Over。</span>
+                       <span>隨時間被動增加。當壓力到達 <strong className="text-rose-600 bg-rose-50 px-1 rounded">100</strong> 時，精力會快速見底，導致你崩潰（遊戲結束）。</span>
                     </li>
                   </ul>
                 </div>
@@ -89,7 +89,7 @@ const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose }) => {
                     <h3 className="text-lg font-black text-slate-800">👿 老闆與混亂度</h3>
                   </div>
                   <p className="text-sm font-bold text-slate-600 leading-relaxed">
-                    使用囂張的摸魚卡片會提升 <strong className="text-orange-500">混亂度 (Chaos)</strong>。混亂度越高，老闆巡邏速度越快。如果老闆的座標與你 <strong className="text-rose-600">重疊</strong>，會遭到扣除罰金與巨量壓力懲罰！
+                    使用囂張的摸魚行為會提升 <strong className="text-orange-500">混亂度 (Chaos)</strong>。混亂度越高，老闆巡邏速度越快。如果老闆的座標與你 <strong className="text-rose-600">重疊</strong>，會遭到扣除罰金與巨量壓力懲罰！
                   </p>
                 </div>
 

@@ -5,9 +5,9 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { GameManager, Character, Stats } from './logic/GameClasses';
-import { OFFICE_LAYOUT, CARD_POOL, SHOP_ITEMS } from './constants';
+import { OFFICE_LAYOUT, EVENT_POOL, SHOP_ITEMS } from './constants';
 import { CARD_EFFECT_HANDLERS } from './logic/CardEffects';
-import { PlayerRole, CardType, EntityType, Gender, ItemType } from './types';
+import { PlayerRole, ActionCategory, EntityType, Gender, ItemType } from './types';
 import { PositionService, OfficeEntity } from './utils/PositionService';
 
 const ACTION_COOLDOWN = 500;
@@ -61,98 +61,126 @@ export const useGameEngine = () => {
     return () => cancelAnimationFrame(requestRef.current!);
   }, [animate]);
 
-  const selectAutoTarget = useCallback((game: GameManager, cardId: string): Character => {
-    const cardTemplate = CARD_POOL.find(c => c.id === cardId);
-    if (!cardTemplate) return game.player;
-    const selfOnlyCards = ['c1', 'c2', 'c4', 'c5', 'c6', 'c7', 'c10', 'c11', 'c16', 'c18'];
-    if (selfOnlyCards.includes(cardId) || cardId === 'c17' || game.colleagues.length === 0) return game.player;
-    return game.colleagues[Math.floor(Math.random() * game.colleagues.length)];
-  }, []);
-
-  const playCard = useCallback((uniqueCardId: string) => {
+  const executeAction = useCallback((category: ActionCategory) => {
     if (Date.now() - lastActionTime < ACTION_COOLDOWN) return;
     setLastActionTime(Date.now());
 
     setManager(prev => {
-      const originalId = uniqueCardId.split('_')[0];
-      const cardTemplate = CARD_POOL.find(c => c.id === originalId);
-      if (!cardTemplate) return prev;
-
-      const hasEnergyDiscount = prev.player.ownedItemIds.includes('hidden_earbuds');
-      const actualCost = Math.max(0, cardTemplate.energyCost + prev.currentEvent.energyCostMod - (hasEnergyDiscount ? 1 : 0));
-
-      if (prev.player.stats.energy < actualCost) {
-        const next = prev.clone();
-        next.addNotification("❌ 精力不足！無法執行。");
-        return next;
-      }
-
       const next = prev.clone();
       const p = next.player;
-      p.stats.modifyEnergy(-actualCost);
+      
+      // 特殊處理：場景物件互動 (INTERACT)
+      if (category === ActionCategory.INTERACT) {
+        // 尋找相鄰或同一格的物件
+        const nearbyObject = OFFICE_LAYOUT.objects.find(obj => 
+          Math.abs(obj.x - p.gridX) <= 1 && Math.abs(obj.y - p.gridY) <= 1
+        );
 
-      const targetCharacter = next.player.id === selectAutoTarget(prev, originalId).id ? next.player : next.colleagues.find(c => c.id === selectAutoTarget(prev, originalId).id);
+        if (!nearbyObject) {
+           next.addNotification("❌ 周圍沒有可以互動的物件。");
+           return next;
+        }
 
-      if (targetCharacter) {
-          // 將原本的 mpCost 邏輯轉為 energy
-          targetCharacter.stats.modifyStress(cardTemplate.stressChange);
-          if (cardTemplate.savingsChange) next.player.stats.modifyMoney(cardTemplate.savingsChange);
-
-          let chaosGain = cardTemplate.chaosGain || 0;
-          if (next.player.ownedItemIds.includes('privacy_filter')) {
-            chaosGain = Math.floor(chaosGain * 0.7); // 從 0.8 改為 0.7
-          }
-          next.chaosLevel += chaosGain;
-
-          // 靜音紅軸鍵盤出牌效果：15% 機率回 1 精力
-          if (next.player.ownedItemIds.includes('silent_keyboard') && Math.random() < 0.15) {
-            p.stats.modifyEnergy(1);
-            next.addNotification("⌨️ 靜音紅軸：完美敲擊，精力 +1");
-          }
-
-          p.xp += 15;
-          next.activityThisDay += 1;
-          const perfMap: Record<string, number> = { 'C': 10, 'B': 15, 'A': 25, 'S': 50 };
-          next.performance += perfMap[cardTemplate.rarity] || 10;
-
-          const handler = CARD_EFFECT_HANDLERS[originalId];
-          const eventMsg = handler ? handler(next, p, targetCharacter, originalId) : `使用了 [${cardTemplate.name}]！`;
-          next.lastEvent = eventMsg;
-          next.addNotification(`🎴 出牌：${cardTemplate.name} (精力 -${actualCost})`);
-
-          if (p.xp >= 100) {
-              p.xp = 0; p.level += 1; p.stats.maxEnergy += 10; p.stats.energy = p.stats.maxEnergy;
-              next.addNotification(`🎉 升職！現在是 LV.${p.level}！`);
-          }
-      }
-
-      const cardIdx = next.handIds.indexOf(uniqueCardId);
-      if (cardIdx > -1) next.handIds.splice(cardIdx, 1);
-      return next;
-    });
-  }, [lastActionTime, selectAutoTarget]);
-
-  const drawCard = useCallback(() => {
-    if (Date.now() - lastActionTime < ACTION_COOLDOWN) return;
-    setLastActionTime(Date.now());
-
-    setManager(prev => {
-      const actualDrawCost = 1 + prev.currentEvent.energyCostMod;
-      if (prev.player.stats.energy < actualDrawCost || prev.handIds.length >= 5) {
-        const next = prev.clone();
-        if (prev.handIds.length >= 5) next.addNotification("⚠️ 手牌已滿！");
-        else next.addNotification("❌ 精力不足，無法抽牌。");
+        switch (nearbyObject.id) {
+          case 'coffee':
+            p.stats.modifyEnergy(30);
+            next.chaosLevel += 15; // 增加被老闆注意的風險
+            next.addNotification("☕【泡夢幻咖啡】穩定回復 30 精力！但咖啡香引人注目 (混亂+15)");
+            break;
+          case 'printer':
+            next.chaosLevel += 30;
+            if (Math.random() > 0.5) {
+               next.colleagues.filter(c => Math.abs(c.gridX - p.gridX) <= 2).forEach(c => {
+                  c.stats.modifyStress(25);
+                  c.chatMessage = "又卡紙！？";
+                  c.chatTimer = 3000;
+               });
+               next.addNotification("🔥【印表機卡紙】引發巨大混亂！周邊同事壓力飆升！");
+            } else {
+               next.addNotification("🖨️【偷印履歷】完美犯罪，混亂度暴增但無人發現。");
+            }
+            break;
+          case 'toilet':
+            p.stats.modifyStress(-25);
+            next.addNotification("🧻【精神時光屋】薪水傳送門為你擋下一切煩惱。壓力 -25");
+            break;
+          case 'vending':
+            if (p.stats.money >= 50) {
+               p.stats.modifyMoney(-50);
+               next.colleagues.filter(c => Math.abs(c.gridX - p.gridX) <= 1).forEach(c => {
+                  c.stats.modifyStress(-30);
+                  c.chatMessage = "謝謝乾爹！";
+                  c.chatTimer = 3000;
+               });
+               next.addNotification("🥤【請喝水】花費 $50 收買人心，周圍同事壓力大減！");
+            } else {
+               next.addNotification("❌ 金錢不足，連水都買不起。");
+            }
+            break;
+          case 'plant':
+            if (p.stats.energy >= 15) {
+               p.stats.modifyEnergy(-15);
+               next.addNotification("🪴【澆水】花費 15 精力，植物非常開心！");
+            } else {
+               next.addNotification("❌ 精力不足以照顧植物。");
+            }
+            break;
+        }
+        
+        next.activityThisDay += 1;
         return next;
       }
 
-      const next = prev.clone();
-      const availableTemplates = CARD_POOL.filter(c => !next.handIds.map(uId => uId.split('_')[0]).includes(c.id));
-      if (availableTemplates.length === 0) return next;
+      // 常規隨機事件 (SLACK / PRANK / EVADE)
+      const possibleEvents = EVENT_POOL.filter(e => e.category === category);
+      if (possibleEvents.length === 0) return next;
+      
+      const eventTemplate = possibleEvents[Math.floor(Math.random() * possibleEvents.length)];
+      
+      const hasEnergyDiscount = p.ownedItemIds.includes('hidden_earbuds');
+      const actualCost = Math.max(0, eventTemplate.energyCost + prev.currentEvent.energyCostMod - (hasEnergyDiscount ? 1 : 0));
 
-      const template = availableTemplates[Math.floor(Math.random() * availableTemplates.length)];
-      next.handIds.push(`${template.id}_${Date.now()}`);
-      next.player.stats.modifyEnergy(-actualDrawCost);
-      next.addNotification(`🎴 抽到了 [${template.name}]`);
+      if (p.stats.energy < actualCost) {
+        next.addNotification("❌ 精力不足！無法執行此行動。");
+        return next;
+      }
+
+      p.stats.modifyEnergy(-actualCost);
+
+      const targetCharacter = p; // 簡化機制：目前事件描述中已統一由 handler 內部處理目標
+      
+      // 套用基礎數值
+      if (eventTemplate.stressChange) p.stats.modifyStress(eventTemplate.stressChange);
+      if (eventTemplate.savingsChange) p.stats.modifyMoney(eventTemplate.savingsChange);
+
+      let chaosGain = eventTemplate.chaosGain || 0;
+      if (p.ownedItemIds.includes('privacy_filter')) {
+        chaosGain = Math.floor(chaosGain * 0.7);
+      }
+      next.chaosLevel += chaosGain;
+
+      // 靜音紅軸鍵盤出牌效果：15% 機率自動微幅降壓
+      if (p.ownedItemIds.includes('silent_keyboard') && Math.random() < 0.15) {
+         p.stats.modifyStress(-2);
+         next.addNotification("✨ ⌨️ 靜音紅軸：完美敲擊，壓力 -2");
+      }
+
+      p.xp += (eventTemplate.xpGain || 10);
+      next.activityThisDay += 1;
+      next.performance += 15;
+
+      const handler = CARD_EFFECT_HANDLERS[eventTemplate.id];
+      const eventMsg = handler ? handler(next, p, targetCharacter, eventTemplate.id) : `執行了 [${eventTemplate.name}]！`;
+      
+      next.addNotification(`💬 ${eventMsg} (${category} | 精力 -${actualCost})`);
+
+      if (p.xp >= 100) {
+          p.xp = 0; p.level += 1; p.stats.maxEnergy += 10; p.stats.energy = p.stats.maxEnergy;
+          next.addNotification(`🎉 升職！現在是 LV.${p.level}！`);
+          // 真正的重大事件才推給 lastEvent
+          next.lastEvent = "🎉 升級啦！精力上限提升！";
+      }
+
       return next;
     });
   }, [lastActionTime]);
@@ -242,16 +270,16 @@ export const useGameEngine = () => {
     lastEvent: manager.lastEvent,
     notifications: manager.notifications,
     currentEvent: manager.currentEvent,
-    hand: manager.handIds.map(uId => {
-      const tid = uId.split('_')[0];
-      const t = CARD_POOL.find(c => c.id === tid)!;
-      return { ...t, id: uId };
-    }),
     bossPosition: PositionService.getNPCDisplayPosition(manager.boss.displayX, manager.boss.displayY),
     bossChatMessage: manager.boss.chatMessage,
     coffeePrice: (SHOP_ITEMS.find(i => i.id === 'specialty_coffee')?.price || 1500) + coffeeInflation,
     plantPosition: PositionService.gridToPixel(manager.plant.gridX, manager.plant.gridY, OfficeEntity.PLANT)
   };
 
-  return { gameState, player, playCard, drawCard, clockOut, buyItem };
+  return {
+    gameState: gameState,
+    executeAction,
+    buyItem,
+    clockOut
+  };
 };
