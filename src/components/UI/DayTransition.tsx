@@ -42,7 +42,7 @@ const DayTransition: React.FC<DayTransitionProps> = ({
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", damping: 25 }}
-            className="bg-white rounded-[40px] p-10 max-w-2xl w-full mx-8 shadow-2xl border border-slate-200"
+            className="bg-white rounded-[40px] p-6 md:p-10 max-w-2xl w-full mx-4 md:mx-8 shadow-2xl border border-slate-200 max-h-[90dvh] overflow-y-auto scrollbar-hide"
           >
             <div className="text-center mb-8">
               <h2 className="text-5xl font-black uppercase italic tracking-tighter text-slate-900 mb-2">

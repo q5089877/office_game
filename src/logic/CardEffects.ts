@@ -101,10 +101,15 @@ export const CARD_EFFECT_HANDLERS: Record<string, CardEffectFn> = {
     return "搞事失敗，不小心砸了自己的腳。";
   },
   "p9": (game, player) => {
-    game.boss.gridX = player.gridX;
-    game.boss.gridY = Math.max(0, player.gridY - 1);
-    triggerNPCDialogue(game.boss, "是誰動了我的電源線？", 4000);
-    return "🔥 完蛋！你拔錯線，直接把老闆電腦的電給切了！ (老闆瞬間逼近)";
+    const distToBoss = Math.abs(game.boss.gridX - player.gridX) + Math.abs(game.boss.gridY - player.gridY);
+    if (distToBoss <= 3) {
+      game.boss.gridX = player.gridX;
+      game.boss.gridY = Math.max(0, player.gridY - 1);
+      triggerNPCDialogue(game.boss, "是誰動了我的電源線？", 4000);
+      return "🔥 完蛋！你拔錯線，直接把老闆電腦的電給切了！ (老闆瞬間逼近)";
+    }
+    game.player.stats.modifyStress(10);
+    return "🔌 拔錯線，但好險是網管的備用線，沒引發災難。(虛驚一場，壓力微增)";
   },
   "p10": (game, player) => {
     triggerNPCDialogue(game.boss, "你在說誰的八卦？", 3000);

@@ -216,8 +216,9 @@ export class Boss extends BaseEntity {
       if (this.chatTimer <= 0) this.chatMessage = null;
     }
 
-    // 降低老闆巡邏速度 (0.08 -> 0.04)
-    const currentSpeed = 0.04 * (1 + (day - 1) * 0.1) * speedMult;
+    // 降低老闆巡邏速度並加入硬上限 0.15，防止後期崩潰
+    const calculatedSpeed = 0.04 * (1 + (day - 1) * 0.1) * speedMult;
+    const currentSpeed = Math.min(0.15, calculatedSpeed);
     const dx = this.gridX - this.displayX;
     const dy = this.gridY - this.displayY;
     if (Math.abs(dx) > 0.01) this.displayX += dx * currentSpeed;
@@ -312,23 +313,22 @@ export class GameManager {
             const dy = e1.gridY - e2.gridY;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
-            // 如果距離過近 (重疊或幾乎重疊)
-            if (dist < 0.6) {
-                // 如果完全重疊，給一個隨機方向的初始推力
-                const pushX = dist === 0 ? (Math.random() - 0.5) * 0.1 : (dx / dist) * 0.1;
-                const pushY = dist === 0 ? (Math.random() - 0.5) * 0.1 : (dy / dist) * 0.1;
+            // 替換為 Boids 的 Soft Collision 排斥向量，並排除「工作狀態」避免離座
+            if (dist < 0.8 && dist > 0) {
+                const force = (0.8 - dist) * 0.05;
+                const pushX = (dx / dist) * force;
+                const pushY = (dy / dist) * force;
 
-                // e1 往外推，如果是玩家則推動量較小
-                if (e1 !== this.player) {
+                if (e1 !== this.player && e1.behaviorState !== 'WORKING') {
                     e1.gridX = Math.max(0, Math.min(10, e1.gridX + pushX));
                     e1.gridY = Math.max(0, Math.min(6, e1.gridY + pushY));
                 }
-
-                // e2 反向推，如果是玩家則推動量較小
-                if (e2 !== this.player) {
+                if (e2 !== this.player && e2.behaviorState !== 'WORKING') {
                     e2.gridX = Math.max(0, Math.min(10, e2.gridX - pushX));
                     e2.gridY = Math.max(0, Math.min(6, e2.gridY - pushY));
                 }
+            } else if (dist === 0) {
+                if (e1 !== this.player && e1.behaviorState !== 'WORKING') e1.gridX += (Math.random() - 0.5) * 0.1;
             }
         }
     }

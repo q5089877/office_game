@@ -30,7 +30,7 @@ export interface ShopItem {
   price: number;
   type: ItemType;
   effect: {
-    stat?: keyof PlayerStats;
+    stat?: keyof PlayerStats | 'boss_speed';
     value?: number;
     passive?: string;
   };

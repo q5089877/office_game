@@ -11,7 +11,7 @@ import { PlayerRole, ActionCategory, EntityType, Gender, ItemType } from './type
 import { PositionService, OfficeEntity } from './utils/PositionService';
 import { DialogueManager } from './logic/DialogueManager';
 
-const ACTION_COOLDOWN = 800; // 延長冷卻至 800ms
+const ACTION_COOLDOWN = 300; // 從 800ms 降至 300ms，解耦 Input 限流
 
 export const useGameEngine = () => {
   const [manager, setManager] = useState(() => {
@@ -234,12 +234,14 @@ export const useGameEngine = () => {
       next.player.stats.modifyMoney(-currentPrice);
 
       if (item.type === ItemType.CONSUMABLE) {
-          // 這裡目前只有咖啡
           if (itemId === 'specialty_coffee') {
             next.player.stats.modifyEnergy(30);
             next.player.stats.modifyStress(-40);
             setCoffeeInflation(c => c + 300); // 每次購買漲 300
             next.addNotification(`☕ 喝下特調咖啡！壓力大減，且咖啡變得更貴了...`);
+          } else if (itemId === 'boss_tea') {
+            next.currentEvent.bossSpeedMult = Math.max(0.2, next.currentEvent.bossSpeedMult - 0.3);
+            next.addNotification(`🍵 奉上高級茶葉！老闆心情大好，巡邏腳步變慢了。`);
           }
       } else {
         next.player.ownedItemIds.push(itemId);

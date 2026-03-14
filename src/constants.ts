@@ -151,6 +151,14 @@ export const SHOP_ITEMS: ShopItem[] = [
     price: 1500,
     type: ItemType.CONSUMABLE,
     effect: { value: 30, stat: 'energy' }
+  },
+  {
+    id: 'boss_tea',
+    name: '孝敬老闆的高品茶',
+    description: '【消耗品】大幅降低老闆的警戒心。今日老闆巡邏速度強制 -30%。',
+    price: 3500,
+    type: ItemType.CONSUMABLE,
+    effect: { value: -0.3, stat: 'boss_speed' }
   }
 ];
 

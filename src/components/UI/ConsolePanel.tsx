@@ -72,11 +72,11 @@ const ConsolePanel: React.FC<ConsolePanelProps> = ({
                 <span className="text-[10px] md:text-xs font-black text-emerald-400 uppercase tracking-widest hidden lg:inline">精力核心</span>
             </div>
             <span className="text-sm md:text-2xl font-mono font-black text-emerald-400 leading-none tabular-nums">
-                {player.stats.energy.toFixed(0)} <span className="text-[10px] md:text-sm opacity-40 font-normal hidden sm:inline">/ {player.stats.maxEnergy}</span>
+                {Math.floor(player.stats.energy)} <span className="text-[10px] md:text-sm opacity-40 font-normal hidden sm:inline">/ {player.stats.maxEnergy}</span>
             </span>
           </div>
           <div className="h-2 md:h-3 bg-slate-800 rounded-full overflow-hidden border border-white/5 p-0.5">
-            <div className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full shadow-[0_0_15px_rgba(52,211,153,0.4)] transition-all duration-700" style={{ width: `${(player.stats.energy/player.stats.maxEnergy)*100}%` }} />
+            <div className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full shadow-[0_0_15px_rgba(52,211,153,0.4)] transition-all duration-200" style={{ width: `${(player.stats.energy/player.stats.maxEnergy)*100}%` }} />
           </div>
         </div>
 
@@ -97,7 +97,7 @@ const ConsolePanel: React.FC<ConsolePanelProps> = ({
         <div className="flex flex-col gap-1 md:gap-2 w-full max-w-[224px] text-right">
           <div className="flex justify-between items-end">
             <span className="text-sm md:text-2xl font-mono font-black text-rose-500 leading-none tabular-nums">
-                {player.stats.stress.toFixed(0)} <span className="text-[10px] md:text-sm opacity-40 font-normal hidden sm:inline">/ 100</span>
+                {Math.floor(player.stats.stress)} <span className="text-[10px] md:text-sm opacity-40 font-normal hidden sm:inline">/ 100</span>
             </span>
             <div className="flex items-center gap-1 md:gap-2 text-right">
                 <span className="text-[10px] md:text-xs font-black text-rose-500 uppercase tracking-widest hidden lg:inline">壓力臨界點</span>
@@ -105,7 +105,7 @@ const ConsolePanel: React.FC<ConsolePanelProps> = ({
             </div>
           </div>
           <div className="h-2 md:h-3 bg-slate-800 rounded-full overflow-hidden border border-white/5 p-0.5">
-            <div className={cn("h-full rounded-full transition-all duration-700", getStressColorClass(player.stats.stress).includes('rose') ? "bg-gradient-to-l from-rose-600 to-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.4)]" : "bg-gradient-to-l from-orange-500 to-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.4)]")} style={{ width: `${player.stats.stress}%` }} />
+            <div className={cn("h-full rounded-full transition-all duration-200", getStressColorClass(player.stats.stress).includes('rose') ? "bg-gradient-to-l from-rose-600 to-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.4)]" : "bg-gradient-to-l from-orange-500 to-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.4)]")} style={{ width: `${player.stats.stress}%` }} />
           </div>
         </div>
       </div>
