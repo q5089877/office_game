@@ -1,6 +1,6 @@
 import { DialogueManager } from "./DialogueManager";
 import { DailyModifier, Gender, EntityType } from "../types";
-import { DAILY_EVENTS, OFFICE_LAYOUT } from "../constants";
+import { DAILY_EVENTS, OFFICE_LAYOUT, ABSENCE_REASONS } from "../constants";
 
 /**
  * 搞笑版辦公室生存 - 核心邏輯簡化版 (精力與壓力系統)
@@ -53,12 +53,18 @@ export class Character extends BaseEntity {
   public isAttacking: boolean = false;
   public attackStartTime: number = 0;
 
+  public targetX: number | null = null;
+  public targetY: number | null = null;
+  public idleTimer: number = 0;
+  public behaviorState: 'IDLE' | 'WORKING' | 'WANDERING' | 'VISITING_OBJECT' = 'WORKING';
+
   constructor(id: string, name: string, type: EntityType, stats?: Stats, x: number = 0, y: number = 0, gender: Gender = Gender.MALE) {
     super(id, name, type, gender);
     this.stats = stats || new Stats();
     this.gridX = x; this.gridY = y;
     this.displayX = x; this.displayY = y;
     this.homeX = x; this.homeY = y;
+    this.targetX = x; this.targetY = y;
   }
 
   tick(deltaTime: number) {
@@ -67,12 +73,42 @@ export class Character extends BaseEntity {
       if (this.chatTimer <= 0) this.chatMessage = null;
     }
 
+    if (this.idleTimer > 0) {
+      this.idleTimer -= deltaTime;
+      if (this.idleTimer <= 0) {
+          this.decideNextMove();
+      }
+      // 即使在發呆，也要更新 display 座標確保動畫平滑
+    } else {
+        const moveSpeed = 0.1;
+        
+        // 如果有目標位置，則穩定朝目標移動
+        if (this.targetX !== null && this.targetY !== null) {
+          const dx = this.targetX - this.gridX;
+          const dy = this.targetY - this.gridY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist > 0.1) {
+            // 每步移動一小格
+            this.gridX += (dx / dist) * 0.1;
+            this.gridY += (dy / dist) * 0.1;
+          } else {
+            this.gridX = this.targetX;
+            this.gridY = this.targetY;
+            this.targetX = null; // 到達後清除目標，防止重複觸發
+            this.targetY = null;
+            this.onReachedTarget();
+          }
+        }
+    }
+
+    const dDisplayX = this.gridX - this.displayX;
+    const dDisplayY = this.gridY - this.displayY;
     const moveSpeed = 0.1;
-    const dx = this.gridX - this.displayX;
-    const dy = this.gridY - this.displayY;
-    if (Math.abs(dx) > 0.01 || Math.abs(dy) > 0.01) {
-      this.displayX += dx * moveSpeed;
-      this.displayY += dy * moveSpeed;
+
+    if (Math.abs(dDisplayX) > 0.01 || Math.abs(dDisplayY) > 0.01) {
+      this.displayX += dDisplayX * moveSpeed;
+      this.displayY += dDisplayY * moveSpeed;
       this.isMoving = true;
       this.bobOffset = Math.sin(Date.now() * 0.01) * 5;
     } else {
@@ -80,36 +116,50 @@ export class Character extends BaseEntity {
       this.isMoving = false;
       this.bobOffset = 0;
     }
-    if (!this.isMoving && Math.random() < 0.005) this.wander();
+
+    // 如果完全沒事做且沒在發呆，強迫找件事做
+    if (!this.isMoving && this.targetX === null && this.idleTimer <= 0 && this.type === EntityType.COLLEAGUE) {
+        this.decideNextMove();
+    }
+  }
+
+  decideNextMove() {
+      const dice = Math.random();
+      if (dice < 0.4) {
+          // 回到座位工作
+          this.targetX = this.homeX;
+          this.targetY = this.homeY;
+          this.behaviorState = 'WORKING';
+      } else if (dice < 0.8) {
+          // 隨機選一個辦公室物件去逛逛
+          const objects = OFFICE_LAYOUT.objects;
+          const targetObj = objects[Math.floor(Math.random() * objects.length)];
+          this.targetX = targetObj.x;
+          this.targetY = targetObj.y;
+          this.behaviorState = 'VISITING_OBJECT';
+      } else {
+          // 隨機在附近晃晃
+          this.targetX = Math.max(0, Math.min(10, this.gridX + (Math.random() * 4 - 2)));
+          this.targetY = Math.max(0, Math.min(6, this.gridY + (Math.random() * 4 - 2)));
+          this.behaviorState = 'WANDERING';
+      }
+  }
+
+  onReachedTarget() {
+      // 到達目標後發呆一段時間
+      this.idleTimer = 3000 + Math.random() * 5000;
+      
+      // 如果是去逛物件，有機會碎碎念
+      if (this.behaviorState === 'VISITING_OBJECT' && Math.random() < 0.7) {
+          // 使用靜態方法，傳入自身以獲取對話
+          this.chatMessage = DialogueManager.getRandomQuote(this, { id: 'normal', name: '', description: '', stressMult: 1, energyCostMod: 0, bossSpeedMult: 1 });
+          this.chatTimer = 3000;
+      }
   }
 
   wander() {
-    const isCaringPlant = this.type === EntityType.COLLEAGUE && Math.random() < 0.001;
-    if (isCaringPlant) {
-      const plantDef = OFFICE_LAYOUT.objects.find(o => o.id === 'plant');
-      this.gridX = plantDef ? plantDef.x : 10;
-      this.gridY = plantDef ? plantDef.y : 0;
-      return;
-    }
-    const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [0, 0]];
-    const dir = directions[Math.floor(Math.random() * directions.length)];
-    if (dir[0] === 0 && dir[1] === 0) return; // 選擇原地停留
-
-    const nextX = Math.max(0, Math.min(10, this.gridX + dir[0]));
-    const nextY = Math.max(0, Math.min(6, this.gridY + dir[1]));
-
-    // Collision Check needs external state but since we can't easily access global from here, 
-    // we'll rely on the GameManager to handle collision resolution later if needed,
-    // or we can pass a callback/reference. A simpler way is to check the GameManager's list
-    // if we had it. Since we don't, we'll implement a static registry or just let them move.
-    
-    // Better approach: We can't do full collision without game state here. 
-    // Let's modify the gridX/gridY and let GameManager handle it, OR we just let it be.
-    // Wait, the user wants a "better approach" for overlapping. We can implement a simple separation force 
-    // in the render logic, or we can add collision logic in tick().
-    
-    this.gridX = nextX;
-    this.gridY = nextY;
+    // 舊的隨機漫步已棄用，整合進 decideNextMove
+    this.decideNextMove();
   }
 
   // NOTE: collision resolution is handled in GameManager tick
@@ -140,6 +190,10 @@ export class Character extends BaseEntity {
     c.attackCooldown = this.attackCooldown;
     c.isAttacking = this.isAttacking;
     c.attackStartTime = this.attackStartTime;
+    c.targetX = this.targetX;
+    c.targetY = this.targetY;
+    c.idleTimer = this.idleTimer;
+    c.behaviorState = this.behaviorState;
     return c;
   }
 }
@@ -196,6 +250,7 @@ export class Plant extends BaseEntity {
 export class GameManager {
   public player: Character;
   public colleagues: Character[];
+  public fullColleaguePool: Character[];
   public boss: Boss;
   public plant: Plant;
   public day: number = 1;
@@ -208,8 +263,9 @@ export class GameManager {
   public handIds: string[] = [];
   public stressAccumulator: number = 0;
 
-  constructor(player?: Character, colleagues?: Character[], boss?: Boss, plant?: Plant, day?: number, chaosLevel?: number) {
+  constructor(player?: Character, colleagues?: Character[], boss?: Boss, plant?: Plant, day?: number, chaosLevel?: number, fullColleaguePool?: Character[]) {
     this.player = player || new Character('player', '你', EntityType.PLAYER);
+    this.fullColleaguePool = fullColleaguePool || (colleagues ? [...colleagues] : []);
     this.colleagues = colleagues || [];
     this.boss = boss || new Boss(5, 0);
     const plantDef = OFFICE_LAYOUT.objects.find(o => o.id === 'plant');
@@ -268,7 +324,7 @@ export class GameManager {
     });
 
     // 自然壓力增長：隨時間自動上升
-    this.stressAccumulator += 0.04 * this.currentEvent.stressMult; // Increased from 0.02
+    this.stressAccumulator += 0.07 * this.currentEvent.stressMult; // Increased from 0.04 to 0.07
     if (this.stressAccumulator >= 1) {
       this.player.stats.modifyStress(1);
       this.stressAccumulator -= 1;
@@ -367,7 +423,7 @@ export class GameManager {
     }
 
     const initialStress = this.player.stats.stress;
-
+    
     const summary = {
       prevDay: this.day,
       moneyEarned: Math.floor(baseMoney * stressBonus * (1 / this.currentEvent.stressMult)),
@@ -394,13 +450,17 @@ export class GameManager {
 
     this.currentEvent = DAILY_EVENTS[Math.floor(Math.random() * DAILY_EVENTS.length)];
     this.addNotification(`📅 今日狀態：${this.currentEvent.name}`);
+    
+    // --- 動態 NPC 出勤邏輯 ---
+    this.refreshAttendance();
+
     if (!this.lastEvent || !this.lastEvent.includes("門檻提高")) {
         this.lastEvent = `今日：${this.currentEvent.name}`;
     }
 
     // 精力恢復與加成
     let energyRecovery = 100;
-    let stressRelief = -20;
+    let stressRelief = -10; // 基礎減壓從 -20 減少至 -10
     if (this.player.ownedItemIds.includes('ergo_pillow')) {
       energyRecovery += 20;
       stressRelief -= 10;
@@ -423,8 +483,43 @@ export class GameManager {
     return summary;
   }
 
+  /**
+   * 刷新當日出勤名單並記錄所有缺席原因
+   */
+  public refreshAttendance() {
+    if (!this.fullColleaguePool || this.fullColleaguePool.length === 0) return;
+
+    // 隨機抽選 60%-75% 的同事上班
+    const attendanceRate = 0.6 + Math.random() * 0.15;
+    const activeCount = Math.max(1, Math.floor(this.fullColleaguePool.length * attendanceRate));
+    
+    // 洗牌
+    const shuffled = [...this.fullColleaguePool].sort(() => Math.random() - 0.5);
+    
+    // 設定今日出勤者
+    this.colleagues = shuffled.slice(0, activeCount).map(c => c.clone());
+    
+    // 隨機選擇 2 位缺席者記錄原因 (保持日誌清爽)
+    const absentColleagues = shuffled.slice(activeCount);
+    if (absentColleagues.length > 0) {
+      const luckyAbsentPool = [...absentColleagues].sort(() => Math.random() - 0.5).slice(0, 2);
+      luckyAbsentPool.forEach(npc => {
+        const reason = ABSENCE_REASONS[Math.floor(Math.random() * ABSENCE_REASONS.length)];
+        this.addNotification(`📍 ${npc.name} ${reason}`);
+      });
+    }
+  }
+
   clone(): GameManager {
-    const cloned = new GameManager(this.player.clone(), this.colleagues.map(c => c.clone()), new Boss(this.boss.gridX, this.boss.gridY), new Plant(this.plant.gridX, this.plant.gridY), this.day, this.chaosLevel);
+    const cloned = new GameManager(
+        this.player.clone(), 
+        this.colleagues.map(c => c.clone()), 
+        new Boss(this.boss.gridX, this.boss.gridY), 
+        new Plant(this.plant.gridX, this.plant.gridY), 
+        this.day, 
+        this.chaosLevel,
+        this.fullColleaguePool.map(c => c.clone())
+    );
     cloned.lastEvent = this.lastEvent;
     cloned.notifications = [...this.notifications];
     cloned.activityThisDay = this.activityThisDay;

@@ -128,174 +128,184 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
             );
           })}
 
-          {/* 老闆與警戒範圍 (Vision Cone) */}
-          <Group x={gameState.bossPosition.x} y={gameState.bossPosition.y}>
-            {/* 紅色扇形警戒區 */}
-            <Arc
-              innerRadius={0}
-              outerRadius={160}
-              angle={120}
-              rotation={30}
-              fill={`${themeColors.error[500]}1A`}
-              stroke={`${themeColors.error[500]}33`}
-              strokeWidth={2}
-              dash={[10, 10]}
-              x={0}
-              y={0}
-              listening={false}
-            />
-
-            <PixelCharacter
-              id="boss"
-              name="大老闆"
-              color={themeColors.error[600]}
-              isSelected={false}
-              bobOffset={gameState.bossPosition.y % 4}
-              gender="MALE"
-            />
-
-            {/* 顯示老闆的對話泡泡 - 卡片觸發或抓到玩家時 */}
-            {(gameState.bossChatMessage || gameState.players.some(p => p.id === 'player' &&
-              Math.abs(p.position.x - gameState.bossPosition.x) < 50 &&
-              Math.abs(p.position.y - gameState.bossPosition.y) < 40
-            )) && (() => {
-              const bossText = gameState.bossChatMessage || "發現你在摸魚~";
-              const bubbleWidth = Math.max(140, bossText.length * 10 + 20);
-              const lineHeight = 20;
-              const lineCount = Math.ceil(bossText.length / 12);
-              const bubbleHeight = Math.max(32, lineCount * lineHeight + 16);
-              const bubbleFill = gameState.bossChatMessage ? "rgba(255, 255, 255, 0.95)" : "rgba(255,255,255,0.9)";
-              const bubbleStroke = gameState.bossChatMessage ? "#dc2626" : "#f87171";
-              const textColor = gameState.bossChatMessage ? "#7f1d1d" : "#991b1b";
-
-              return (
-                <Group y={-80}>
-                  <Rect width={bubbleWidth} height={bubbleHeight} fill={bubbleFill}
-                        x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={12}
-                        stroke={bubbleStroke} strokeWidth={2}
-                        shadowBlur={10} shadowColor="rgba(0,0,0,0.1)" />
-                  <Text text={bossText} fontSize={CANVAS_CONFIG.TEXT_SIZE.NPC.NAME_LABEL}
-                        fill={textColor} fontStyle="bold" width={bubbleWidth - 10}
-                        align="center" x={-(bubbleWidth - 10) / 2}
-                        y={-bubbleHeight + (lineCount > 1 ? 10 : 9)} wrap="char" />
-                  <Rect width={2} height={20} fill={bubbleStroke} x={-1} y={0} />
-                  <Rect width={8} height={8} fill={bubbleFill} x={-4} y={20}
-                        rotation={45} stroke={bubbleStroke} strokeWidth={2} />
-                  <Rect width={12} height={6} fill={bubbleFill} x={-6} y={0} />
-                </Group>
-              );
-            })()}
-          </Group>
-
-          {/* 植物 - 修正座標計算 */}
+          {/* 植物 - 放在角色層之前，因為它在最北端 (Y=0) */}
           {(() => {
             const plantPos = GridCalculator.getPlantPosition(gameState.plantPosition.x, gameState.plantPosition.y);
             return <PixelPlant x={plantPos.x} y={plantPos.y} />;
           })()}
 
-          {/* 玩家角色 */}
-          {gameState.players.map((p) => {
-            const isRecentTarget = gameState.lastEvent?.includes(p.name) ||
-              (p.id === 'player' && (gameState.lastEvent?.includes("你") ||
-               gameState.lastEvent?.includes("手速") || gameState.lastEvent?.includes("戴上")));
+          {/* 角色與 Boss 渲染 (實作深度排序 Y-Sorting) */}
+          {(() => {
+            // 合併所有需要排序的角色
+            const entities = [
+              ...gameState.players.map(p => ({ type: 'player' as const, data: p, y: p.position.y })),
+              { type: 'boss' as const, data: gameState.bossPosition, y: gameState.bossPosition.y }
+            ];
 
-            // 將澆水判定改為：距離植物位置很近時顯示
-            const distToPlant = Math.sqrt(
-              Math.pow(p.position.x - gameState.plantPosition.x, 2) +
-              Math.pow(p.position.y - gameState.plantPosition.y, 2)
-            );
-            const isWatering = p.id !== 'player' && distToPlant < 40;
-            const bubbleWidth = 140;
+            // 根據 Y 座標排序：Y 越小越先畫 (即越遠處的角色會在底層)
+            return entities.sort((a, b) => a.y - b.y).map((ent) => {
+              if (ent.type === 'boss') {
+                return (
+                  <Group key="boss" x={gameState.bossPosition.x} y={gameState.bossPosition.y}>
+                    {/* 紅色扇形警戒區 */}
+                    <Arc
+                      innerRadius={0}
+                      outerRadius={160}
+                      angle={120}
+                      rotation={30}
+                      fill={`${themeColors.error[500]}1A`}
+                      stroke={`${themeColors.error[500]}33`}
+                      strokeWidth={2}
+                      dash={[10, 10]}
+                      x={0}
+                      y={0}
+                      listening={false}
+                    />
 
-            // 氣泡邊框色根據性別動態調整
-            const bubbleStroke = p.gender === 'FEMALE' ? "#e06ee5" : "#3b82f6";
-            const bubbleFill = p.gender === 'FEMALE' ? "rgba(253, 244, 255, 0.95)" : "rgba(238, 242, 255, 0.95)";
+                    <PixelCharacter
+                      id="boss"
+                      name="大老闆"
+                      color={themeColors.error[600]}
+                      isSelected={false}
+                      bobOffset={gameState.bossPosition.y % 4}
+                      gender="MALE"
+                    />
 
-            return (
-              <Group key={p.id} x={p.position.x} y={p.position.y} onClick={() => onPlayerClick(p.id)}>
-                {/* 對話氣泡 */}
-                {p.chatMessage && (() => {
-                  const padding = 16;
-                  const lineHeight = 20;
-                  const charPerLine = 12; // 估計每行字數
-                  const lineCount = Math.ceil(p.chatMessage.length / charPerLine);
-                  const bubbleHeight = Math.max(32, lineCount * lineHeight + padding);
+                    {/* 顯示老闆的對話泡泡 */}
+                    {(gameState.bossChatMessage || gameState.players.some(p => p.id === 'player' &&
+                      Math.abs(p.position.x - gameState.bossPosition.x) < 50 &&
+                      Math.abs(p.position.y - gameState.bossPosition.y) < 40
+                    )) && (() => {
+                      const bossText = gameState.bossChatMessage || "發現你在摸魚~";
+                      const bubbleWidth = Math.max(140, bossText.length * 10 + 20);
+                      const lineHeight = 20;
+                      const lineCount = Math.ceil(bossText.length / 12);
+                      const bubbleHeight = Math.max(32, lineCount * lineHeight + 16);
+                      const bubbleFill = gameState.bossChatMessage ? "rgba(255, 255, 255, 0.95)" : "rgba(255,255,255,0.9)";
+                      const bubbleStroke = gameState.bossChatMessage ? "#dc2626" : "#f87171";
+                      const textColor = gameState.bossChatMessage ? "#7f1d1d" : "#991b1b";
 
-                  return (
-                    <Group y={-65}>
-                      <Rect width={bubbleWidth} height={bubbleHeight} fill={bubbleFill}
-                            x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={12}
-                            stroke={bubbleStroke} strokeWidth={2} shadowBlur={5}
-                            shadowColor="rgba(0, 0, 0, 0.05)" />
-                      <Text text={p.chatMessage} fontSize={CANVAS_CONFIG.TEXT_SIZE.NPC.NAME_LABEL}
-                            fill={p.gender === 'FEMALE' ? "#701a75" : "#1d4ed8"} fontStyle="bold" width={bubbleWidth - 10}
-                            align="center" x={-(bubbleWidth - 10) / 2}
-                            y={-bubbleHeight + (lineCount > 1 ? 10 : 9)} wrap="char" />
-                      <Rect width={2} height={20} fill={bubbleStroke} x={-1} y={0} />
-                      <Rect width={8} height={8} fill={bubbleFill} x={-4} y={20}
-                            rotation={45} stroke={bubbleStroke} strokeWidth={2} />
-                      <Rect width={12} height={6} fill={bubbleFill} x={-6} y={0} />
-                    </Group>
-                  );
-                })()}
+                      return (
+                        <Group y={-80}>
+                          <Rect width={bubbleWidth} height={bubbleHeight} fill={bubbleFill}
+                                x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={12}
+                                stroke={bubbleStroke} strokeWidth={2}
+                                shadowBlur={10} shadowColor="rgba(0,0,0,0.1)" />
+                          <Text text={bossText} fontSize={CANVAS_CONFIG.TEXT_SIZE.NPC.NAME_LABEL}
+                                fill={textColor} fontStyle="bold" width={bubbleWidth - 10}
+                                align="center" x={-(bubbleWidth - 10) / 2}
+                                y={-bubbleHeight + (lineCount > 1 ? 10 : 9)} wrap="char" />
+                          <Rect width={2} height={20} fill={bubbleStroke} x={-1} y={0} />
+                          <Rect width={8} height={8} fill={bubbleFill} x={-4} y={20}
+                                rotation={45} stroke={bubbleStroke} strokeWidth={2} />
+                          <Rect width={12} height={6} fill={bubbleFill} x={-6} y={0} />
+                        </Group>
+                      );
+                    })()}
+                  </Group>
+                );
+              } else {
+                const p = ent.data as Player;
+                const isRecentTarget = gameState.lastEvent?.includes(p.name) ||
+                  (p.id === 'player' && (gameState.lastEvent?.includes("你") ||
+                   gameState.lastEvent?.includes("手速") || gameState.lastEvent?.includes("戴上")));
 
-                {/* 摸魚中氣泡 */}
-                {isRecentTarget && showEvent && (() => {
-                  const targetText = "摸魚中...";
-                  const bubbleHeight = 30; // 固定短句
-                  return (
-                    <Group y={-65}>
-                      <Rect width={bubbleWidth} height={bubbleHeight} fill="rgba(255,255,255,0.85)"
-                            x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={9}
-                            stroke={bubbleStroke} strokeWidth={2} shadowBlur={5}
-                            shadowColor="rgba(0,0,0,0.05)" />
-                      <Text text={targetText} fontSize={CANVAS_CONFIG.TEXT_SIZE.NPC.NAME_LABEL}
-                            fill={p.gender === 'FEMALE' ? "#701a75" : "#4338ca"} fontStyle="bold" width={bubbleWidth - 10}
-                            align="center" x={-(bubbleWidth - 10) / 2}
-                            y={-bubbleHeight + 12} wrap="char" />
-                      <Rect width={2} height={20} fill={bubbleStroke} x={-1} y={0} />
-                      <Rect width={8} height={8} fill="rgba(255,255,255,0.85)" x={-4} y={20}
-                            rotation={45} stroke={bubbleStroke} strokeWidth={2} />
-                      <Rect width={12} height={6} fill="rgba(255,255,255,0.85)" x={-6} y={0} />
-                    </Group>
-                  );
-                })()}
+                const distToPlant = Math.sqrt(
+                  Math.pow(p.position.x - gameState.plantPosition.x, 2) +
+                  Math.pow(p.position.y - gameState.plantPosition.y, 2)
+                );
+                const isWatering = p.id !== 'player' && distToPlant < 40;
+                const bubbleWidth = 140;
 
-                {/* 澆水氣泡 */}
-                {isWatering && (() => {
-                  const wateringText = "幫植物澆水中...";
-                  const bubbleHeight = 30; // 固定短句
-                  return (
-                    <Group y={-65}>
-                      <Rect width={bubbleWidth} height={bubbleHeight} fill="rgba(236, 253, 245, 0.95)"
-                            x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={9}
-                            stroke="#22c55e" strokeWidth={2} shadowBlur={5}
-                            shadowColor="rgba(34, 197, 94, 0.2)" />
-                      <Text text={wateringText} fontSize={CANVAS_CONFIG.TEXT_SIZE.NPC.NAME_LABEL}
-                            fill="#15803d" fontStyle="bold" width={bubbleWidth - 10}
-                            align="center" x={-(bubbleWidth - 10) / 2}
-                            y={-bubbleHeight + 12} wrap="char" />
-                      <Rect width={2} height={20} fill="#22c55e" x={-1} y={0} />
-                      <Rect width={8} height={8} fill="rgba(236, 253, 245, 0.95)" x={-4} y={20}
-                            rotation={45} stroke="#22c55e" strokeWidth={2} />
-                      <Rect width={12} height={6} fill="rgba(236, 253, 245, 0.95)" x={-6} y={0} />
-                    </Group>
-                  );
-                })()}
+                const bubbleStroke = p.gender === 'FEMALE' ? "#e06ee5" : "#3b82f6";
+                const bubbleFill = p.gender === 'FEMALE' ? "rgba(253, 244, 255, 0.95)" : "rgba(238, 242, 255, 0.95)";
 
-                {/* 像素角色 */}
-                <PixelCharacter
-                  id={p.id}
-                  name={p.name}
-                  color={p.id === 'player' ? themeColors.primary[600] : themeColors.success[500]}
-                  isSelected={selectedPlayerId === p.id}
-                  bobOffset={p.position.y % 4}
-                  gender={p.gender}
-                  isDanger={isRecentTarget} // 傳遞危險/暴露狀態
-                />
-              </Group>
-            );
-          })}
+                return (
+                  <Group key={p.id} x={p.position.x} y={p.position.y} onClick={() => onPlayerClick(p.id)}>
+                    {/* 對話氣泡 */}
+                    {p.chatMessage && (() => {
+                      const padding = 16;
+                      const lineHeight = 20;
+                      const charPerLine = 12;
+                      const lineCount = Math.ceil(p.chatMessage!.length / charPerLine);
+                      const bubbleHeight = Math.max(32, lineCount * lineHeight + padding);
+
+                      return (
+                        <Group y={-65}>
+                          <Rect width={bubbleWidth} height={bubbleHeight} fill={bubbleFill}
+                                x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={12}
+                                stroke={bubbleStroke} strokeWidth={2} shadowBlur={5}
+                                shadowColor="rgba(0, 0, 0, 0.05)" />
+                          <Text text={p.chatMessage!} fontSize={CANVAS_CONFIG.TEXT_SIZE.NPC.NAME_LABEL}
+                                fill={p.gender === 'FEMALE' ? "#701a75" : "#1d4ed8"} fontStyle="bold" width={bubbleWidth - 10}
+                                align="center" x={-(bubbleWidth - 10) / 2}
+                                y={-bubbleHeight + (lineCount > 1 ? 10 : 9)} wrap="char" />
+                          <Rect width={2} height={20} fill={bubbleStroke} x={-1} y={0} />
+                          <Rect width={8} height={8} fill={bubbleFill} x={-4} y={20}
+                                rotation={45} stroke={bubbleStroke} strokeWidth={2} />
+                          <Rect width={12} height={6} fill={bubbleFill} x={-6} y={0} />
+                        </Group>
+                      );
+                    })()}
+
+                    {/* 摸魚中氣泡 */}
+                    {isRecentTarget && showEvent && (() => {
+                      const targetText = "摸魚中...";
+                      const bubbleHeight = 30;
+                      return (
+                        <Group y={-65}>
+                          <Rect width={bubbleWidth} height={bubbleHeight} fill="rgba(255,255,255,0.85)"
+                                x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={9}
+                                stroke={bubbleStroke} strokeWidth={2} shadowBlur={5}
+                                shadowColor="rgba(0,0,0,0.05)" />
+                          <Text text={targetText} fontSize={CANVAS_CONFIG.TEXT_SIZE.NPC.NAME_LABEL}
+                                fill={p.gender === 'FEMALE' ? "#701a75" : "#4338ca"} fontStyle="bold" width={bubbleWidth - 10}
+                                align="center" x={-(bubbleWidth - 10) / 2}
+                                y={-bubbleHeight + 12} wrap="char" />
+                          <Rect width={2} height={20} fill={bubbleStroke} x={-1} y={0} />
+                          <Rect width={8} height={8} fill="rgba(255,255,255,0.85)" x={-4} y={20}
+                                rotation={45} stroke={bubbleStroke} strokeWidth={2} />
+                          <Rect width={12} height={6} fill="rgba(255,255,255,0.85)" x={-6} y={0} />
+                        </Group>
+                      );
+                    })()}
+
+                    {/* 澆水氣泡 */}
+                    {isWatering && (() => {
+                      const wateringText = "幫植物澆水中...";
+                      const bubbleHeight = 30;
+                      return (
+                        <Group y={-65}>
+                          <Rect width={bubbleWidth} height={bubbleHeight} fill="rgba(236, 253, 245, 0.95)"
+                                x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={9}
+                                stroke="#22c55e" strokeWidth={2} shadowBlur={5}
+                                shadowColor="rgba(34, 197, 94, 0.2)" />
+                          <Text text={wateringText} fontSize={CANVAS_CONFIG.TEXT_SIZE.NPC.NAME_LABEL}
+                                fill="#15803d" fontStyle="bold" width={bubbleWidth - 10}
+                                align="center" x={-(bubbleWidth - 10) / 2}
+                                y={-bubbleHeight + 12} wrap="char" />
+                          <Rect width={2} height={20} fill="#22c55e" x={-1} y={0} />
+                          <Rect width={8} height={8} fill="rgba(236, 253, 245, 0.95)" x={-4} y={20}
+                                rotation={45} stroke="#22c55e" strokeWidth={2} />
+                          <Rect width={12} height={6} fill="rgba(236, 253, 245, 0.95)" x={-6} y={0} />
+                        </Group>
+                      );
+                    })()}
+
+                    <PixelCharacter
+                      id={p.id}
+                      name={p.name}
+                      color={p.id === 'player' ? themeColors.primary[600] : themeColors.success[500]}
+                      isSelected={selectedPlayerId === p.id}
+                      bobOffset={p.position.y % 4}
+                      gender={p.gender}
+                      isDanger={isRecentTarget}
+                    />
+                  </Group>
+                );
+              }
+            });
+          })()}
 
         </Layer>
       </Stage>

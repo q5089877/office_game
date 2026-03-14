@@ -25,15 +25,19 @@ export const useGameEngine = () => {
       const randomDesk = emptyDesks[Math.floor(Math.random() * emptyDesks.length)];
       return { x: randomDesk.x, y: randomDesk.y };
     };
-
+    
     const randomDesk = getRandomEmptyDesk();
     const player = new Character('player', '菜鳥', EntityType.PLAYER, undefined, randomDesk.x, randomDesk.y, Gender.MALE);
-    const colleagues = OFFICE_LAYOUT.clusters.flatMap(c =>
+    const fullPool = OFFICE_LAYOUT.clusters.flatMap(c =>
       c.desks
         .filter(d => d.id !== 'player-desk' && d.owner !== null)
         .map(d => new Character(d.id, d.label, EntityType.COLLEAGUE, undefined, d.x, d.y, d.gender))
     );
-    return new GameManager(player, colleagues);
+    
+    const manager = new GameManager(player, [], undefined, undefined, 1, 0, fullPool);
+    manager.refreshAttendance(); // 第一天也要顯示所有缺席者
+    
+    return manager;
   });
 
   const [lastActionTime, setLastActionTime] = useState(0);
