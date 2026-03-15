@@ -133,8 +133,7 @@ export default function App() {
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/grid-me.png')] bg-repeat opacity-[0.08]" />
         <div className="absolute inset-0 pointer-events-none z-10"
              style={{ 
-               background: `radial-gradient(circle at 50% 50%, transparent 40%, rgba(0,0,0,0.6) 100%)`,
-               boxShadow: 'inset 0 0 120px rgba(0,0,0,0.8)'
+               boxShadow: 'inset 0 0 100px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(0,0,0,0.1)',
              }} />
 
         <AnimatePresence>

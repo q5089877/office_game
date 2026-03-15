@@ -24,7 +24,7 @@ const ConsolePanel: React.FC<ConsolePanelProps> = ({
   onClockOut,
 }) => {
   // 檢查玩家是否在可互動的物件旁
-  const nearbyObject = OFFICE_LAYOUT.objects.find(obj => 
+  const nearbyObject = OFFICE_LAYOUT.objects.find(obj =>
     Math.abs(obj.x - player.gridX) <= 1 && Math.abs(obj.y - player.gridY) <= 1
   );
 
@@ -34,10 +34,10 @@ const ConsolePanel: React.FC<ConsolePanelProps> = ({
 
   return (
     <div className="pointer-events-auto h-24 md:h-36 bg-slate-900 border-t border-white/10 flex items-center justify-between px-2 md:px-10 gap-2 md:gap-6 shadow-[0_-30px_60px_rgba(0,0,0,0.5)] shrink-0 w-full relative z-40">
-      
+
       {/* 左側：主動作組 */}
       <div className="flex gap-2 md:gap-3">
-        <button 
+        <button
           onClick={() => onExecuteAction(ActionCategory.SLACKING)}
           disabled={player.stats.energy <= 0}
           className={cn(
@@ -48,7 +48,7 @@ const ConsolePanel: React.FC<ConsolePanelProps> = ({
           <Coffee className="w-5 h-5 md:w-6 md:h-6 mb-1 md:mb-1.5 md:group-hover:rotate-12 transition-transform" />
           <span className="text-[10px] md:text-xs font-black uppercase tracking-tighter">摸魚</span>
         </button>
-        <button 
+        <button
           onClick={() => onExecuteAction(ActionCategory.PRANK)}
           disabled={player.stats.energy <= 0}
           className={cn(
@@ -63,7 +63,7 @@ const ConsolePanel: React.FC<ConsolePanelProps> = ({
 
       {/* 中央：雙核心對稱數值表 */}
       <div className="flex-1 flex max-w-2xl items-center justify-center gap-2 md:gap-16">
-        
+
         {/* 能量槽 */}
         <div className="flex flex-col gap-1 md:gap-2 w-full max-w-[224px]">
           <div className="flex justify-between items-end">
@@ -81,7 +81,7 @@ const ConsolePanel: React.FC<ConsolePanelProps> = ({
         </div>
 
         {/* 中央閃避按鈕 */}
-        <button 
+        <button
           onClick={() => onExecuteAction(ActionCategory.EVADE)}
           disabled={player.stats.energy <= 0}
           className={cn(
@@ -112,12 +112,12 @@ const ConsolePanel: React.FC<ConsolePanelProps> = ({
 
       {/* 右側：交互與終止 */}
       <div className="flex items-center gap-2 md:gap-5">
-        <button 
+        <button
            onClick={() => nearbyObject ? onExecuteAction(ActionCategory.INTERACT) : null}
            className={cn(
              "h-14 md:h-20 w-14 md:w-auto px-0 md:px-8 rounded-2xl md:rounded-3xl flex items-center justify-center gap-0 md:gap-4 transition-all group shrink-0",
-             nearbyObject 
-               ? "bg-orange-500 hover:bg-orange-400 text-white shadow-xl shadow-orange-500/30 active:scale-95" 
+             nearbyObject
+               ? "bg-orange-500 hover:bg-orange-400 text-white shadow-xl shadow-orange-500/30 active:scale-95"
                : "bg-slate-800/50 text-slate-500/50 cursor-not-allowed border border-dashed border-slate-700/50"
            )}
         >
@@ -130,13 +130,13 @@ const ConsolePanel: React.FC<ConsolePanelProps> = ({
 
         <div className="h-14 w-px bg-white/10 hidden md:block" />
 
-        <button 
+        <button
           onClick={onClockOut}
           disabled={!canClockOut}
           className={cn(
             "group h-14 md:h-20 w-14 md:w-28 flex flex-col items-center justify-center gap-1 md:gap-1.5 transition-all px-1 md:px-2 shrink-0 rounded-2xl md:rounded-3xl",
-            canClockOut 
-              ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/40 animate-pulse hover:bg-emerald-400 hover:scale-105 active:scale-95" 
+            canClockOut
+              ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/40 animate-pulse hover:bg-emerald-400 hover:scale-105 active:scale-95"
               : "text-slate-500 bg-slate-800 opacity-40 cursor-not-allowed"
           )}
         >

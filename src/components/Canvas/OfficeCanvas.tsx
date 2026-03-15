@@ -133,12 +133,12 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
                       const lineHeight = 20;
                       const lineCount = Math.ceil(bossText.length / 12);
                       const bubbleHeight = Math.max(32, lineCount * lineHeight + 16);
-                      const bubbleFill = gameState.bossChatMessage ? "rgba(255, 255, 255, 0.95)" : "rgba(255,255,255,0.9)";
-                      const bubbleStroke = gameState.bossChatMessage ? "#dc2626" : "#f87171";
                       const textColor = gameState.bossChatMessage ? "#7f1d1d" : "#991b1b";
+                      const bubbleFill = "#ffffff";
+                      const bubbleStroke = gameState.bossChatMessage ? "#dc2626" : "#f87171";
                       return (
                         <Group y={-80}>
-                          <Rect width={bubbleWidth} height={bubbleHeight} fill={bubbleFill} x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={12} stroke={bubbleStroke} strokeWidth={2} shadowBlur={10} shadowColor="rgba(0,0,0,0.1)" />
+                          <Rect width={bubbleWidth} height={bubbleHeight} fill={bubbleFill} x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={12} stroke={bubbleStroke} strokeWidth={3} shadowBlur={12} shadowColor="rgba(0,0,0,0.2)" />
                           <Text text={bossText} fontSize={CANVAS_CONFIG.TEXT_SIZE.NPC.NAME_LABEL} fill={textColor} fontStyle="bold" width={bubbleWidth - 10} align="center" x={-(bubbleWidth - 10) / 2} y={-bubbleHeight + (lineCount > 1 ? 10 : 9)} wrap="char" />
                           <Rect width={2} height={20} fill={bubbleStroke} x={-1} y={0} />
                           <Rect width={8} height={8} fill={bubbleFill} x={-4} y={20} rotation={45} stroke={bubbleStroke} strokeWidth={2} />
@@ -167,7 +167,7 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
                       const bubbleHeight = Math.max(32, lineCount * lineHeight + padding);
                       return (
                         <Group y={-65}>
-                          <Rect width={bubbleWidth} height={bubbleHeight} fill={bubbleFill} x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={12} stroke={bubbleStroke} strokeWidth={2} shadowBlur={5} shadowColor="rgba(0, 0, 0, 0.05)" />
+                          <Rect width={bubbleWidth} height={bubbleHeight} fill="#ffffff" x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={12} stroke={bubbleStroke} strokeWidth={3} shadowBlur={8} shadowColor="rgba(0, 0, 0, 0.15)" />
                           <Text text={p.chatMessage!} fontSize={CANVAS_CONFIG.TEXT_SIZE.NPC.NAME_LABEL} fill={p.gender === 'FEMALE' ? "#701a75" : "#1d4ed8"} fontStyle="bold" width={bubbleWidth - 10} align="center" x={-(bubbleWidth - 10) / 2} y={-bubbleHeight + (lineCount > 1 ? 10 : 9)} wrap="char" />
                           <Rect width={2} height={20} fill={bubbleStroke} x={-1} y={0} />
                           <Rect width={8} height={8} fill={bubbleFill} x={-4} y={20} rotation={45} stroke={bubbleStroke} strokeWidth={2} />
@@ -180,7 +180,7 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
                       const bubbleHeight = 30;
                       return (
                         <Group y={-65}>
-                          <Rect width={bubbleWidth} height={bubbleHeight} fill="rgba(255,255,255,0.85)" x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={9} stroke={bubbleStroke} strokeWidth={2} shadowBlur={5} shadowColor="rgba(0,0,0,0.05)" />
+                          <Rect width={bubbleWidth} height={bubbleHeight} fill="#ffffff" x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={9} stroke={bubbleStroke} strokeWidth={3} shadowBlur={8} shadowColor="rgba(0,0,0,0.15)" />
                           <Text text={targetText} fontSize={CANVAS_CONFIG.TEXT_SIZE.NPC.NAME_LABEL} fill={p.gender === 'FEMALE' ? "#701a75" : "#4338ca"} fontStyle="bold" width={bubbleWidth - 10} align="center" x={-(bubbleWidth - 10) / 2} y={-bubbleHeight + 12} wrap="char" />
                           <Rect width={2} height={20} fill={bubbleStroke} x={-1} y={0} />
                           <Rect width={8} height={8} fill="rgba(255,255,255,0.85)" x={-4} y={20} rotation={45} stroke={bubbleStroke} strokeWidth={2} />
@@ -193,7 +193,7 @@ const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
                       const bubbleHeight = 30;
                       return (
                         <Group y={-65}>
-                          <Rect width={bubbleWidth} height={bubbleHeight} fill="rgba(236, 253, 245, 0.95)" x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={9} stroke="#22c55e" strokeWidth={2} shadowBlur={5} shadowColor="rgba(34, 197, 94, 0.2)" />
+                          <Rect width={bubbleWidth} height={bubbleHeight} fill="#ffffff" x={-bubbleWidth / 2} y={-bubbleHeight} cornerRadius={9} stroke="#22c55e" strokeWidth={3} shadowBlur={8} shadowColor="rgba(34, 197, 94, 0.2)" />
                           <Text text={wateringText} fontSize={CANVAS_CONFIG.TEXT_SIZE.NPC.NAME_LABEL} fill="#15803d" fontStyle="bold" width={bubbleWidth - 10} align="center" x={-(bubbleWidth - 10) / 2} y={-bubbleHeight + 12} wrap="char" />
                           <Rect width={2} height={20} fill="#22c55e" x={-1} y={0} />
                           <Rect width={8} height={8} fill="rgba(236, 253, 245, 0.95)" x={-4} y={20} rotation={45} stroke="#22c55e" strokeWidth={2} />
