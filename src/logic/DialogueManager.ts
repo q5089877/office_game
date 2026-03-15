@@ -7,10 +7,19 @@ export class DialogueManager {
    * 使用 any 接收 npc 以切斷與 GameClasses 的循環引用
    */
   public static getRandomQuote(npc: any, currentEvent: DailyModifier): string {
+    // 0. 狀態優先判定
+    if (npc.currentStatus && npc.currentStatus !== "NORMAL") {
+      const statusPool = (DIALOGUE_POOL as any)[npc.currentStatus];
+      if (statusPool && Array.isArray(statusPool) && Math.random() < 0.7) {
+        return this.pickRandom(statusPool);
+      }
+    }
+
     // 1. 特殊事件優先判定
     if (currentEvent.id === 'coffee_broken' && Math.random() < 0.4) {
       return DIALOGUE_POOL.EVENT_COFFEE;
     }
+// ... existing code
     if (currentEvent.id === 'friday' && Math.random() < 0.4) {
       return DIALOGUE_POOL.EVENT_FRIDAY;
     }

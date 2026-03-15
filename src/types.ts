@@ -57,6 +57,7 @@ export interface Player {
   gridX: number;
   gridY: number;
   ownedItemIds: string[];
+  currentStatus: DailyStatus; // 新增：每日狀態
 }
 
 export enum ActionCategory {
@@ -64,6 +65,20 @@ export enum ActionCategory {
   PRANK = "搞事",
   EVADE = "閃避",
   INTERACT = "互動",
+}
+
+export enum DailyStatus {
+  NORMAL = "NORMAL",
+  COFFEE_OVERLOAD = "COFFEE_OVERLOAD", // 咖啡過載: 速度快但易碎
+  DEADLINE_HELL = "DEADLINE_HELL",     // 趕工地獄: 攻擊性強
+  ZEN_MODE = "ZEN_MODE",              // 薪水禪定: 減壓光環
+  SOUL_ABSENT = "SOUL_ABSENT",        // 靈魂出竅: 行動遲緩
+}
+
+export enum RookieSkill {
+  SYMPATHY = "共情安撫",
+  COFFEE_GIFT = "咖啡社交",
+  REDIRECTION = "壓力轉向",
 }
 
 export interface DailyModifier {
@@ -100,4 +115,5 @@ export interface GameState {
   notifications: string[]; // 新增：即時提示列表
   currentEvent: DailyModifier;
   coffeePrice?: number; // 新增：動態咖啡價格
+  floatyTexts: { id: string; x: number; y: number; text: string; color: string; startTime: number }[]; // 新增：浮動文字
 }

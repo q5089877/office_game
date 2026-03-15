@@ -1,4 +1,4 @@
-import { PlayerRole, ActionEvent, ActionCategory, DailyModifier, Gender, ShopItem, ItemType } from "./types";
+import { PlayerRole, ActionEvent, ActionCategory, DailyModifier, Gender, ShopItem, ItemType, DailyStatus } from "./types";
 
 export const OFFICE_LAYOUT = {
   width: 1700,
@@ -92,7 +92,13 @@ export const EVENT_POOL: ActionEvent[] = [
   // 負面 (閃避翻車)
   { id: "e7", name: "閃現撞牆", description: "頭超痛！壓力+30", category: ActionCategory.EVADE, energyCost: 35, stressChange: 30 },
   { id: "e8", name: "衝進老闆懷裡", description: "位移到老闆旁邊！危險度爆表", category: ActionCategory.EVADE, energyCost: 35, stressChange: 40 },
-  { id: "e9", name: "假請客被識破", description: "大家發現是用公費買的。壓力+35", category: ActionCategory.EVADE, energyCost: 35, stressChange: 35 }
+  { id: "e9", name: "假請客被識破", description: "大家發現是用公費買的。壓力+35", category: ActionCategory.EVADE, energyCost: 35, stressChange: 35 },
+
+  // ================= 辦公室迷因類 (MEME / SOCIAL) =================
+  { id: "m1", name: "Slack 炸掉", description: "全世界都斷網了！壓力-5，混亂+30", category: ActionCategory.SLACKING, energyCost: 10, stressChange: -5, chaosGain: 30, xpGain: 20 },
+  { id: "m2", name: "零食補貨", description: "搶到最後一包驚喜包！精力+15", category: ActionCategory.INTERACT, energyCost: 5, stressChange: -2, xpGain: 10 },
+  { id: "m3", name: "交換八卦", description: "「聽說那個誰要離職了...」混亂+25, XP+35", category: ActionCategory.PRANK, energyCost: 20, stressChange: -5, chaosGain: 25, xpGain: 35 },
+  { id: "m4", name: "被迫社交", description: "在電梯遇到主管。壓力+20", category: ActionCategory.EVADE, energyCost: 15, stressChange: 20 },
 ];
 
 export const SHOP_ITEMS: ShopItem[] = [
@@ -200,7 +206,34 @@ export const DIALOGUE_POOL = {
   EVENT_FRIDAY: "這週五會下雨嗎？我想去露營...",
   EVENT_DEADLINE: "老闆剛才是不是在看我？(裝忙中)",
 
+  // 狀態專屬語錄
+  COFFEE_OVERLOAD: [
+    "我的心跳比鍵盤敲擊聲還快！",
+    "誰有咖啡？我還能再喝一杯！",
+    "我覺得我現在可以同時跑十個專案！",
+    "速度！我需要更快的速度！",
+  ],
+  DEADLINE_HELL: [
+    "別跟我說話，除非你想幫我寫這份報告。",
+    "這個 Bug 為什麼修不好！(崩潰中)",
+    "誰把這個案子丟給我的？出來面對！",
+    "我現在的壓力大到可以把碳變成鑽石。",
+  ],
+  ZEN_MODE: [
+    "放輕鬆，這一切都是過眼雲煙。",
+    "薪水到位，萬事無憂。",
+    "我在辦公室，但我的心在喜馬拉雅山。",
+    "世界如此美好，我卻要在這裡修 Excel... 沒關係，我原諒世界。",
+  ],
+  SOUL_ABSENT: [
+    "什麼？你剛剛有跟我說話嗎？",
+    "（眼神呆滯地盯著螢幕...）",
+    "我是誰？我在哪？現在是幾點？",
+    "靈魂已先行下班，請於明日九點後再撥。",
+  ],
+
   // 攻擊對話（8個）
+// ... existing code
   ATTACK: [
     "菜鳥，這份報告你來做！明天早上我要看到結果。",
     "新人就是要多學點，這個急件交給你處理。",
@@ -312,9 +345,17 @@ export const NPC_QUOTES = [
   "其實我的專長不是寫程式，是精準計算還有幾秒鐘可以打卡。"
 ];
 
+export const DAILY_STATUS_NAMES: Record<DailyStatus, string> = {
+  [DailyStatus.NORMAL]: "正常",
+  [DailyStatus.COFFEE_OVERLOAD]: "咖啡過載",
+  [DailyStatus.DEADLINE_HELL]: "趕工地獄",
+  [DailyStatus.ZEN_MODE]: "薪水禪定",
+  [DailyStatus.SOUL_ABSENT]: "靈魂出竅",
+};
+
 export const DAILY_EVENTS: DailyModifier[] = [
   { id: "normal", name: "平常的一天", description: "沒什麼特別的事發生。", stressMult: 1, energyCostMod: 0, bossSpeedMult: 1 },
-  { id: "friday", name: "快樂週五", description: "大家心情都很好。壓力增長-50%", stressMult: 0.5, energyCostMod: 0, bossSpeedMult: 0.8 },
+  { id: "e3", name: "免費零食", description: "茶水間出現不知名零食！混亂+10", stressMult: 1.0, energyCostMod: -2, bossSpeedMult: 1.1 },
   { id: "deadline", name: "地獄趕工日", description: "壓力山大！壓力增長+50%，老闆巡邏變快。", stressMult: 1.5, energyCostMod: 0, bossSpeedMult: 1.3 },
   { id: "coffee_broken", name: "咖啡機故障", description: "噩耗！所有卡片精力消耗 +2。", stressMult: 1.1, energyCostMod: 2, bossSpeedMult: 1 },
   { id: "boss_meeting", name: "老闆開會中", description: "老闆今天很忙。老闆巡邏變慢。", stressMult: 1, energyCostMod: 0, bossSpeedMult: 0.5 },

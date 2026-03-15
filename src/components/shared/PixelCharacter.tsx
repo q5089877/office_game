@@ -15,6 +15,8 @@ interface PixelCharacterProps {
   id: string;
   gender?: string;
   isDanger?: boolean; // 新增：是否處於危險/暴露狀態
+  currentStatus?: string;
+  opacity?: number;
 }
 
 const PixelCharacter: React.FC<PixelCharacterProps> = ({
@@ -24,7 +26,9 @@ const PixelCharacter: React.FC<PixelCharacterProps> = ({
   bobOffset,
   id,
   gender,
-  isDanger
+  isDanger,
+  currentStatus,
+  opacity = 1
 }) => {
   const isPlayer = id === 'player';
   const isBoss = id === 'boss';
@@ -55,7 +59,7 @@ const PixelCharacter: React.FC<PixelCharacterProps> = ({
   const statusColor = isDanger ? "#ef4444" : (isBoss ? "#ef4444" : (isPlayer ? "#f97316" : "#22c55e"));
 
   return (
-    <Group y={bobOffset} scaleX={charScale} scaleY={charScale}>
+    <Group y={bobOffset} scaleX={charScale} scaleY={charScale} opacity={opacity}>
       {/* 角色底座 (Aura) - 1.2倍大小 + 統一光影方向 */}
       <Circle radius={24} fill={auraColor} scaleY={0.5} y={3} />
       <Circle radius={15} fill="rgba(0,0,0,0.15)" scaleY={0.5} y={8} x={4} />

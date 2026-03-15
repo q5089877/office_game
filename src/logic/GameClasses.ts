@@ -1,6 +1,6 @@
 import { DialogueManager } from "./DialogueManager";
-import { DailyModifier, Gender, EntityType } from "../types";
-import { DAILY_EVENTS, OFFICE_LAYOUT, ABSENCE_REASONS } from "../constants";
+import { DailyModifier, Gender, EntityType, DailyStatus } from "../types";
+import { DAILY_EVENTS, OFFICE_LAYOUT, ABSENCE_REASONS, DAILY_STATUS_NAMES } from "../constants";
 
 /**
  * 搞笑版辦公室生存 - 核心邏輯簡化版 (精力與壓力系統)
@@ -46,6 +46,7 @@ export class Character extends BaseEntity {
   public chatMessage: string | null = null;
   public chatTimer: number = 0;
   public ownedItemIds: string[] = [];
+  public currentStatus: DailyStatus = DailyStatus.NORMAL; // 新增：每日狀態
 
   // 攻擊系統屬性
   public lastAttackTime: number = 0;
@@ -58,19 +59,32 @@ export class Character extends BaseEntity {
   public idleTimer: number = 0;
   public behaviorState: 'IDLE' | 'WORKING' | 'WANDERING' | 'VISITING_OBJECT' = 'WORKING';
 
-  constructor(id: string, name: string, type: EntityType, stats?: Stats, x: number = 0, y: number = 0, gender: Gender = Gender.MALE) {
+  constructor(id: string, name: string, type: EntityType, stats?: Stats, x: number = 0, y: number = 0, gender: Gender = Gender.MALE, status: DailyStatus = DailyStatus.NORMAL) {
     super(id, name, type, gender);
     this.stats = stats || new Stats();
     this.gridX = x; this.gridY = y;
     this.displayX = x; this.displayY = y;
     this.homeX = x; this.homeY = y;
     this.targetX = x; this.targetY = y;
+    this.currentStatus = status;
   }
 
   tick(deltaTime: number) {
-    if (this.chatTimer > 0) {
-      this.chatTimer -= deltaTime;
-      if (this.chatTimer <= 0) this.chatMessage = null;
+    // 狀態相關數值調整
+    let moveSpeed = 0.09;
+    let attackFreqBonus = 1;
+
+    switch (this.currentStatus) {
+      case DailyStatus.COFFEE_OVERLOAD:
+        moveSpeed = 0.15;
+        this.bobOffset += Math.sin(Date.now() * 0.05) * 2; // 微幅抖動
+        break;
+      case DailyStatus.DEADLINE_HELL:
+        attackFreqBonus = 3; // 攻擊更頻繁
+        break;
+      case DailyStatus.SOUL_ABSENT:
+        moveSpeed = 0.04;
+        break;
     }
 
     if (this.idleTimer > 0) {
@@ -78,10 +92,7 @@ export class Character extends BaseEntity {
       if (this.idleTimer <= 0) {
           this.decideNextMove();
       }
-      // 即使在發呆，也要更新 display 座標確保動畫平滑
     } else {
-        const moveSpeed = 0.1;
-
         // 如果有目標位置，則穩定朝目標移動
         if (this.targetX !== null && this.targetY !== null) {
           const dx = this.targetX - this.gridX;
@@ -89,9 +100,8 @@ export class Character extends BaseEntity {
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist > 0.04) {
-            // 每步移動一小格 (從 0.2 降至 0.04，變慢更優雅)
-            this.gridX += (dx / dist) * 0.02;
-            this.gridY += (dy / dist) * 0.02;
+            this.gridX += (dx / dist) * (moveSpeed * 0.2);
+            this.gridY += (dy / dist) * (moveSpeed * 0.2);
           } else {
             this.gridX = this.targetX;
             this.gridY = this.targetY;
@@ -104,7 +114,6 @@ export class Character extends BaseEntity {
 
     const dDisplayX = this.gridX - this.displayX;
     const dDisplayY = this.gridY - this.displayY;
-    const moveSpeed = 0.09; // 從 0.1 降至 0.09，讓視覺追隨更柔和
 
     if (Math.abs(dDisplayX) > 0.01 || Math.abs(dDisplayY) > 0.01) {
       this.displayX += dDisplayX * moveSpeed;
@@ -179,7 +188,7 @@ export class Character extends BaseEntity {
   }
 
   clone(): Character {
-    const c = new Character(this.id, this.name, this.type, this.stats.clone(), this.gridX, this.gridY, this.gender);
+    const c = new Character(this.id, this.name, this.type, this.stats.clone(), this.gridX, this.gridY, this.gender, this.currentStatus);
     c.displayX = this.displayX; c.displayY = this.displayY;
     c.homeX = this.homeX; c.homeY = this.homeY;
     c.xp = this.xp; c.level = this.level;
@@ -280,6 +289,8 @@ export class GameManager {
   public notifications: string[] = [];
   public handIds: string[] = [];
   public stressAccumulator: number = 0;
+  public floatyTexts: { id: string; x: number; y: number; text: string; color: string; startTime: number }[] = [];
+  public lastEventTime: number = Date.now(); // 新增：事件計時器
 
   constructor(player?: Character, colleagues?: Character[], boss?: Boss, plant?: Plant, day?: number, chaosLevel?: number, fullColleaguePool?: Character[]) {
     this.player = player || new Character('player', '你', EntityType.PLAYER);
@@ -297,7 +308,21 @@ export class GameManager {
     if (this.notifications.length > 20) this.notifications.pop();
   }
 
+  addFloatyText(text: string, x: number, y: number, color: string = "#ef4444") {
+    const id = Math.random().toString(36).substr(2, 9);
+    this.floatyTexts.push({ id, x, y, text, color, startTime: Date.now() });
+  }
+
   tick() {
+    // 1. 清理過期的浮動文字 (0.8s)
+    const currentTime = Date.now();
+    this.floatyTexts = this.floatyTexts.filter(ft => currentTime - ft.startTime < 800);
+
+    // 5. 事件自動推進 (每分鐘檢查一次)
+    if (currentTime - this.lastEventTime > 60000) {
+      this.refreshDailyEvent();
+    }
+
     this.player.tick(16);
     this.colleagues.forEach(c => c.tick(16));
     this.boss.tick(this.day, this.currentEvent.bossSpeedMult);
@@ -369,6 +394,16 @@ export class GameManager {
         }
       });
     }
+
+    // NPC 狀態特殊效果 (ZEN_MODE 光環)
+    this.colleagues.forEach(c => {
+      if (c.currentStatus === DailyStatus.ZEN_MODE) {
+        const dist = Math.abs(c.gridX - this.player.gridX) + Math.abs(c.gridY - this.player.gridY);
+        if (dist <= 1.5) {
+          this.player.stats.modifyStress(-0.03); // 靠近禪定同事可減壓
+        }
+      }
+    });
 
     // 壓力警告
     if (this.player.stats.stress >= 100 && Math.random() < 0.05) {
@@ -522,7 +557,19 @@ export class GameManager {
     const shuffled = [...this.fullColleaguePool].sort(() => Math.random() - 0.5);
 
     // 設定今日出勤者
-    this.colleagues = shuffled.slice(0, activeCount).map(c => c.clone());
+    this.colleagues = shuffled.slice(0, activeCount).map(c => {
+      const clone = c.clone();
+      // 隨機抽選今日狀態 (80% 機率 NORMAL, 20% 機率特殊狀態)
+      const statuses = [DailyStatus.NORMAL, DailyStatus.COFFEE_OVERLOAD, DailyStatus.DEADLINE_HELL, DailyStatus.ZEN_MODE, DailyStatus.SOUL_ABSENT];
+      if (Math.random() < 0.25) {
+        clone.currentStatus = statuses[Math.floor(Math.random() * (statuses.length - 1)) + 1];
+        const statusName = (DAILY_STATUS_NAMES as any)[clone.currentStatus] || clone.currentStatus;
+        this.addNotification(`🎭 ${clone.name} 今天的狀態看起來是 [${statusName}]`);
+      } else {
+        clone.currentStatus = DailyStatus.NORMAL;
+      }
+      return clone;
+    });
 
     // 隨機選擇 2 位缺席者記錄原因 (保持日誌清爽)
     const absentColleagues = shuffled.slice(activeCount);
@@ -533,6 +580,13 @@ export class GameManager {
         this.addNotification(`📍 ${npc.name} ${reason}`);
       });
     }
+  }
+
+  // 隨機重整每日事件
+  public refreshDailyEvent() {
+    this.currentEvent = DAILY_EVENTS[Math.floor(Math.random() * DAILY_EVENTS.length)];
+    this.lastEventTime = Date.now();
+    this.addNotification(`📢 辦公室狀況更新：${this.currentEvent.name}`);
   }
 
   clone(): GameManager {
@@ -553,6 +607,8 @@ export class GameManager {
     cloned.plant.boostTimer = this.plant.boostTimer;
     cloned.stressAccumulator = this.stressAccumulator;
     cloned.handIds = [...this.handIds];
+    cloned.floatyTexts = [...this.floatyTexts];
+    cloned.lastEventTime = this.lastEventTime;
     return cloned;
   }
 }

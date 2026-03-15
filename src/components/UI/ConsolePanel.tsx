@@ -86,7 +86,7 @@ const ConsolePanel: React.FC<ConsolePanelProps> = ({
           disabled={player.stats.energy <= 0}
           className={cn(
             "flex shrink-0 flex-col items-center justify-center w-12 h-12 md:w-20 md:h-20 rounded-full border transition-all group",
-            player.stats.energy > 0 ? "bg-white/5 border-white/10 hover:bg-white/10 hover:border-indigo-500/50" : "bg-black/20 border-white/5 text-slate-600 opacity-50 cursor-not-allowed"
+            player.stats.energy > 0 ? "bg-indigo-500/30 border-indigo-500/40 hover:bg-indigo-500/40 hover:border-indigo-500/60" : "bg-black/20 border-white/5 text-slate-600 opacity-50 cursor-not-allowed"
           )}
         >
             <ArrowRight className="w-4 h-4 md:w-7 md:h-7 text-indigo-400 md:group-hover:scale-110 transition-transform" />

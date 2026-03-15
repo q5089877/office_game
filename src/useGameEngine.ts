@@ -180,6 +180,23 @@ export const useGameEngine = () => {
       
       next.addNotification(`💬 ${eventMsg} (${category} | 精力 -${actualCost})`);
 
+      // 觸發浮動文字 (XP 與 壓力)
+      next.addFloatyText(
+        `${eventTemplate.stressChange >= 0 ? '+' : ''}${eventTemplate.stressChange} Stress`,
+        p.gridX,
+        p.gridY - 0.5,
+        eventTemplate.stressChange > 0 ? "#ef4444" : "#10b981"
+      );
+
+      if (eventTemplate.xpGain) {
+        next.addFloatyText(
+          `+${eventTemplate.xpGain} XP`,
+          p.gridX + 0.3,
+          p.gridY - 0.8,
+          "#3b82f6"
+        );
+      }
+
       if (p.xp >= 100) {
           p.xp = 0; p.level += 1; p.stats.maxEnergy += 10; p.stats.energy = p.stats.maxEnergy;
           next.addNotification(`🎉 升職！現在是 LV.${p.level}！`);
@@ -235,8 +252,42 @@ export const useGameEngine = () => {
 
       if (item.type === ItemType.CONSUMABLE) {
           if (itemId === 'specialty_coffee') {
-            next.player.stats.modifyEnergy(30);
-            next.player.stats.modifyStress(-40);
+            // 扣除精力與更新壓力
+            // Note: The original instruction's snippet used `event` and `manager` directly.
+            // Adjusted to use `next` and hardcoded values for specialty coffee effects.
+            const energyChange = 30;
+            const stressChange = -40;
+            const xpGain = 0; // Specialty coffee doesn't grant XP directly in this context
+
+            next.player.stats.modifyEnergy(energyChange);
+            next.player.stats.modifyStress(stressChange);
+            // next.chaosLevel += event.chaosGain || 0; // No chaos gain for coffee purchase
+            // next.player.xp += event.xpGain || 0; // No XP gain for coffee purchase
+
+            // 觸發浮動文字
+            next.addFloatyText(
+              `${stressChange >= 0 ? '+' : ''}${stressChange} Stress`,
+              next.player.gridX,
+              next.player.gridY - 0.5,
+              stressChange > 0 ? "#ef4444" : "#10b981"
+            );
+            next.addFloatyText(
+              `${energyChange >= 0 ? '+' : ''}${energyChange} Energy`,
+              next.player.gridX,
+              next.player.gridY - 0.2,
+              energyChange > 0 ? "#10b981" : "#ef4444"
+            );
+
+            if (xpGain) {
+              setTimeout(() => {
+                next.addFloatyText(
+                  `+${xpGain} XP`,
+                  next.player.gridX + 0.3,
+                  next.player.gridY - 0.8,
+                  "#3b82f6"
+                );
+              }, 150);
+            }
             setCoffeeInflation(c => c + 300); // 每次購買漲 300
             next.addNotification(`☕ 喝下特調咖啡！壓力大減，且咖啡變得更貴了...`);
           } else if (itemId === 'boss_tea') {
@@ -269,7 +320,8 @@ export const useGameEngine = () => {
       },
       gender: c.gender, gridX: c.gridX, gridY: c.gridY, chatMessage: c.chatMessage,
       position: PositionService.getNPCDisplayPosition(c.displayX, c.displayY),
-      ownedItemIds: c.ownedItemIds
+      ownedItemIds: c.ownedItemIds,
+      currentStatus: c.currentStatus
     })),
     day: manager.day,
     performance: manager.performance,
@@ -278,6 +330,7 @@ export const useGameEngine = () => {
     lastEvent: manager.lastEvent,
     notifications: manager.notifications,
     currentEvent: manager.currentEvent,
+    floatyTexts: manager.floatyTexts,
     bossPosition: PositionService.getNPCDisplayPosition(manager.boss.displayX, manager.boss.displayY),
     bossChatMessage: manager.boss.chatMessage,
     coffeePrice: (SHOP_ITEMS.find(i => i.id === 'specialty_coffee')?.price || 1500) + coffeeInflation,

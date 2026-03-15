@@ -156,8 +156,8 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        {/* 畫布容器：手機版微調位置，避免被底部 HUD 擋住 */}
-        <div className={`w-full h-full flex items-center justify-center ${isMobile ? 'pb-24' : ''}`}>
+        {/* 畫布容器：移除底部填塞，讓地圖能延伸到控制台後方 */}
+        <div className={`w-full h-full flex items-center justify-center`}>
           <OfficeCanvas
             gameState={gameState}
             scale={scale}
@@ -173,18 +173,18 @@ export default function App() {
       </div>
 
       {/* Layer 1: U-Shape HUD / Mobile Layout */}
-      <div className="absolute inset-0 pointer-events-none z-20 flex flex-col justify-between">
+      <div className="absolute inset-0 pointer-events-none z-20 flex flex-col h-full">
         
         {/* Top: The Wings (Desktop Only) / Floating status (Mobile) */}
-        <div className={`flex ${isMobile ? 'flex-col justify-start' : 'justify-between items-start'} p-2 md:p-6 h-full overflow-hidden`}>
+        <div className={`flex ${isMobile ? 'flex-col justify-start' : 'justify-between items-stretch'} p-2 md:p-6 flex-1 overflow-hidden`}>
           
           {/* Left Wing / Top Status */}
-          <div className={`pointer-events-auto flex flex-col gap-2 md:gap-4 ${isMobile ? 'w-full h-24 mb-2' : 'h-[calc(100%-240px)] w-72 md:w-80'}`}>
+          <div className={`pointer-events-auto flex flex-col gap-2 md:gap-4 ${isMobile ? 'w-full h-24 mb-2' : 'w-72 md:w-80'}`}>
             <LogWindow notifications={gameState.notifications} />
           </div>
 
           {/* Right Wing: Status & Shop */}
-          <div className={`pointer-events-auto flex flex-col gap-4 ${isMobile ? 'w-full px-2' : 'h-[calc(100%-240px)]'}`}>
+          <div className={`pointer-events-auto flex flex-col gap-4 ${isMobile ? 'w-full px-2' : 'w-72 md:w-80'}`}>
             <Sidebar
               gameState={gameState}
               player={playerState as any}

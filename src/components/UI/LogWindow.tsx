@@ -14,7 +14,7 @@ export default function LogWindow({ notifications }: LogWindowProps) {
   if (notifications.length === 0) return null;
 
   return (
-    <div className="bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col w-full max-h-[400px]">
+    <div className="bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col w-full h-full">
       <div className="bg-white/5 px-5 py-3 border-b border-white/10 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2.5">
           <Terminal className="w-4 h-4 text-indigo-400" />
